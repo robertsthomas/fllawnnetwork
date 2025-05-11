@@ -1,0 +1,307 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { providers, reviews } from '../../data/providers.js';
+
+export function getStaticPaths() {
+  return providers.map(provider => ({
+    params: { slug: provider.title.toLowerCase().replace(/\s+/g, '-') },
+    props: { provider },
+  }));
+}
+
+const { provider } = Astro.props;
+// const providerReviews = reviews.filter(review => review.providerId === provider.id);
+---
+
+<Layout
+  title={`${provider.title} - Lawn Care Provider | Florida Lawn Network`}
+  description={`${provider.description}`}
+>
+  <main>
+    <!-- Provider Hero Section -->
+    <div class="relative bg-primary-900">
+      <div class="absolute inset-0 overflow-hidden">
+        <img 
+          src={provider.imageUrl} 
+          alt={provider.title} 
+          class="w-full h-full object-cover opacity-30"
+          fetchpriority="high"
+        />
+      </div>
+      <div class="relative max-w-7xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:px-8">
+        <div class="flex items-center space-x-4">
+          <img 
+            src={provider.imageUrl} 
+            alt={`${provider.title} logo`}
+            class="w-16 h-16 rounded-full border-2 border-white shadow-md object-cover" 
+          />
+          <div>
+            <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              {provider.title}
+            </h1>
+            <div class="mt-2 flex items-center">
+              <div class="flex items-center">
+                {[...Array(5)].map((_, i) => (
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    class={`h-5 w-5 ${i < Math.floor(provider.reviews[0].stars) ? 'text-accent-400' : 'text-gray-300'}`} 
+                    viewBox="0 0 20 20" 
+                    fill="currentColor"
+                  >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p class="ml-2 text-sm text-white">{provider.reviews[0].stars} out of 5 ({provider.reviews.length} reviews)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Action Bar -->
+    <div class="sticky top-16 z-30 bg-white shadow-md border-b">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-3 -mb-px overflow-x-auto hide-scrollbar">
+          <div class="flex space-x-8">
+            <a href="#about" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
+              About
+            </a>
+            <a href="#services" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
+              Services
+            </a>
+            <a href="#reviews" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
+              Reviews
+            </a>
+            <a href="#contact" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">
+              Contact
+            </a>
+          </div>
+          <div>
+            <a 
+              href={`/contact?provider=${provider.title.toLowerCase().replace(' ', '-')}`}
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 transition"
+            >
+              Request a Quote
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+        <!-- Main content -->
+        <div class="lg:col-span-8">
+          <!-- About Section -->
+          <section id="about" class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">About</h2>
+            <p class="text-gray-600 mb-4">
+              {provider.description}
+            </p>
+            
+            <div class="mt-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-3">Gallery</h3>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                <img 
+                  src="https://images.pexels.com/photos/589/garden-grass-lawn-meadow.jpg?auto=compress&cs=tinysrgb&w=400" 
+                  alt="Work sample" 
+                  class="rounded-lg h-32 w-full object-cover"
+                />
+                <img 
+                  src="https://images.pexels.com/photos/8031946/pexels-photo-8031946.jpeg?auto=compress&cs=tinysrgb&w=400" 
+                  alt="Work sample" 
+                  class="rounded-lg h-32 w-full object-cover"
+                />
+                <img 
+                  src="https://images.pexels.com/photos/4592317/pexels-photo-4592317.jpeg?auto=compress&cs=tinysrgb&w=400" 
+                  alt="Work sample" 
+                  class="rounded-lg h-32 w-full object-cover"
+                />
+              </div>
+            </div>
+          </section>
+          
+          <!-- Services Section -->
+          <section id="services" class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Services</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {provider.additionalInfo?.['Service options']?.map(service => (
+                <div class="flex items-start p-4 border border-gray-200 rounded-lg hover:border-primary-200 hover:bg-primary-50 transition-colors">
+                  <div class="flex-shrink-0 h-10 w-10 rounded-md bg-primary-100 flex items-center justify-center text-primary-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  {/* <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">{Object.keys(service)[0]}</h3>
+                    <p class="mt-1 text-sm text-gray-500">Professional {Object.values(service)[0].toLowerCase()} services tailored to your needs.</p>
+                  </div> */}
+                </div>
+              ))}
+            </div>
+          </section>
+          
+          <!-- Reviews Section -->
+          <section id="reviews" class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold text-gray-900">Reviews</h2>
+              <a href="#" class="text-primary-600 hover:text-primary-800 font-medium text-sm transition">Write a Review</a>
+            </div>
+            
+            <!-- {providerReviews.length > 0 ? (
+              <div class="space-y-6">
+                {providerReviews.map(review => (
+                  <div class="border-b border-gray-200 pb-6 last:border-b-0 last:pb-0">
+                    <div class="flex justify-between items-start">
+                      <div>
+                        <div class="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <svg 
+                              xmlns="http://www.w3.org/2000/svg" 
+                              class={`h-5 w-5 ${i < review.rating ? 'text-accent-500' : 'text-gray-300'}`} 
+                              viewBox="0 0 20 20" 
+                              fill="currentColor"
+                            >
+                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                            </svg>
+                          ))}
+                        </div>
+                        <h3 class="mt-1 text-sm font-semibold text-gray-900">{review.user}</h3>
+                      </div>
+                      <p class="text-sm text-gray-500">{new Date(review.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    </div>
+                    <p class="mt-2 text-gray-600">{review.comment}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div class="text-center py-8">
+                <p class="text-gray-500">No reviews yet.</p>
+              </div>
+            )}
+            
+            {providerReviews.length > 3 && (
+              <div class="mt-6 text-center">
+                <button 
+                  type="button" 
+                  class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                >
+                  Load More Reviews
+                </button>
+              </div>
+            )} -->
+          </section>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-4 mt-8 lg:mt-0">
+          <!-- Contact Card -->
+          <div id="contact" class="bg-white rounded-lg shadow-sm p-6 mb-6 sticky top-32">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+            <div class="space-y-3">
+              <div class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                </svg>
+                <div class="ml-3">
+                  <p class="text-sm text-gray-500">Phone</p>
+                  <p class="text-gray-900">{provider.phone}</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+                <div class="ml-3">
+                  <p class="text-sm text-gray-500">Email</p>
+                  <p class="text-gray-900">{provider.emails[0] || 'No email provided'}</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clip-rule="evenodd" />
+                </svg>
+                <div class="ml-3">
+                  <p class="text-sm text-gray-500">Website</p>
+                  <a href={provider.website} target="_blank" rel="noopener noreferrer" class="text-primary-600 hover:text-primary-800 transition">
+                    {provider?.website?.replace(/^https?:\/\//, '')}
+                  </a>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                </svg>
+                <div class="ml-3">
+                  <p class="text-sm text-gray-500">Location</p>
+                  <p class="text-gray-900">{provider.city}, {provider.state} {provider.postalCode}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-6 rounded-lg overflow-hidden h-48 bg-gray-100">
+              <!-- Placeholder for map -->
+              <div class="w-full h-full flex items-center justify-center">
+                <p class="text-gray-400 text-sm">Map view</p>
+              </div>
+            </div>
+            
+            <div class="mt-6">
+              <a 
+                href={`/contact?provider=${provider.title.toLowerCase().replace(/\s+/g, '-')}`}
+                class="w-full flex justify-center items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition"
+              >
+                Contact for Quote
+              </a>
+            </div>
+          </div>
+          
+          <!-- Business Hours -->
+          <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Business Hours</h3>
+            <ul class="space-y-3">
+              {provider.openingHours.map(day => (
+                <li class="flex justify-between">
+                  <span class="text-gray-500">{day.day}</span>
+                  <span class="text-gray-900">{day.hours}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <!-- Pricing -->
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Pricing Information</h3>
+            <div class="space-y-4">
+              <!-- <div>
+                <p class="text-sm text-gray-500">Hourly Rate</p>
+                <p class="text-2xl font-bold text-gray-900">${provider.pricing.hourly}<span class="text-base font-normal text-gray-500">/hour</span></p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">Minimum Fee</p>
+                <p class="text-xl font-semibold text-gray-900">${provider.pricing.minimum}</p>
+              </div> -->
+              <div class="pt-4 border-t border-gray-200">
+                <p class="text-sm text-gray-500">Additional Information</p>
+                <p class="mt-1 text-gray-600">Prices may vary based on project complexity and size. Contact for a custom quote.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+</style>
