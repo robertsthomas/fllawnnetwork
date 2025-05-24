@@ -1,6 +1,6 @@
 # *
-User-agent: *
-Allow: /
+User-Agent: *
+Disallow: /
 
 # Host
 Host: https://lawnfinder.com
