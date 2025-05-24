@@ -38,8 +38,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function ProviderDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
-  searchParams?: { [key: string]: string | string[] | undefined };
+  params: { id: string };
 }) {
   const { id } = await params;
   let provider;
