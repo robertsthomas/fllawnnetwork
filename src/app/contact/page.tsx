@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import MainLayout from '@/components/ui/MainLayout';
 import ContactForm from '@/components/ContactForm';
 
@@ -19,7 +20,9 @@ export default function ContactPage() {
             </p>
           </div>
           <div className="mt-12">
-            <ContactForm />
+            <Suspense fallback={<div>Loading contact form...</div>}>
+              <ContactForm />
+            </Suspense>
           </div>
         </div>
       </div>
