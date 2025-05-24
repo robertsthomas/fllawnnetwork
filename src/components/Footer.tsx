@@ -19,7 +19,7 @@ export default function Footer() {
                 <path d="M15 21v-1"/>
                 <path d="M3 11h18"/>
               </svg>
-              <span className="ml-2 text-xl font-bold text-white">LawnFinder</span>
+              <span className="ml-2 text-xl font-bold text-white">FLLawnNetwork</span>
             </div>
             <p className="text-gray-300 text-base">
               Connecting homeowners with reliable lawn care professionals since 2024.
@@ -167,7 +167,7 @@ export default function Footer() {
         </div>
         <div className="mt-12 border-t border-gray-700 pt-8">
           <p className="text-base text-gray-400 xl:text-center">
-            &copy; {currentYear} LawnFinder. All rights reserved.
+            &copy; {currentYear} FLLawnNetwork. All rights reserved.
           </p>
         </div>
       </div>

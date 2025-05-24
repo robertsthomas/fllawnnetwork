@@ -31,7 +31,7 @@ export default function Header() {
                 <path d="M15 21v-1"/>
                 <path d="M3 11h18"/>
               </svg>
-              <span className="ml-2 text-xl font-bold text-gray-900">LawnFinder</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">FLLawnNetwork</span>
             </Link>
           </div>
           
@@ -91,7 +91,7 @@ export default function Header() {
                       <path d="M15 21v-1"/>
                       <path d="M3 11h18"/>
                     </svg>
-                    <span className="ml-2 text-xl font-bold text-gray-900">LawnFinder</span>
+                    <span className="ml-2 text-xl font-bold text-gray-900">FLLawnNetwork</span>
                   </Link>
                 </div>
                 <div className="-mr-2">

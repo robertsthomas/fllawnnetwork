@@ -18,8 +18,59 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: 'LawnFinder - Find Top-Rated Lawn Care Professionals',
+  title: 'FLLawnNetwork - Find Top-Rated Lawn Care Professionals',
   description: 'Connect with trusted lawn care experts in your area. Compare services, read reviews, and request quotes from professional lawn care providers.',
+  keywords: 'lawn care, lawn maintenance, landscaping, garden services, lawn mowing, professional lawn care, local lawn services',
+  authors: [{ name: 'FLLawnNetwork' }],
+  creator: 'FLLawnNetwork',
+  publisher: 'FLLawnNetwork',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://fllawnnetwork.com'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'FLLawnNetwork - Find Top-Rated Lawn Care Professionals',
+    description: 'Connect with trusted lawn care experts in your area. Compare services, read reviews, and request quotes from professional lawn care providers.',
+    url: 'https://fllawnnetwork.com',
+    siteName: 'FLLawnNetwork',
+    locale: 'en_US',
+    type: 'website',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'FLLawnNetwork - Professional Lawn Care Services',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'FLLawnNetwork - Find Top-Rated Lawn Care Professionals',
+    description: 'Connect with trusted lawn care experts in your area. Compare services, read reviews, and request quotes from professional lawn care providers.',
+    images: ['/twitter-image.jpg'],
+    creator: '@fllawnnetwork',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-site-verification',
+    yandex: 'your-yandex-verification',
+  },
 }
 
 export default function RootLayout({

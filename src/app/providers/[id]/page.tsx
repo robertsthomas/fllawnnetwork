@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     const provider = await getProviderById(id);
     
     return {
-      title: `${provider.title} - Professional Lawn Care Services | LawnFinder`,
+      title: `${provider.title} - Professional Lawn Care Services | FLLawnNetwork`,
       description: provider.description?.substring(0, 160) || 'View details and contact information for this lawn care provider.',
     };
   } catch (error) {
