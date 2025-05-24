@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { Suspense } from 'react';
 import DirectoryContent from '@/components/DirectoryContent';
 import MainLayout from '@/components/ui/MainLayout';
 import { getProviders } from '@/lib/strapi';
@@ -14,7 +15,9 @@ export default async function DirectoryPage() {
   
   return (
     <MainLayout>
-      <DirectoryContent initialProviders={providers} />
+      <Suspense fallback={<div>Loading directory...</div>}>
+        <DirectoryContent initialProviders={providers} />
+      </Suspense>
     </MainLayout>
   );
 } 
