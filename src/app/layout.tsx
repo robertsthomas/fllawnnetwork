@@ -18,9 +18,9 @@ const montserrat = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: 'FLLawnNetwork - Find Top-Rated Lawn Care Professionals',
-  description: 'Connect with trusted lawn care experts in your area. Compare services, read reviews, and request quotes from professional lawn care providers.',
-  keywords: 'lawn care, lawn maintenance, landscaping, garden services, lawn mowing, professional lawn care, local lawn services',
+  title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
+  description: 'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes for lawn mowing, landscaping, and garden services.',
+  keywords: 'lawn care services, lawn maintenance, landscaping services, garden services, lawn mowing, professional lawn care, local lawn services, lawn care near me, landscaping near me, garden maintenance, lawn service providers, lawn care professionals, residential lawn care, commercial lawn care, lawn care company, lawn service company',
   authors: [{ name: 'FLLawnNetwork' }],
   creator: 'FLLawnNetwork',
   publisher: 'FLLawnNetwork',
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'FLLawnNetwork - Find Top-Rated Lawn Care Professionals',
-    description: 'Connect with trusted lawn care experts in your area. Compare services, read reviews, and request quotes from professional lawn care providers.',
+    title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
+    description: 'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes for lawn mowing, landscaping, and garden services.',
     url: 'https://fllawnnetwork.com',
     siteName: 'FLLawnNetwork',
     locale: 'en_US',
@@ -45,14 +45,14 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'FLLawnNetwork - Professional Lawn Care Services',
+        alt: 'Professional Lawn Care Services and Landscaping Experts',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FLLawnNetwork - Find Top-Rated Lawn Care Professionals',
-    description: 'Connect with trusted lawn care experts in your area. Compare services, read reviews, and request quotes from professional lawn care providers.',
+    title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
+    description: 'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes.',
     images: ['/twitter-image.jpg'],
     creator: '@fllawnnetwork',
   },
