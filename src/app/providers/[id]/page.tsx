@@ -54,7 +54,7 @@ export default async function ProviderDetailPage({
   }
 
   // Get the featured image or fallback to the first image in the array
-  const featuredImage = provider.featuredImageUrl || (provider.imageUrls.length > 0 ? provider.imageUrls[0] : 'https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg');
+  const featuredImage = provider.featuredImageUrl || (provider.imageUrls?.length > 0 ? provider.imageUrls[0] : 'https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg');
   
   return (
     <MainLayout>
@@ -63,7 +63,7 @@ export default async function ProviderDetailPage({
         <div className="absolute inset-0">
           <Image 
             src={featuredImage}
-            alt={`${provider.title} showcase`}
+            alt={`${provider.title || 'Provider'} showcase`}
             fill
             className="object-cover opacity-40"
             priority
@@ -75,7 +75,7 @@ export default async function ProviderDetailPage({
           <div className="md:flex md:items-center md:space-x-8">
             <Image 
               src={featuredImage}
-              alt={`${provider.title} logo`}
+              alt={`${provider.title || 'Provider'} logo`}
               width={128}
               height={128}
               className="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover" 
@@ -91,12 +91,12 @@ export default async function ProviderDetailPage({
                   Verified
                 </span>
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                  {provider.reviewsCount}+ Reviews
+                  {provider.reviewsCount || 0}+ Reviews
                 </span>
               </div>
               
               <h1 className="mt-3 text-4xl font-bold text-white sm:text-5xl md:text-6xl">
-                {provider.title}
+                {provider.title || 'Provider'}
               </h1>
               
               <div className="mt-4 flex items-center space-x-4">
@@ -105,14 +105,14 @@ export default async function ProviderDetailPage({
                     <svg 
                       key={i}
                       xmlns="http://www.w3.org/2000/svg" 
-                      className={`h-6 w-6 ${i < Math.floor(provider.totalScore) ? 'text-accent-400' : 'text-gray-400'}`} 
+                      className={`h-6 w-6 ${i < Math.floor(provider.totalScore || 0) ? 'text-accent-400' : 'text-gray-400'}`} 
                       viewBox="0 0 20 20" 
                       fill="currentColor"
                     >
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   ))}
-                  <span className="ml-2 text-xl text-white font-semibold">{provider.totalScore.toFixed(1)}</span>
+                  <span className="ml-2 text-xl text-white font-semibold">{(provider.totalScore || 0).toFixed(1)}</span>
                 </div>
                 <span className="text-gray-300">•</span>
                 <span className="text-gray-300">{provider.address && `${provider.address.city || ''}, ${provider.address.state || ''}`}</span>
@@ -151,7 +151,7 @@ export default async function ProviderDetailPage({
             <section className="bg-white rounded-xl shadow-sm p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Our Services</h2>
               <div className="grid gap-6 md:grid-cols-2">
-                {provider.categories.map((category: string, index: number) => (
+                {provider.categories?.map((category: string, index: number) => (
                   <div key={index} className="flex items-start space-x-4 p-4 rounded-lg bg-gray-50 hover:bg-primary-50 transition-colors">
                     <div className="flex-shrink-0 h-12 w-12 rounded-lg bg-primary-100 flex items-center justify-center">
                       <span className="text-2xl">{
@@ -188,7 +188,7 @@ export default async function ProviderDetailPage({
                 <button className="text-primary-600 hover:text-primary-700 font-medium">View All</button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {(provider.imageUrls.length > 0 ? provider.imageUrls : galleryImages).slice(0, 6).map((image, index) => (
+                {(provider.imageUrls?.length > 0 ? provider.imageUrls : galleryImages).slice(0, 6).map((image, index) => (
                   <div key={index} className="relative aspect-square group overflow-hidden rounded-lg">
                     <Image 
                       src={image} 
@@ -225,13 +225,13 @@ export default async function ProviderDetailPage({
               <div className="mb-8 p-6 bg-primary-50 rounded-lg">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-4xl font-bold text-gray-900">{provider.totalScore.toFixed(1)}</p>
+                    <p className="text-4xl font-bold text-gray-900">{(provider.totalScore || 0).toFixed(1)}</p>
                     <div className="flex items-center mt-1">
                       {[...Array(5)].map((_, i) => (
                         <svg 
                           key={i}
                           xmlns="http://www.w3.org/2000/svg" 
-                          className={`h-5 w-5 ${i < Math.floor(provider.totalScore) ? 'text-accent-500' : 'text-gray-300'}`} 
+                          className={`h-5 w-5 ${i < Math.floor(provider.totalScore || 0) ? 'text-accent-500' : 'text-gray-300'}`} 
                           viewBox="0 0 20 20" 
                           fill="currentColor"
                         >
@@ -239,7 +239,7 @@ export default async function ProviderDetailPage({
                         </svg>
                       ))}
                     </div>
-                    <p className="mt-1 text-sm text-gray-500">Based on {provider.reviewsCount} reviews</p>
+                    <p className="mt-1 text-sm text-gray-500">Based on {provider.reviewsCount || 0} reviews</p>
                   </div>
                 </div>
               </div>
@@ -271,7 +271,7 @@ export default async function ProviderDetailPage({
                       <SelectValue placeholder="Select a service" />
                     </SelectTrigger>
                     <SelectContent>
-                      {provider.categories.map((category, index) => (
+                      {provider.categories?.map((category, index) => (
                         <SelectItem key={index} value={category.toLowerCase()}>{category}</SelectItem>
                       ))}
                     </SelectContent>
@@ -308,7 +308,7 @@ export default async function ProviderDetailPage({
                         </svg>
                       </a>
                     )}
-                    {provider.socials.facebook && (
+                    {provider.socials?.facebook && (
                       <a href={provider.socials.facebook} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-700">
                         <span className="sr-only">Facebook</span>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -316,7 +316,7 @@ export default async function ProviderDetailPage({
                         </svg>
                       </a>
                     )}
-                    {provider.socials.instagram && (
+                    {provider.socials?.instagram && (
                       <a href={provider.socials.instagram} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-700">
                         <span className="sr-only">Instagram</span>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">

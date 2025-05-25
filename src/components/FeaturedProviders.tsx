@@ -24,7 +24,7 @@ export default function FeaturedProviders({ providers }: FeaturedProvidersProps)
       setFilteredProviders(filtered);
     } else {
       // If no location, show all featured providers
-      setFilteredProviders(providers.filter(p => p.featured));
+      setFilteredProviders(providers.filter(p => p.featured ?? false));
     }
   }, [providers, location]);
 

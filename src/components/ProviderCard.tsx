@@ -9,15 +9,15 @@ interface ProviderCardProps {
 }
 
 export default function ProviderCard({ provider }: ProviderCardProps) {
-  const featured = provider.featured;
-  const featuredImageUrl = provider.featuredImageUrl || (provider.imageUrls.length > 0 ? provider.imageUrls[0] : '/images/placeholder.jpg');
+  const featured = provider.featured ?? false;
+  const featuredImageUrl = provider.featuredImageUrl || (provider.imageUrls?.length > 0 ? provider.imageUrls[0] : '/images/placeholder.jpg');
   
   return (
     <div className={`bg-white rounded-xl shadow-md overflow-hidden transition transform hover:shadow-lg group h-full flex flex-col ${featured ? 'border-2 border-accent-500' : ''}`}>
       <div className="relative">
         <Image
           src={featuredImageUrl}
-          alt={provider.title}
+          alt={provider.title || 'Provider'}
           width={400}
           height={192}
           className="w-full h-48 object-cover"
@@ -30,7 +30,7 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
         <div className="absolute -bottom-6 left-4">
           <Image
             src={featuredImageUrl}
-            alt={`${provider.title} logo`}
+            alt={`${provider.title || 'Provider'} logo`}
             width={48}
             height={48}
             className="w-12 h-12 rounded-full border-2 border-white object-cover shadow-sm"
@@ -40,13 +40,13 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
       
       <div className="p-4 pt-8 flex-grow flex flex-col">
         <div className="flex justify-between items-start">
-          <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{provider.title}</h3>
+          <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{provider.title || 'Provider'}</h3>
           <div className="flex items-center">
-            <span className="text-sm font-semibold text-gray-800">{provider.totalScore.toFixed(1)}</span>
+            <span className="text-sm font-semibold text-gray-800">{(provider.totalScore || 0).toFixed(1)}</span>
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-accent-500" viewBox="0 0 20 20" fill="currentColor">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
-            <span className="text-xs text-gray-500 ml-1">({provider.reviewsCount})</span>
+            <span className="text-xs text-gray-500 ml-1">({provider.reviewsCount || 0})</span>
           </div>
         </div>
         
@@ -62,12 +62,12 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
         </div>
         
         <div className="mt-3 flex flex-wrap gap-1">
-          {provider.categories.slice(0, 3).map((service) => (
+          {provider.categories?.slice(0, 3).map((service) => (
             <span key={service} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-800">
               {service}
             </span>
           ))}
-          {provider.categories.length > 3 && (
+          {provider.categories?.length > 3 && (
             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
               +{provider.categories.length - 3} more
             </span>
