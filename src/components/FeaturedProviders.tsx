@@ -19,7 +19,7 @@ export default function FeaturedProviders({ providers }: FeaturedProvidersProps)
     if (location) {
       // Filter providers by location
       const filtered = providers.filter(provider => 
-        provider.address.state === location.state
+        provider.address && provider.address.state === location.state
       );
       setFilteredProviders(filtered);
     } else {

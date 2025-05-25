@@ -27,7 +27,7 @@ export function filterProvidersByRadius(
   
   // Filter providers whose postal code is in the radius
   return providers.filter(provider => 
-    zipcodesInRadius.includes(provider.address.postalCode)
+    provider.address && provider.address.postalCode && zipcodesInRadius.includes(provider.address.postalCode)
   );
 }
 

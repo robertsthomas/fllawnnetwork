@@ -115,7 +115,7 @@ export default async function ProviderDetailPage({
                   <span className="ml-2 text-xl text-white font-semibold">{provider.totalScore.toFixed(1)}</span>
                 </div>
                 <span className="text-gray-300">•</span>
-                <span className="text-gray-300">{provider.address.city || ''}, {provider.address.state || ''}</span>
+                <span className="text-gray-300">{provider.address && `${provider.address.city || ''}, ${provider.address.state || ''}`}</span>
               </div>
               
               <p className="mt-4 text-xl text-gray-300 max-w-3xl">
