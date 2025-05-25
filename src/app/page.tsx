@@ -10,6 +10,7 @@ import { getProviders } from '@/lib/strapi';
 
 export default async function Home() {
   const providers = await getProviders();
+  console.log("providers", providers);
 
   return (
     <MainLayout>

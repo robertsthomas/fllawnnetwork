@@ -6,6 +6,7 @@ import { getProviders } from '@/lib/strapi';
 import ProviderCard from './ProviderCard';
 import { useLocation } from '@/contexts/LocationContext';
 import { Provider } from '@/types';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface FeaturedProvidersProps {
   providers: Provider[];
@@ -40,11 +41,15 @@ export default function FeaturedProviders({ providers }: FeaturedProvidersProps)
     return (
       <div className="bg-white py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Loading featured providers...
-            </h2>
-          </div>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="mx-auto max-w-2xl text-center">
+                <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                  Loading featured providers...
+                </h2>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -53,22 +58,26 @@ export default function FeaturedProviders({ providers }: FeaturedProvidersProps)
   return (
     <div className="bg-white py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Featured {filteredProviders.length === 1 ? 'Provider' : 'Providers'}
-            {location && (
-              <span className="text-primary-600"> in {location.city}, {location.state}</span>
-            )}
-          </h2>
-          <p className="mt-2 text-lg leading-8 text-gray-600">
-            Discover top-rated lawn care {filteredProviders.length === 1 ? 'professional' : 'professionals'} in your area
-          </p>
-        </div>
-        <div className={`mt-16 grid gap-x-8 gap-y-20 ${getGridClasses()}`}>
-          {filteredProviders.map((provider) => (
-            <ProviderCard key={provider.id} provider={provider} />
-          ))}
-        </div>
+        <Card className="border-none bg-transparent shadow-none">
+          <CardHeader className="px-0 text-center">
+            <CardTitle className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+              Featured {filteredProviders.length === 1 ? 'Provider' : 'Providers'}
+              {location && (
+                <span className="text-primary-600"> in {location.city}, {location.state}</span>
+              )}
+            </CardTitle>
+            <CardDescription className="text-lg leading-8 text-gray-600">
+              Discover top-rated lawn care {filteredProviders.length === 1 ? 'professional' : 'professionals'} in your area
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="px-0">
+            <div className={`mt-8 grid gap-x-8 gap-y-20 ${getGridClasses()}`}>
+              {filteredProviders.map((provider) => (
+                <ProviderCard key={provider.id} provider={provider} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

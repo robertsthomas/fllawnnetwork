@@ -123,16 +123,8 @@ export default function Footer() {
                       Blog
                     </Link>
                   </li>
-                  <li>
-                    <Link href="/careers" className="text-base text-gray-400 hover:text-gray-300 transition">
-                      Jobs
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/press" className="text-base text-gray-400 hover:text-gray-300 transition">
-                      Press
-                    </Link>
-                  </li>
+                 
+                 
                   <li>
                     <Link href="/partners" className="text-base text-gray-400 hover:text-gray-300 transition">
                       Partners

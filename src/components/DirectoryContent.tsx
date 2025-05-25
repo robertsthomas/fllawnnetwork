@@ -5,6 +5,38 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import ProviderCard from './ProviderCard';
 import { Provider } from '@/types';
 import { filterProvidersByRadius, getLocationInfo } from '@/lib/location';
+import { services } from '@/data/providers';
+import { XCircle, Star } from 'lucide-react';
+
+// shadcn UI components
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue 
+} from '@/components/ui/select';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
+import {
+  RadioGroup,
+  RadioGroupItem
+} from '@/components/ui/radio-group';
 
 interface DirectoryContentProps {
   initialProviders: Provider[];
@@ -19,6 +51,9 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
   const [zipcodeInput, setZipcodeInput] = useState<string>("");
   const [radius, setRadius] = useState<number>(25);
   const [locationInfo, setLocationInfo] = useState<any>(null);
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [minRating, setMinRating] = useState<number>(0);
+  const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
 
   useEffect(() => {
     // Get parameters from URL or sessionStorage
@@ -26,6 +61,8 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
       (typeof window !== 'undefined' ? sessionStorage.getItem('zipcode') : null);
     const service = searchParams.get('service');
     const urlRadius = searchParams.get('radius');
+    const urlRating = searchParams.get('rating');
+    const urlServices = searchParams.get('services');
 
     if (urlZipcode !== null) {
       setZipcode(urlZipcode);
@@ -42,43 +79,114 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
       setRadius(parseInt(urlRadius));
     }
 
+    if (urlRating) {
+      setMinRating(parseInt(urlRating));
+    }
+
+    if (urlServices) {
+      setSelectedServices(urlServices.split(','));
+    } else {
+      setSelectedServices([]);
+    }
+
     // Filter providers
     let filtered = [...initialProviders];
+    console.log("initial providers", initialProviders);
 
-    // Filter by service
+    // Normalize service name from URL
+    const normalizeServiceName = (name: string): string => {
+      return name.toLowerCase().replace(/-/g, ' ');
+    };
+
+    // Filter by service from the URL query parameter
     if (service) {
-      const normalizedService = service.toLowerCase().replace("-", " ");
-      const foundService = filtered.find(s =>
-        s.categories.some(c => c.toLowerCase() === normalizedService)
-      )?.categories.find(c => c.toLowerCase() === normalizedService) || "";
-
-      setActiveService(foundService);
-
-      if (foundService) {
-        filtered = filtered.filter(provider =>
-          provider.categories.some(c => c.toLowerCase() === foundService.toLowerCase())
+      const normalizedService = normalizeServiceName(service);
+      console.log("filtering by service:", normalizedService);
+      
+      // Find matching service in our service list for display purposes
+      const matchingService = services.find(s => 
+        normalizeServiceName(s.name) === normalizedService
+      );
+      
+      if (matchingService) {
+        setActiveService(matchingService.name);
+      } else {
+        // If no exact match, capitalize first letter of each word for display
+        setActiveService(normalizedService
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
         );
       }
+
+      // Filter providers by the normalized service
+      filtered = filtered.filter(provider =>
+        provider.categories?.some(category => 
+          normalizeServiceName(category) === normalizedService
+        )
+      );
+      
+      console.log("filtered by service:", filtered);
+    }
+
+    // Filter by selected services (if any)
+    if (urlServices && urlServices.split(',').length > 0) {
+      const servicesArray = urlServices.split(',');
+      console.log("filtering by services:", servicesArray);
+      
+      filtered = filtered.filter(provider =>
+        provider.categories?.some(category => 
+          servicesArray.some(selectedService => 
+            normalizeServiceName(category) === normalizeServiceName(selectedService)
+          )
+        )
+      );
+      
+      console.log("filtered by selected services:", filtered);
+    }
+
+    // Filter by rating
+    if (urlRating) {
+      filtered = filtered.filter(provider => provider.totalScore >= parseInt(urlRating));
     }
 
     // Filter by zipcode and radius
     if (urlZipcode) {
-      filtered = filterProvidersByRadius(filtered, urlZipcode, radius);
+      filtered = filterProvidersByRadius(filtered, urlZipcode, parseInt(urlRadius || '25'));
     }
 
     setFilteredProviders(filtered);
-  }, [initialProviders, searchParams, radius]);
+  }, [initialProviders, searchParams]);
 
-  const updateFilters = (newZipcode: string, newRadius: number) => {
+  const updateFilters = () => {
     const params = new URLSearchParams(searchParams.toString());
-    if (newZipcode) {
-      params.set('zipcode', newZipcode);
-      sessionStorage.setItem('zipcode', newZipcode);
+    
+    // Update zipcode
+    if (zipcode) {
+      params.set('zipcode', zipcode);
+      sessionStorage.setItem('zipcode', zipcode);
     } else {
       params.delete('zipcode');
       sessionStorage.removeItem('zipcode');
     }
-    params.set('radius', newRadius.toString());
+    
+    // Update radius
+    params.set('radius', radius.toString());
+    
+    // Update services
+    if (selectedServices.length > 0) {
+      params.set('services', selectedServices.join(','));
+    } else {
+      params.delete('services');
+    }
+    
+    // Update rating
+    if (minRating > 0) {
+      params.set('rating', minRating.toString());
+    } else {
+      params.delete('rating');
+    }
+    
     router.push(`?${params.toString()}`);
   };
 
@@ -93,107 +201,269 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
     if (e.key === "Enter") {
       if (zipcodeInput === "" || zipcodeInput.length === 5) {
         setZipcode(zipcodeInput);
-        updateFilters(zipcodeInput, radius);
+        updateFilters();
       }
     }
+  };
+
+  const toggleServiceSelection = (serviceName: string) => {
+    setSelectedServices(prev => {
+      const newSelectedServices = prev.includes(serviceName)
+        ? prev.filter(s => s !== serviceName)
+        : [...prev, serviceName];
+      
+      // Update URL immediately after state change
+      setTimeout(() => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (newSelectedServices.length > 0) {
+          params.set('services', newSelectedServices.join(','));
+        } else {
+          params.delete('services');
+        }
+        router.push(`?${params.toString()}`);
+      }, 0);
+      
+      return newSelectedServices;
+    });
+  };
+  
+  // Handle rating change
+  const handleRatingChange = (value: string) => {
+    const ratingValue = parseInt(value);
+    setMinRating(ratingValue);
+    
+    // Update URL immediately
+    const params = new URLSearchParams(searchParams.toString());
+    if (ratingValue > 0) {
+      params.set('rating', value);
+    } else {
+      params.delete('rating');
+    }
+    router.push(`?${params.toString()}`);
   };
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+        {/* Mobile filter button */}
+        <div className="lg:hidden mb-4">
+          <Button
+            variant="outline"
+            className="w-full flex justify-between items-center"
+            onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+          >
+            <span>Filters</span>
+            <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transform ${isFiltersOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </Button>
+        </div>
+
         {/* Filters sidebar */}
-        <div className="hidden lg:block lg:col-span-3">
+        <div className={`${isFiltersOpen ? 'block' : 'hidden'} lg:block lg:col-span-3`}>
           <div className="sticky top-24">
-            <div className="bg-white shadow rounded-lg p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Filters</h2>
-              <div className="space-y-6">
-                {/* Zipcode filter */}
-                <div>
-                  <label htmlFor="zipcode" className="block text-sm font-medium text-gray-700 mb-1">
-                    Zipcode
-                  </label>
-                  <input
-                    type="text"
-                    id="zipcode"
-                    value={zipcodeInput}
-                    onChange={handleZipcodeInputChange}
-                    onKeyDown={handleZipcodeInputKeyDown}
-                    placeholder="Enter zipcode"
-                    minLength={0}
-                    maxLength={5}
-                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Enter 5 digits and press Enter</p>
-                </div>
-                {/* Radius filter */}
-                <div>
-                  <label htmlFor="radius" className="block text-sm font-medium text-gray-700 mb-1">
-                    Search Radius
-                  </label>
-                  <select
-                    id="radius"
-                    value={radius}
-                    onChange={e => {
-                      const newRadius = Number(e.target.value);
-                      setRadius(newRadius);
-                      updateFilters(zipcode, newRadius);
-                    }}
-                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
+            <Card>
+              <CardHeader>
+                <CardTitle>Filters</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <Accordion type="multiple" className="w-full" defaultValue={["location", "services", "rating"]}>
+                  {/* Location filter */}
+                  <AccordionItem value="location">
+                    <AccordionTrigger className="px-6">Location</AccordionTrigger>
+                    <AccordionContent className="px-6 pb-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="zipcode">Zipcode</Label>
+                        <div className="relative">
+                          <Input
+                            id="zipcode"
+                            value={zipcodeInput}
+                            onChange={handleZipcodeInputChange}
+                            onKeyDown={handleZipcodeInputKeyDown}
+                            placeholder="Enter zipcode"
+                            minLength={0}
+                            maxLength={5}
+                            className="pr-8"
+                          />
+                          {zipcodeInput && (
+                            <button
+                              type="button"
+                              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
+                              onClick={() => {
+                                setZipcodeInput('');
+                                setZipcode('');
+                                // Explicitly remove zipcode from URL
+                                const params = new URLSearchParams(searchParams.toString());
+                                params.delete('zipcode');
+                                router.push(`?${params.toString()}`);
+                                sessionStorage.removeItem('zipcode');
+                              }}
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Enter 5 digits and press Enter</p>
+                        
+                        <div className="pt-2">
+                          <Label htmlFor="radius" className="mb-2">Search Radius</Label>
+                          <Select
+                            value={radius.toString()}
+                            onValueChange={(value) => {
+                              const newRadius = Number(value);
+                              setRadius(newRadius);
+                              
+                              // Wait a moment to update filters to avoid re-render conflicts
+                              setTimeout(() => {
+                                const params = new URLSearchParams(searchParams.toString());
+                                params.set('radius', newRadius.toString());
+                                
+                                if (zipcode) {
+                                  params.set('zipcode', zipcode);
+                                }
+                                
+                                router.push(`?${params.toString()}`);
+                              }, 0);
+                            }}
+                          >
+                            <SelectTrigger id="radius">
+                              <SelectValue placeholder="Select radius" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="10">10 miles</SelectItem>
+                              <SelectItem value="25">25 miles</SelectItem>
+                              <SelectItem value="50">50 miles</SelectItem>
+                              <SelectItem value="100">100 miles</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  {/* Services filter */}
+                  <AccordionItem value="services">
+                    <AccordionTrigger className="px-6">Services</AccordionTrigger>
+                    <AccordionContent className="px-6 pb-4">
+                      <div className="space-y-3">
+                        {services.map((service) => (
+                          <div key={service.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              disabled
+                              id={`service-${service.id}`}
+                              checked={selectedServices.includes(service.name)}
+                              onCheckedChange={() => toggleServiceSelection(service.name)}
+                            />
+                            <Label 
+                              htmlFor={`service-${service.id}`} 
+                              className="flex items-center text-sm cursor-pointer"
+                            >
+                              <span className="mr-2">{service.icon}</span>
+                              {service.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  {/* Rating filter */}
+                  <AccordionItem value="rating">
+                    <AccordionTrigger className="px-6">Minimum Rating</AccordionTrigger>
+                    <AccordionContent className="px-6 pb-4">
+                      <RadioGroup 
+                        value={minRating.toString()} 
+                        onValueChange={handleRatingChange}
+                      >
+                        {[0, 1, 2, 3, 4, 5].map((rating) => (
+                          <div key={rating} className="flex items-center space-x-2 py-1">
+                            <RadioGroupItem value={rating.toString()} id={`rating-${rating}`} />
+                            <Label htmlFor={`rating-${rating}`} className="flex items-center cursor-pointer">
+                              {rating === 0 ? (
+                                <span>Any rating</span>
+                              ) : (
+                                <div className="flex items-center">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`h-4 w-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                                    />
+                                  ))}
+                                  <span className="ml-1 text-sm">{rating === 1 ? '& up' : ''}</span>
+                                </div>
+                              )}
+                            </Label>
+                          </div>
+                        ))}
+                      </RadioGroup>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+                
+                <div className="p-6 space-y-2">
+                  <Button 
+                    onClick={updateFilters}
+                    className="w-full"
                   >
-                    <option value="10">10 miles</option>
-                    <option value="25">25 miles</option>
-                    <option value="50">50 miles</option>
-                    <option value="100">100 miles</option>
-                  </select>
+                    Apply Filters
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      // Reset all filter states
+                      setZipcode('');
+                      setZipcodeInput('');
+                      setRadius(25);
+                      setSelectedServices([]);
+                      setMinRating(0);
+                      
+                      // Keep only service param if it exists, remove all other params
+                      const params = new URLSearchParams();
+                      if (searchParams.get('service')) {
+                        params.set('service', searchParams.get('service')!);
+                      }
+                      
+                      // Clear zipcode in session storage
+                      sessionStorage.removeItem('zipcode');
+                      
+                      // Update URL
+                      router.push(params.toString() ? `?${params.toString()}` : '');
+                    }}
+                    className="w-full"
+                  >
+                    Reset Filters
+                  </Button>
                 </div>
-                {/* Placeholder: Service filter */}
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-2">Services</h3>
-                  <div className="space-y-2 text-gray-500 text-sm italic">(Service checkboxes go here)</div>
-                </div>
-                {/* Placeholder: Rating filter */}
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-2">Minimum Rating</h3>
-                  <div className="space-y-2 text-gray-500 text-sm italic">(Rating radios go here)</div>
-                </div>
-                {/* Placeholder: Price range filter */}
-                <div>
-                  <h3 className="text-sm font-medium text-gray-900 mb-2">Price Range</h3>
-                  <div className="space-y-2 text-gray-500 text-sm italic">(Price slider goes here)</div>
-                </div>
-                {/* Placeholder: Apply Filters button */}
-                <button
-                  type="button"
-                  className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                >
-                  Apply Filters
-                </button>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
+
         {/* Providers list */}
         <div className="mt-8 lg:mt-0 lg:col-span-9">
-          <div className="bg-white shadow rounded-lg p-6 mb-6">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-lg font-medium text-gray-900">
-                  {filteredProviders.length} providers found
-                  {activeService && (
-                    <span className="text-gray-600 text-base font-normal">
-                      for {activeService}
-                    </span>
-                  )}
-                  {zipcode && locationInfo && (
-                    <span className="text-gray-600 text-base font-normal">
-                      {activeService ? " " : " in "}
-                      {locationInfo.city}, {locationInfo.state} within {radius} miles
-                    </span>
-                  )}
-                </h2>
+          <Card className="mb-6">
+            <CardContent className="p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-lg font-medium text-gray-900">
+                    {filteredProviders.length} providers found
+                    {activeService && (
+                      <span className="text-gray-600 text-base font-normal">
+                        for {activeService}
+                      </span>
+                    )}
+                    {zipcode && locationInfo && (
+                      <span className="text-gray-600 text-base font-normal">
+                        {activeService ? " " : " in "}
+                        {locationInfo.city}, {locationInfo.state} within {radius} miles
+                      </span>
+                    )}
+                  </h2>
+                </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
+          
           {/* Provider cards */}
           {filteredProviders.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">

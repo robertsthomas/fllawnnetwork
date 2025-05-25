@@ -3,8 +3,8 @@ import MainLayout from '@/components/ui/MainLayout';
 import Image from 'next/image';
 
 export const metadata: Metadata = {
-  title: 'About Us - Lawn Care Directory',
-  description: 'Learn more about the Lawn Care Directory and our mission to connect homeowners with professional lawn care providers.',
+  title: 'About - Lawn Care Directory',
+  description: 'Learn more about the Lawn Care Directory and my mission to connect homeowners with professional lawn care providers.',
 };
 
 export default function AboutPage() {
@@ -13,7 +13,7 @@ export default function AboutPage() {
       <div className="bg-primary-800 py-16 px-4 sm:px-6 lg:px-8 mt-0">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <h1 className="text-3xl font-extrabold text-white sm:text-4xl">About Us</h1>
+            <h1 className="text-3xl font-extrabold text-white sm:text-4xl">About</h1>
             <p className="mt-3 max-w-2xl mx-auto text-xl text-primary-100">
               Connecting homeowners with trusted lawn care professionals
             </p>
@@ -24,26 +24,30 @@ export default function AboutPage() {
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="lg:grid lg:grid-cols-2 lg:gap-12 items-center">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">My Mission</h2>
             <p className="text-lg text-gray-600 mb-6">
-              At Lawn Care Directory, our mission is to simplify the process of finding reliable, 
-              professional lawn care services for homeowners while helping local lawn care 
-              businesses grow by connecting them with customers in their area.
+              I created Lawn Care Directory to solve a problem I experienced firsthand: finding reliable,
+              professional lawn care services shouldn't be so difficult. My goal is to build a platform that
+              makes this process simple for homeowners while helping quality lawn care professionals gain the
+              visibility they deserve.
             </p>
             
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">How We Started</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">The Story Behind the Directory</h2>
             <p className="text-lg text-gray-600 mb-6">
-              Founded in 2024, Lawn Care Directory was created by a team of landscape professionals 
-              and web developers who saw a need for a better way to connect homeowners with quality 
-              lawn care services. What started as a small local directory has grown into a nationwide 
-              platform trusted by thousands of homeowners.
+              After struggling to find a dependable lawn service for my own home in 2023, I realized there was
+              no centralized resource that focused exclusively on lawn care. As a web developer with a passion 
+              for solving real problems, I set out to build this directory from scratch. What started as a 
+              personal project has grown into a platform that's helping homeowners and lawn care professionals
+              connect across the country.
             </p>
             
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">What Makes Us Different</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">What Makes This Directory Different</h2>
             <p className="text-lg text-gray-600">
-              Unlike other service directories, we focus exclusively on lawn care and landscaping, 
-              allowing us to provide a more specialized and valuable platform for both homeowners and providers. 
-              We verify all providers in our directory and collect authentic reviews to ensure quality.
+              Unlike giant service platforms that try to cover everything, Lawn Care Directory focuses exclusively
+              on lawn care and landscaping. This specialization allows me to create features specifically for this
+              industry and build relationships with quality providers. I personally review submissions to maintain
+              high standards, and I'm constantly improving the platform based on feedback from both homeowners and
+              lawn care professionals.
             </p>
           </div>
           
@@ -62,22 +66,22 @@ export default function AboutPage() {
             
             <div className="mt-10 grid grid-cols-2 gap-6">
               <div className="bg-primary-50 p-6 rounded-lg">
-                <div className="text-4xl font-bold text-primary-600">5,000+</div>
-                <p className="mt-2 text-sm text-gray-600">Trusted providers nationwide</p>
+                <div className="text-4xl font-bold text-primary-600">500+</div>
+                <p className="mt-2 text-sm text-gray-600">Verified providers</p>
               </div>
               
               <div className="bg-primary-50 p-6 rounded-lg">
-                <div className="text-4xl font-bold text-primary-600">25,000+</div>
-                <p className="mt-2 text-sm text-gray-600">Happy homeowners</p>
+                <div className="text-4xl font-bold text-primary-600">2,000+</div>
+                <p className="mt-2 text-sm text-gray-600">Homeowner searches monthly</p>
               </div>
               
               <div className="bg-primary-50 p-6 rounded-lg">
-                <div className="text-4xl font-bold text-primary-600">100+</div>
-                <p className="mt-2 text-sm text-gray-600">Cities covered</p>
+                <div className="text-4xl font-bold text-primary-600">30+</div>
+                <p className="mt-2 text-sm text-gray-600">Cities and growing</p>
               </div>
               
               <div className="bg-primary-50 p-6 rounded-lg">
-                <div className="text-4xl font-bold text-primary-600">4.8/5</div>
+                <div className="text-4xl font-bold text-primary-600">4.7/5</div>
                 <p className="mt-2 text-sm text-gray-600">Average provider rating</p>
               </div>
             </div>
