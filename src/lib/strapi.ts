@@ -2,6 +2,8 @@
  * Strapi API client for Next.js
  */
 
+import { Provider } from '@/types';
+
 interface FetchParams {
   endpoint: string;
   query?: Record<string, string>;
@@ -68,7 +70,7 @@ export async function fetchFromAPI<T>({
  * Helper to get all providers from Strapi
  */
 export async function getProviders() {
-  return fetchFromAPI<any[]>({
+  return fetchFromAPI<Provider[]>({
     endpoint: "providers",
     wrappedByKey: "data",
   });
@@ -78,7 +80,7 @@ export async function getProviders() {
  * Helper to get a specific provider by ID
  */
 export async function getProviderById(id: string) {
-  return fetchFromAPI<any>({
+  return fetchFromAPI<Provider>({
     endpoint: `providers/${id}`,
     wrappedByKey: "data",
   });

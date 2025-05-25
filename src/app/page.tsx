@@ -17,8 +17,8 @@ export default async function Home() {
       <HowItWorks />
       <FeaturedProviders providers={providers} />
       <ServicesList services={services} />
-      <Testimonials reviews={reviews} />
-      <CTASection />
+      {/* <Testimonials reviews={reviews} /> */}
+      {/* <CTASection /> */}
     </MainLayout>
   );
 } 

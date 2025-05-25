@@ -2,28 +2,31 @@ export interface Provider {
   id: string;
   documentId: string;
   title: string;
-  description: string;
-  featuredImageUrl: string;
+  address: {
+    street: string | null;
+    city: string | null;
+    state: string | null;
+    postalCode: string | null;
+    country?: string;
+  };
+  website: string | null;
+  phone: string | null;
   featured: boolean;
   categories: string[];
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-    country: string;
+  totalScore: number;
+  reviewsCount: number;
+  reviewsLink: string | null;
+  openingHours: string[];
+  imageUrls: string[];
+  featuredImageUrl: string | null;
+  socials: {
+    instagram: string | null;
+    twitter: string | null;
+    facebook: string | null;
+    youtube: string | null;
+    tiktok: string | null;
   };
-  reviews: {
-    stars: number;
-    count: number;
-    link: string;
-  };
-  reviewsLink?: string;
-  contactInfo: {
-    phone: string;
-    email: string;
-    website?: string;
-  };
+  description?: string;
 }
 
 export interface Category {

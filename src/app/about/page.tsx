@@ -51,7 +51,7 @@ export default function AboutPage() {
             <div className="rounded-lg overflow-hidden shadow-lg">
               <div className="relative h-80 w-full">
                 <Image 
-                  src="https://images.pexels.com/photos/589/garden-gardening-grass-lawn.jpg" 
+                  src="https://images.pexels.com/photos/5997996/pexels-photo-5997996.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
                   alt="Lawn care professional mowing a lawn"
                   fill
                   className="object-cover"
