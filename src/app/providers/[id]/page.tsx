@@ -13,6 +13,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Provider } from '@/types';
+
+// Interface for Strapi provider response which might contain nested data
+interface ProviderResponse extends Provider {
+  data?: {
+    attributes?: Provider;
+    [key: string]: any;
+  };
+}
 
 // Sample gallery images
 const galleryImages = [
@@ -27,7 +36,16 @@ const galleryImages = [
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const id = params.id;
   try {
-    const provider = await getProviderById(id);
+    const providerResponse = await getProviderById(id) as ProviderResponse;
+    
+    let provider: Provider;
+    
+    // Extract the provider data from the response if it's wrapped in a data object
+    if (providerResponse.data && !providerResponse.title) {
+      provider = providerResponse.data.attributes || providerResponse.data as Provider;
+    } else {
+      provider = providerResponse as Provider;
+    }
     
     return {
       title: `${provider.title} - Professional Lawn Care Services | FLLawnNetwork`,
@@ -47,13 +65,20 @@ export default async function ProviderDetailPage({
   params: { id: string };
 }) {
   const { id } = await params;
-  let provider;
+  let provider: Provider;
   
   try {
-    provider = await getProviderById(id);
+    const providerResponse = await getProviderById(id) as ProviderResponse;
     
-    if (!provider) {
+    if (!providerResponse) {
       notFound();
+    }
+
+    // Extract the provider data from the response if it's wrapped in a data object
+    if (providerResponse.data && !providerResponse.title) {
+      provider = providerResponse.data.attributes || providerResponse.data as Provider;
+    } else {
+      provider = providerResponse as Provider;
     }
   } catch (error) {
     notFound();
@@ -155,7 +180,7 @@ export default async function ProviderDetailPage({
             <section className="bg-white rounded-xl shadow-sm p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Our Services</h2>
               <Accordion type="multiple" className="w-full">
-                {provider.categories?.map((category: string, index: number) => (
+                {(provider.categories || []).map((category: string, index: number) => (
                   <AccordionItem key={index} value={`service-${index}`}>
                     <AccordionTrigger className="py-4">
                       <div className="flex items-center space-x-3">
@@ -176,7 +201,7 @@ export default async function ProviderDetailPage({
                       <div className="pl-14 pb-2">
                         <p className="text-sm text-gray-600">Professional {category.toLowerCase()} services tailored to your needs</p>
                         <Button asChild variant="link" size="sm" className="mt-2 p-0 h-auto text-primary-600 hover:text-primary-700">
-                          <Link href={`/contact?provider=${provider.documentId}&service=${category.toLowerCase().replace(' ', '-')}`}>
+                          <Link href={`/contact?provider=${provider.documentId || ''}&service=${category.toLowerCase().replace(' ', '-')}`}>
                             Get a quote
                             <svg className="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                               <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
@@ -198,7 +223,7 @@ export default async function ProviderDetailPage({
               </div>
               <Carousel className="w-full">
                 <CarouselContent>
-                  {(provider.imageUrls?.length > 0 ? provider.imageUrls : galleryImages).slice(0, 6).map((image, index) => (
+                  {(provider.imageUrls?.length > 0 ? provider.imageUrls : galleryImages).slice(0, 6).map((image: string, index: number) => (
                     <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
                       <div className="relative aspect-square overflow-hidden rounded-lg">
                         <Image 
@@ -288,7 +313,7 @@ export default async function ProviderDetailPage({
                         <SelectValue placeholder="Select a service" />
                       </SelectTrigger>
                       <SelectContent>
-                        {provider.categories?.map((category, index) => (
+                        {(provider.categories || []).map((category: string, index: number) => (
                           <SelectItem key={index} value={category.toLowerCase()}>{category}</SelectItem>
                         ))}
                       </SelectContent>
