@@ -6,6 +6,7 @@ import './globals.css'
 import Link from 'next/link'
 import { LocationProvider } from '@/contexts/LocationContext'
 import { PostHogProvider } from '@/components/PostHogProvider'
+import { QueryProvider } from '@/components/QueryProvider'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -82,13 +83,15 @@ export default function RootLayout({
     <html lang="en" className="h-full bg-gray-50">
       <body className={`h-full ${inter.variable} ${montserrat.variable}`}>
         <PostHogProvider>
-          <LocationProvider>
-            <Header />
-            <div className="pt-16">
-              {children}
-            </div>
-            <Footer />
-          </LocationProvider>
+          <QueryProvider>
+            <LocationProvider>
+              <Header />
+              <div className="pt-16">
+                {children}
+              </div>
+              <Footer />
+            </LocationProvider>
+          </QueryProvider>
         </PostHogProvider>
       </body>
     </html>

@@ -23,14 +23,14 @@ export default function Header() {
         <div className="flex justify-between items-center py-4 md:justify-start md:space-x-10">
           <div className="flex justify-start lg:w-0 lg:flex-1">
             <Link href="/" className="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2c.5 0 1 .2 1.4.6l7 7c.4.4.6.9.6 1.4v9c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V11c0-.5.2-1 .6-1.4l7-7c.4-.4.9-.6 1.4-.6z"/>
-                <path d="M9 14v3"/>
-                <path d="M15 14v3"/>
-                <path d="M9 21v-1"/>
-                <path d="M15 21v-1"/>
-                <path d="M3 11h18"/>
-              </svg>
+              <Image
+                src="/logo.png"
+                alt="Florida LawnNetwork Logo"
+                width={40}
+                height={40}
+                className="h-8 w-8"
+                priority
+              />
               <span className="ml-2 text-xl font-bold text-gray-900">Florida LawnNetwork</span>
             </Link>
           </div>
@@ -83,14 +83,14 @@ export default function Header() {
               <div className="flex items-center justify-between">
                 <div>
                   <Link href="/" className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-primary-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2c.5 0 1 .2 1.4.6l7 7c.4.4.6.9.6 1.4v9c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V11c0-.5.2-1 .6-1.4l7-7c.4-.4.9-.6 1.4-.6z"/>
-                      <path d="M9 14v3"/>
-                      <path d="M15 14v3"/>
-                      <path d="M9 21v-1"/>
-                      <path d="M15 21v-1"/>
-                      <path d="M3 11h18"/>
-                    </svg>
+                    <Image
+                      src="/logo.png"
+                      alt="Florida LawnNetwork Logo"
+                      width={40}
+                      height={40}
+                      className="h-8 w-8"
+                      priority
+                    />
                     <span className="ml-2 text-xl font-bold text-gray-900">FLLawnNetwork</span>
                   </Link>
                 </div>

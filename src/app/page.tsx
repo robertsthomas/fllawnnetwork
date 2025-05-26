@@ -6,17 +6,13 @@ import ServicesList from '@/components/ServicesList';
 import Testimonials from '@/components/Testimonials';
 import CTASection from '@/components/CTASection';
 import { services, reviews } from '@/data/providers';
-import { getProviders } from '@/lib/strapi';
 
-export default async function Home() {
-  const providers = await getProviders();
-  console.log("providers", providers);
-
+export default function Home() {
   return (
     <MainLayout>
       <Hero />
       <HowItWorks />
-      <FeaturedProviders providers={providers} />
+      <FeaturedProviders />
       <ServicesList services={services} />
       {/* <Testimonials reviews={reviews} /> */}
       {/* <CTASection /> */}

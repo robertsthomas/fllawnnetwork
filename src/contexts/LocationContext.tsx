@@ -6,6 +6,8 @@ interface Location {
   city: string;
   state: string;
   postalCode: string;
+  lat?: number;
+  lng?: number;
 }
 
 interface LocationContextType {
@@ -39,6 +41,8 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
           city: data.city,
           state: data.region_code,
           postalCode: data.postal,
+          lat: data.latitude,
+          lng: data.longitude,
         };
 
         // Save to localStorage

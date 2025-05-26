@@ -2,32 +2,81 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getProviders } from '@/lib/strapi';
 import ProviderCard from './ProviderCard';
 import { useLocation } from '@/contexts/LocationContext';
-import { Provider } from '@/types';
+import { LawnCareProvider } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import zipcodes from 'zipcodes';
+import { useProviders } from '@/hooks/useProviders';
+import { isProviderFeatured } from '@/lib/apify';
 
-interface FeaturedProvidersProps {
-  providers: Provider[];
-}
+// Define featured provider IDs
+const FEATURED_PLACE_IDS = [
+  'ChIJhVYnKvzE2YgR3lmo3jABNLw',
+  'ChIJi0Op4CKn2YgRGEq_PI5EgIU',
+  'ChIJ33-tZVGh2YgRSiunrdwtLmk',
+];
 
-export default function FeaturedProviders({ providers }: FeaturedProvidersProps) {
-  const { location, isLoading } = useLocation();
-  const [filteredProviders, setFilteredProviders] = useState<Provider[]>([]);
+export default function FeaturedProviders() {
+  const { location, isLoading: isLocationLoading } = useLocation();
+  const { data: providers = [], isLoading: isProvidersLoading } = useProviders();
+  const [filteredProviders, setFilteredProviders] = useState<LawnCareProvider[]>([]);
 
   useEffect(() => {
-    if (location) {
-      // Filter providers by location
-      const filtered = providers.filter(provider => 
-        provider.address && provider.address.state === location.state
-      );
-      setFilteredProviders(filtered);
+    // Skip processing if providers data is empty
+    if (!providers || providers.length === 0) {
+      setFilteredProviders([]);
+      return;
+    }
+
+    // Filter providers by the featured place IDs first
+    const featuredProviders = providers.filter(provider => 
+      provider.placeId && FEATURED_PLACE_IDS.includes(provider.placeId)
+    );
+    
+    // If we have location info, further filter by distance
+    if (location && featuredProviders.length > 0) {
+      // Filter providers by distance within 50 miles
+      const filtered = featuredProviders.filter(provider => {
+        // First check if we have postal code to calculate distance
+        const providerPostalCode = provider.postalCode;
+        if (providerPostalCode && location.postalCode) {
+          const distance = zipcodes.distance(location.postalCode, providerPostalCode);
+          return distance !== null && distance <= 50;
+        }
+        
+        // If no postal code, but we have coordinates, try to use those
+        const providerLocation = provider.location;
+        if (providerLocation && location.lat && location.lng) {
+          // Calculate distance using Haversine formula (simplified)
+          const lat1 = location.lat;
+          const lon1 = location.lng;
+          const lat2 = providerLocation.lat;
+          const lon2 = providerLocation.lng;
+          
+          // Convert to radians
+          const R = 3958.8; // Earth radius in miles
+          const dLat = (lat2 - lat1) * Math.PI / 180;
+          const dLon = (lon2 - lon1) * Math.PI / 180;
+          const a = 
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+          const distance = R * c;
+          
+          return distance <= 50;
+        }
+        
+        return false;
+      });
+      
+      setFilteredProviders(filtered.length > 0 ? filtered : featuredProviders);
     } else {
       // If no location, show all featured providers
-      setFilteredProviders(providers.filter(p => p.featured ?? false));
+      setFilteredProviders(featuredProviders);
     }
-  }, [providers, location]);
+  }, [providers, location?.postalCode, location?.lat, location?.lng]);
 
   // Determine grid columns and max width based on number of providers
   const getGridClasses = () => {
@@ -36,6 +85,8 @@ export default function FeaturedProviders({ providers }: FeaturedProvidersProps)
     if (count === 2) return 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto';
     return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto';
   };
+
+  const isLoading = isLocationLoading || isProvidersLoading;
 
   if (isLoading) {
     return (
@@ -72,9 +123,16 @@ export default function FeaturedProviders({ providers }: FeaturedProvidersProps)
           </CardHeader>
           <CardContent className="px-0">
             <div className={`mt-8 grid gap-x-8 gap-y-20 ${getGridClasses()}`}>
-              {filteredProviders.map((provider) => (
-                <ProviderCard key={provider.id} provider={provider} />
-              ))}
+              {filteredProviders.length > 0 ? (
+                filteredProviders.map((provider) => (
+                  <ProviderCard key={provider.placeId} provider={provider} />
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-gray-500">No featured providers found in your area.</p>
+                  <p className="text-gray-500 mt-2">Try expanding your search or check back later.</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

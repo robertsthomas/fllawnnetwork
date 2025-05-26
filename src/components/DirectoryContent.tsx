@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import ProviderCard from './ProviderCard';
-import { Provider } from '@/types';
+import { LawnCareProvider } from '@/types';
 import { filterProvidersByRadius, getLocationInfo } from '@/lib/location';
 import { services } from '@/data/providers';
 import { XCircle, Star } from 'lucide-react';
+import { useProviders } from '@/hooks/useProviders';
 
 // shadcn UI components
 import { Button } from '@/components/ui/button';
@@ -39,13 +40,27 @@ import {
 } from '@/components/ui/radio-group';
 
 interface DirectoryContentProps {
-  initialProviders: Provider[];
+  initialProviders: LawnCareProvider[];
 }
 
 export default function DirectoryContent({ initialProviders = [] }: DirectoryContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [filteredProviders, setFilteredProviders] = useState<Provider[]>([]);
+  
+  // Get providers from TanStack Query
+  const { data: providersFromApi = [], isLoading: isProvidersLoading } = useProviders();
+  
+  // Use providersFromApi instead of initialProviders
+  const [providers, setProviders] = useState<LawnCareProvider[]>(providersFromApi.length > 0 ? providersFromApi : initialProviders);
+  
+  // Update providers when data from API is loaded
+  useEffect(() => {
+    if (providersFromApi.length > 0) {
+      setProviders(providersFromApi);
+    }
+  }, [providersFromApi]);
+
+  const [filteredProviders, setFilteredProviders] = useState<LawnCareProvider[]>([]);
   const [activeService, setActiveService] = useState<string>("");
   const [zipcode, setZipcode] = useState<string>("");
   const [zipcodeInput, setZipcodeInput] = useState<string>("");
@@ -90,8 +105,7 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
     }
 
     // Filter providers
-    let filtered = [...initialProviders];
-    console.log("initial providers", initialProviders);
+    let filtered = [...providers];
 
     // Normalize service name from URL
     const normalizeServiceName = (name: string): string => {
@@ -120,7 +134,7 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
       }
 
       // Filter providers by the normalized service
-      filtered = filtered.filter(provider =>
+      filtered = filtered.filter((provider) =>
         provider.categories?.some(category => 
           normalizeServiceName(category) === normalizedService
         )
@@ -147,7 +161,7 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
 
     // Filter by rating
     if (urlRating) {
-      filtered = filtered.filter(provider => provider.totalScore >= parseInt(urlRating));
+      filtered = filtered.filter(provider => (provider.totalScore || 0) >= parseInt(urlRating));
     }
 
     // Filter by zipcode and radius
@@ -156,7 +170,7 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
     }
 
     setFilteredProviders(filtered);
-  }, [initialProviders, searchParams]);
+  }, [providers, searchParams]);
 
   const updateFilters = () => {
     const params = new URLSearchParams(searchParams.toString());

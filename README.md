@@ -1,13 +1,14 @@
 # Lawn Care Directory - Next.js 15 with App Router
 
-A modern web application for finding and connecting with lawn care professionals in your area, built with Next.js 15, TypeScript, and Strapi CMS.
+A modern web application for finding and connecting with lawn care professionals in your area, built with Next.js 15, TypeScript, and TanStack Query.
 
 ## Tech Stack
 
 - **Next.js 15** with App Router
 - **TypeScript** for type safety
 - **Tailwind CSS** for styling
-- **Strapi** for headless CMS
+- **TanStack Query** for data fetching and caching
+- **Apify API** for lawn care service data
 - **React 19** for UI components
 
 ## Getting Started
@@ -16,20 +17,16 @@ A modern web application for finding and connecting with lawn care professionals
 
 - Node.js 20.x or later
 - pnpm, npm, or yarn
-- Strapi CMS (running locally or hosted)
 
 ### Environment Setup
 
 1. Create a `.env.local` file in the root directory with:
 
 ```
-NEXT_PUBLIC_STRAPI_URL=http://localhost:1337
-```
-
-2. If you're using a Strapi API token, add:
-
-```
-NEXT_PUBLIC_STRAPI_API_TOKEN=your_token_here
+NEXT_PUBLIC_APIFY_API_URL=https://api.apify.com/v2/datasets/nm5boC2OslxFiqviz/items
+NEXT_PUBLIC_APIFY_TOKEN=apify_api_aQauQuejAZFJwr67pOdSqksLfA9XQ44xbH3r
+NEXT_PUBLIC_POSTHOG_KEY=your_posthog_key
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
 ```
 
 ### Installation
@@ -44,29 +41,9 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-## Strapi Setup
+## API Setup
 
-This project uses Strapi as the headless CMS. You'll need to set up a Strapi project with the following content types:
-
-### Provider Content Type
-- **Title**: Text (required, unique)
-- **Description**: Rich Text
-- **FeaturedImageUrl**: Text
-- **Featured**: Boolean
-- **Categories**: Text array
-- **Address**: Object with city, state, postalCode, country fields
-- **Reviews**: Object with stars, count, link fields
-- **ContactInfo**: Object with phone, email, website fields
-
-### Category Content Type
-- **Name**: Text (required, unique)
-- **Slug**: Text (required, unique)
-- **Description**: Text
-
-For more details on Strapi setup, refer to:
-- [Strapi Quick Start Guide](https://docs.strapi.io/cms/quick-start)
-- [Strapi Project Structure](https://docs.strapi.io/cms/project-structure)
-- [Strapi CLI Installation](https://docs.strapi.io/cms/installation/cli)
+This project uses the Apify API to fetch lawn care provider data. The data is cached indefinitely using TanStack Query.
 
 ## Features
 
@@ -82,6 +59,7 @@ For more details on Strapi setup, refer to:
 - Components are in `src/components`
 - API client functions in `src/lib`
 - TypeScript interfaces in `src/types`
+- TanStack Query hooks in `src/hooks`
 
 ```sh
 npm create astro@latest -- --template basics

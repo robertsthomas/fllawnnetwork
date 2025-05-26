@@ -15,14 +15,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function DirectoryPage() {
-  const providers = await getProviders();
-  console.log("providers", providers);
-  
+export default function DirectoryPage() {
   return (
     <MainLayout>
       <Suspense fallback={<div>Loading directory...</div>}>
-        <DirectoryContent initialProviders={providers} />
+        <DirectoryContent initialProviders={[]} />
       </Suspense>
     </MainLayout>
   );
