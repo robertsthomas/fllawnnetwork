@@ -8,21 +8,18 @@ import { Button } from '~/components/ui/button';
 import { Id } from '../../../../convex/_generated/dataModel';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const id = params.id;
-  
   return {
     title: 'Provider Details - Lawn Care Directory',
     description: 'View details and contact information for this lawn care provider.',
   };
 }
 
-export default function ProviderDetailPage({
+export default async function ProviderDetailPage({
   params,
 }: {
-  params: { id: Id<"providers"> };
+  params: Promise<{ id: Id<"providers"> }>;
 }) {
-  const { id } = params;
-  
+  const { id } = await params;
   return (
     <MainLayout>
       <Suspense fallback={<div>Loading provider details...</div>}>

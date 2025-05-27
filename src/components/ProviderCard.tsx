@@ -8,6 +8,7 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { getProviderMainImage, isProviderFeatured } from '~/lib/apify';
 import { Doc } from '../../convex/_generated/dataModel';
+import { useTracking } from '~/hooks/useTracking';
 
 // Define featured provider IDs
 const FEATURED_PLACE_IDS = [
@@ -21,6 +22,7 @@ interface ProviderCardProps {
 }
 
 export default function ProviderCard({ provider }: ProviderCardProps) {
+  const { trackProviderProfileClick } = useTracking();
   const featured = FEATURED_PLACE_IDS.includes(provider._id.toString());
   const featuredImageUrl = getProviderMainImage(provider) || undefined;
   const defaultImage = "https://images.pexels.com/photos/589/garden-grass-meadow-green.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
@@ -39,6 +41,14 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
   // Format description
   const description = `Professional lawn care services by ${provider.title}`;
   
+  const handleProfileClick = () => {
+    trackProviderProfileClick(
+      provider._id.toString(),
+      provider.title || 'Unknown Provider',
+      'directory'
+    );
+  };
+
   return (
     <Card className={`h-full overflow-hidden ${featured ? 'border-2 border-accent-500' : ''}`}>
       <div className="relative">
@@ -105,7 +115,7 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
       </CardContent>
       
       <CardFooter className="p-4 pt-0 flex space-x-3">
-        <Button asChild variant="default" className="flex-1">
+        <Button asChild variant="default" className="flex-1" onClick={handleProfileClick}>
           <Link href={`/providers/${provider._id.toString()}`}>
             View Profile
           </Link>
