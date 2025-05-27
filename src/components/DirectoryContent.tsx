@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import ProviderCard from './ProviderCard';
-import { filterProvidersByRadius, getLocationInfo } from '~/lib/location';
-import { services } from '~/data/providers';
 import { XCircle, Star } from 'lucide-react';
+import { useDirectoryFilters } from '~/hooks/useDirectoryFilters';
+import { services } from '~/data/providers';
 
 // shadcn UI components
 import { Button } from '~/components/ui/button';
@@ -31,7 +31,6 @@ import {
   AccordionTrigger,
 } from '~/components/ui/accordion';
 import { Checkbox } from '~/components/ui/checkbox';
-import { Slider } from '~/components/ui/slider';
 import {
   RadioGroup,
   RadioGroupItem
@@ -40,163 +39,28 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Provider } from '~/types';
 
-
-
 export default function DirectoryContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const providers = useQuery(api.providers.get) as Provider[];
-  console.log('providers', providers);
-
-  const [filteredProviders, setFilteredProviders] = useState<Provider[]>([]);
-  const [activeService, setActiveService] = useState<string>("");
-  const [zipcode, setZipcode] = useState<string>("");
-  const [zipcodeInput, setZipcodeInput] = useState<string>("");
-  const [radius, setRadius] = useState<number>(25);
-  const [locationInfo, setLocationInfo] = useState<any>(null);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [minRating, setMinRating] = useState<number>(0);
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (!providers) return; // 👈 prevent running before providers is loaded
-
-    // Get parameters from URL or sessionStorage
-    const urlZipcode = searchParams.get('zipcode') || 
-      (typeof window !== 'undefined' ? sessionStorage.getItem('zipcode') : null);
-    const service = searchParams.get('service');
-    const urlRadius = searchParams.get('radius');
-    const urlRating = searchParams.get('rating');
-    const urlServices = searchParams.get('services');
-
-    if (urlZipcode !== null) {
-      setZipcode(urlZipcode);
-      setZipcodeInput(urlZipcode);
-      const info = getLocationInfo(urlZipcode);
-      setLocationInfo(info);
-    } else {
-      setZipcode("");
-      setZipcodeInput("");
-      setLocationInfo(null);
-    }
-
-    if (urlRadius) {
-      setRadius(parseInt(urlRadius));
-    }
-
-    if (urlRating) {
-      setMinRating(parseInt(urlRating));
-    }
-
-    if (urlServices) {
-      setSelectedServices(urlServices.split(','));
-    } else {
-      setSelectedServices([]);
-    }
-
-    // Filter providers
-    let filtered = [...(providers ?? [])] as Provider[];
-
-    // Normalize service name from URL
-    const normalizeServiceName = (name: string): string => {
-      return name.toLowerCase().replace(/-/g, ' ');
-    };
-
-    // Filter by service from the URL query parameter
-    if (service) {
-      const normalizedService = normalizeServiceName(service);
-      console.log("filtering by service:", normalizedService);
-      
-      // Find matching service in our service list for display purposes
-      const matchingService = services.find(s => 
-        normalizeServiceName(s.name) === normalizedService
-      );
-      
-      if (matchingService) {
-        setActiveService(matchingService.name);
-      } else {
-        // If no exact match, capitalize first letter of each word for display
-        setActiveService(normalizedService
-          .split(' ')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ')
-        );
-      }
-
-      // Filter providers by the normalized service
-      filtered = filtered.filter((provider) =>
-        provider.categories?.some(category => 
-          normalizeServiceName(category) === normalizedService
-        )
-      );
-      
-      console.log("filtered by service:", filtered);
-    }
-
-    // Filter by selected services (if any)
-    if (urlServices && urlServices.split(',').length > 0) {
-      const servicesArray = urlServices.split(',');
-      console.log("filtering by services:", servicesArray);
-      
-      filtered = filtered.filter(provider =>
-        provider.categories?.some(category => 
-          servicesArray.some(selectedService => 
-            normalizeServiceName(category) === normalizeServiceName(selectedService)
-          )
-        )
-      );
-      
-      console.log("filtered by selected services:", filtered);
-    }
-
-    // Filter by rating
-    if (urlRating) {
-      filtered = filtered.filter(provider => (provider.totalScore || 0) >= parseInt(urlRating));
-    }
-
-    // Filter by zipcode and radius
-    if (urlZipcode) {
-      filtered = filterProvidersByRadius<Provider>(filtered, urlZipcode, parseInt(urlRadius || '25'));
-    }
-
-    setFilteredProviders(filtered);
-  }, [providers, searchParams]);
-
-  if (!providers) {
-    return <div>Loading...</div>;
-  }
-
-  const updateFilters = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    
-    // Update zipcode
-    if (zipcode) {
-      params.set('zipcode', zipcode);
-      sessionStorage.setItem('zipcode', zipcode);
-    } else {
-      params.delete('zipcode');
-      sessionStorage.removeItem('zipcode');
-    }
-    
-    // Update radius
-    params.set('radius', radius.toString());
-    
-    // Update services
-    if (selectedServices.length > 0) {
-      params.set('services', selectedServices.join(','));
-    } else {
-      params.delete('services');
-    }
-    
-    // Update rating
-    if (minRating > 0) {
-      params.set('rating', minRating.toString());
-    } else {
-      params.delete('rating');
-    }
-    
-    router.push(`?${params.toString()}`);
-  };
+  
+  const { 
+    filteredProviders,
+    activeService,
+    zipcode,
+    zipcodeInput,
+    setZipcodeInput,
+    setZipcode,
+    radius,
+    locationInfo,
+    selectedServices,
+    minRating,
+    updateFilters,
+    updateUrlParam,
+    resetFilters,
+    toggleServiceSelection,
+    handleRatingChange,
+    handleRadiusChange
+  } = useDirectoryFilters(providers);
 
   // Only allow numbers in the input
   const handleZipcodeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,46 +73,14 @@ export default function DirectoryContent() {
     if (e.key === "Enter") {
       if (zipcodeInput === "" || zipcodeInput.length === 5) {
         setZipcode(zipcodeInput);
-        updateFilters();
+        updateUrlParam('zipcode', zipcodeInput || null);
       }
     }
   };
 
-  const toggleServiceSelection = (serviceName: string) => {
-    setSelectedServices(prev => {
-      const newSelectedServices = prev.includes(serviceName)
-        ? prev.filter(s => s !== serviceName)
-        : [...prev, serviceName];
-      
-      // Update URL immediately after state change
-      setTimeout(() => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (newSelectedServices.length > 0) {
-          params.set('services', newSelectedServices.join(','));
-        } else {
-          params.delete('services');
-        }
-        router.push(`?${params.toString()}`);
-      }, 0);
-      
-      return newSelectedServices;
-    });
-  };
-  
-  // Handle rating change
-  const handleRatingChange = (value: string) => {
-    const ratingValue = parseInt(value);
-    setMinRating(ratingValue);
-    
-    // Update URL immediately
-    const params = new URLSearchParams(searchParams.toString());
-    if (ratingValue > 0) {
-      params.set('rating', value);
-    } else {
-      params.delete('rating');
-    }
-    router.push(`?${params.toString()}`);
-  };
+  if (!providers) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -300,11 +132,7 @@ export default function DirectoryContent() {
                               onClick={() => {
                                 setZipcodeInput('');
                                 setZipcode('');
-                                // Explicitly remove zipcode from URL
-                                const params = new URLSearchParams(searchParams.toString());
-                                params.delete('zipcode');
-                                router.push(`?${params.toString()}`);
-                                sessionStorage.removeItem('zipcode');
+                                updateUrlParam('zipcode', null);
                               }}
                             >
                               <XCircle className="h-4 w-4" />
@@ -317,22 +145,7 @@ export default function DirectoryContent() {
                           <Label htmlFor="radius" className="mb-2">Search Radius</Label>
                           <Select
                             value={radius.toString()}
-                            onValueChange={(value) => {
-                              const newRadius = Number(value);
-                              setRadius(newRadius);
-                              
-                              // Wait a moment to update filters to avoid re-render conflicts
-                              setTimeout(() => {
-                                const params = new URLSearchParams(searchParams.toString());
-                                params.set('radius', newRadius.toString());
-                                
-                                if (zipcode) {
-                                  params.set('zipcode', zipcode);
-                                }
-                                
-                                router.push(`?${params.toString()}`);
-                              }, 0);
-                            }}
+                            onValueChange={handleRadiusChange}
                           >
                             <SelectTrigger id="radius">
                               <SelectValue placeholder="Select radius" />
@@ -417,26 +230,7 @@ export default function DirectoryContent() {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => {
-                      // Reset all filter states
-                      setZipcode('');
-                      setZipcodeInput('');
-                      setRadius(25);
-                      setSelectedServices([]);
-                      setMinRating(0);
-                      
-                      // Keep only service param if it exists, remove all other params
-                      const params = new URLSearchParams();
-                      if (searchParams.get('service')) {
-                        params.set('service', searchParams.get('service')!);
-                      }
-                      
-                      // Clear zipcode in session storage
-                      sessionStorage.removeItem('zipcode');
-                      
-                      // Update URL
-                      router.push(params.toString() ? `?${params.toString()}` : '');
-                    }}
+                    onClick={resetFilters}
                     className="w-full"
                   >
                     Reset Filters
