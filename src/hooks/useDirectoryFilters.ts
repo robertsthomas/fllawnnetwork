@@ -119,7 +119,7 @@ export function useDirectoryFilters(providers: Provider[] | undefined, initialCi
     if (urlCity) {
       const normalizedCity = urlCity.toLowerCase();
       filtered = filtered.filter(provider => 
-        provider.address?.city?.toLowerCase() === normalizedCity
+        provider.address?.city?.toLowerCase().includes(normalizedCity)
       );
     }
     
@@ -340,6 +340,7 @@ export function useDirectoryFilters(providers: Provider[] | undefined, initialCi
     setZipcode,
     radius,
     locationInfo,
+    setLocationInfo,
     selectedServices,
     minRating,
     city,

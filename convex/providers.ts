@@ -98,3 +98,17 @@ export const backfillIsClaimed = mutation(async (ctx) => {
       });
     }
   });
+
+
+  export const backfillEmail = mutation(async (ctx) => {
+    const records = await ctx.db.query("providers").collect();
+  
+    for (const record of records) {
+      // Skip if already set
+      if (record.email !== undefined) continue;
+  
+      await ctx.db.patch(record._id, {
+        email: "", // or any default logic
+      });
+    }
+  });

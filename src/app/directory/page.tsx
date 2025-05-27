@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import DirectoryContent from '~/components/DirectoryContent';
 import MainLayout from '~/components/ui/MainLayout';
 import DirectoryLoading from '~/components/DirectoryLoading';
+import Hero from '~/components/Hero';
 
 export const metadata: Metadata = {
   title: 'Lawn Care Services Near Me | Find Local Lawn Maintenance & Landscaping',
@@ -15,36 +16,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DirectoryPage({
+export default async function DirectoryPage({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined }
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  // Get pagination parameters from URL
-  const page = typeof searchParams.page === 'string' ? parseInt(searchParams.page) : 1;
-  const limit = typeof searchParams.limit === 'string' ? parseInt(searchParams.limit) : 12;
+  const city = (await searchParams).city as string;
 
   return (
-    <MainLayout>
-      <Suspense fallback={
-        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-            {/* Filter sidebar placeholder */}
-            <div className="hidden lg:block lg:col-span-3">
-              <div className="sticky top-24">
-                {/* Skeleton for filters */}
-              </div>
-            </div>
-            
-            {/* Main content loading state */}
-            <div className="mt-8 lg:mt-0 lg:col-span-9">
-              <DirectoryLoading />
-            </div>
-          </div>
-        </div>
-      }>
-        <DirectoryContent page={page} limit={limit} />
-      </Suspense>
-    </MainLayout>
+    <main>
+      {/* <Hero /> */}
+      <DirectoryContent 
+        initialCity={city}
+      />
+    </main>
   );
 } 

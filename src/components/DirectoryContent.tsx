@@ -6,6 +6,22 @@ import ProviderCard from './ProviderCard';
 import { XCircle, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDirectoryFilters } from '~/hooks/useDirectoryFilters';
 import { services } from '~/data/providers';
+import { getLocationInfo } from '~/lib/location';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  flexRender,
+  createColumnHelper,
+  Row,
+  PaginationState,
+  OnChangeFn,
+  CellContext,
+} from '@tanstack/react-table';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { Provider } from '~/types';
+import DirectoryLoading from './DirectoryLoading';
 
 // shadcn UI components
 import { Button } from '~/components/ui/button';
@@ -35,10 +51,6 @@ import {
   RadioGroup,
   RadioGroupItem
 } from '~/components/ui/radio-group';
-import { useQuery } from 'convex/react';
-import { api } from '../../convex/_generated/api';
-import { Provider } from '~/types';
-import DirectoryLoading from './DirectoryLoading';
 
 // Create a more stable memoized version of Select to prevent unnecessary re-renders
 const MemoizedSelect = memo(
@@ -100,14 +112,50 @@ const MemoizedRadioGroup = memo(
 
 MemoizedRadioGroup.displayName = 'MemoizedRadioGroup';
 
+// Define column helper
+const columnHelper = createColumnHelper<Provider>();
+
+// Add this helper function at the top level
+function getPageRange(currentPage: number, totalPages: number) {
+  const delta = 2; // Number of pages to show on each side of current page
+  const range = [];
+  
+  for (
+    let i = Math.max(1, currentPage - delta);
+    i <= Math.min(totalPages, currentPage + delta);
+    i++
+  ) {
+    range.push(i);
+  }
+  
+  // Add first page and ellipsis if needed
+  if (range[0] > 1) {
+    range.unshift(1);
+    if (range[1] > 2) {
+      range.splice(1, 0, -1); // -1 represents ellipsis
+    }
+  }
+  
+  // Add last page and ellipsis if needed
+  if (range[range.length - 1] < totalPages) {
+    if (range[range.length - 2] < totalPages - 1) {
+      range.splice(range.length - 1, 0, -1); // -1 represents ellipsis
+    }
+    range.push(totalPages);
+  }
+  
+  return range;
+}
+
+// Add this helper function at the top level
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 export default function DirectoryContent({ 
   initialCity,
-  page = 1,
-  limit = 12
 }: { 
   initialCity?: string;
-  page?: number;
-  limit?: number;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -134,22 +182,26 @@ export default function DirectoryContent({
     resetFilters,
     toggleServiceSelection,
     handleRatingChange,
-    handleRadiusChange
+    handleRadiusChange,
+    setLocationInfo
   } = useDirectoryFilters(providers || [], initialCity);
 
-  // Calculate pagination
-  const totalProviders = filteredProviders.length;
-  const totalPages = Math.ceil(totalProviders / limit);
-  const startIndex = (page - 1) * limit;
-  const endIndex = startIndex + limit;
-  const paginatedProviders = filteredProviders.slice(startIndex, endIndex);
-
-  // Handle page change
-  const handlePageChange = (newPage: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('page', newPage.toString());
-    router.push(`/directory?${params.toString()}`);
-  };
+  // Setup table
+  const table = useReactTable({
+    data: filteredProviders,
+    columns: [
+      columnHelper.accessor('_id', {
+        cell: ({ row }: { row: Row<Provider> }) => <ProviderCard provider={row.original} />,
+      }),
+    ],
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 12,
+      },
+    },
+  });
 
   // Only allow numbers in the input
   const handleZipcodeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,6 +220,13 @@ export default function DirectoryContent({
       if (zipcodeInput === "" || zipcodeInput.length === 5) {
         setZipcode(zipcodeInput);
         updateUrlParam('zipcode', zipcodeInput || null);
+        // Update location info when zipcode changes
+        if (zipcodeInput) {
+          const locationInfo = getLocationInfo(zipcodeInput);
+          if (locationInfo) {
+            setLocationInfo(locationInfo);
+          }
+        }
       }
     }
   };
@@ -184,8 +243,8 @@ export default function DirectoryContent({
     } else {
       // When city is cleared, update URL to remove city parameter
       updateUrlParam('city', null);
-      // Navigate back to main directory page
-      window.location.href = '/directory';
+      // Navigate back to main directory page without city in URL
+      router.push('/directory');
     }
   };
 
@@ -196,7 +255,7 @@ export default function DirectoryContent({
         const formattedCity = cityInput.toLowerCase().replace(/\s+/g, '-');
         updateUrlParam('city', formattedCity);
         // Navigate to city-specific URL
-        window.location.href = `/directory/${formattedCity}`;
+        router.push(`/directory/${formattedCity}`);
       }
     }
   };
@@ -226,7 +285,7 @@ export default function DirectoryContent({
                 <CardTitle>Filters</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <Accordion type="multiple" className="w-full" defaultValue={["location", "services", "rating"]}>
+                <Accordion type="multiple" className="w-full" defaultValue={["location", "rating"]}>
                   {/* Location filter */}
                   <AccordionItem value="location">
                     <AccordionTrigger className="px-6">Location</AccordionTrigger>
@@ -250,6 +309,7 @@ export default function DirectoryContent({
                                 onClick={() => {
                                   setCityInput('');
                                   updateUrlParam('city', null);
+                                  router.replace('/directory');
                                 }}
                               >
                                 <XCircle className="h-4 w-4" />
@@ -395,16 +455,20 @@ export default function DirectoryContent({
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-lg font-medium text-gray-900">
-                    {totalProviders} providers found
+                    {filteredProviders.length} providers found
                     {activeService && (
                       <span className="text-gray-600 text-base font-normal">
                         for {activeService}
                       </span>
                     )}
-                    {cityInput && (
+                    {cityInput ? (
                       <span className="text-gray-600 text-base font-normal">
                         {activeService ? " " : " in "}
-                        {cityInput}
+                        {Array.from(new Set(filteredProviders.map(p => p.address?.city).filter(Boolean))).join(", ")}
+                      </span>
+                    ) : (
+                      <span className="text-gray-600 text-base font-normal">
+                        {/* {activeService ? " " : " "}showing all providers */}
                       </span>
                     )}
                     {zipcode && locationInfo && (
@@ -425,36 +489,68 @@ export default function DirectoryContent({
           ) : (
             <div className="space-y-6">
               {/* Provider cards */}
-              {paginatedProviders.length > 0 ? (
+              {filteredProviders.length > 0 ? (
                 <>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                    {paginatedProviders.map((provider, index) => (
-                      <ProviderCard key={index} provider={provider} />
+                    {table.getRowModel().rows.map((row: Row<Provider>) => (
+                      <div key={row.id}>
+                        {flexRender(row.getVisibleCells()[0].column.columnDef.cell, {
+                          row,
+                          table,
+                          getValue: () => row.original,
+                        } as CellContext<Provider, unknown>)}
+                      </div>
                     ))}
                   </div>
 
                   {/* Pagination controls */}
-                  {totalPages > 1 && (
+                  {table.getPageCount() > 1 && (
                     <div className="flex items-center justify-center space-x-2 mt-8">
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handlePageChange(page - 1)}
-                        disabled={page === 1}
+                        onClick={() => {
+                          table.previousPage();
+                          scrollToTop();
+                        }}
+                        disabled={!table.getCanPreviousPage()}
                       >
                         <ChevronLeft className="h-4 w-4" />
-                        Previous
+                        <span className="hidden sm:inline">Previous</span>
                       </Button>
-                      <div className="text-sm text-gray-600">
-                        Page {page} of {totalPages}
+                      
+                      {/* Page numbers */}
+                      <div className="flex items-center space-x-1">
+                        {getPageRange(table.getState().pagination.pageIndex + 1, table.getPageCount()).map((pageNum, idx) => (
+                          pageNum === -1 ? (
+                            <span key={`ellipsis-${idx}`} className="px-2 text-gray-500">...</span>
+                          ) : (
+                            <Button
+                              key={pageNum}
+                              variant={pageNum === table.getState().pagination.pageIndex + 1 ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => {
+                                table.setPageIndex(pageNum - 1);
+                                scrollToTop();
+                              }}
+                              className="min-w-[2rem]"
+                            >
+                              {pageNum}
+                            </Button>
+                          )
+                        ))}
                       </div>
+
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handlePageChange(page + 1)}
-                        disabled={page === totalPages}
+                        onClick={() => {
+                          table.nextPage();
+                          scrollToTop();
+                        }}
+                        disabled={!table.getCanNextPage()}
                       >
-                        Next
+                        <span className="hidden sm:inline">Next</span>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
