@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: 'https://lawnfinder.com',
+  siteUrl: 'https://fllawnnetwork.com',
   generateRobotsTxt: true,
   changefreq: 'daily',
   priority: 0.7,
@@ -8,7 +8,7 @@ module.exports = {
   exclude: ['/server-sitemap.xml'],
   robotsTxtOptions: {
     additionalSitemaps: [
-      'https://lawnfinder.com/server-sitemap.xml',
+      'https://fllawnnetwork.com/server-sitemap.xml',
     ],
     policies: [
       {

@@ -16,6 +16,7 @@ import {
     FormMessage,
 } from "~/components/ui/form";
 import { resend } from "~/lib/resend";
+import { useState } from 'react';
 
 const FormSchema = z.object({
     zipcode: z.string()
@@ -29,6 +30,8 @@ const FormSchema = z.object({
 type FormValues = z.infer<typeof FormSchema>;
 
 export default function Hero() {
+    const [inputValue, setInputValue] = useState('');
+
     const form = useForm<FormValues>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
@@ -85,11 +88,33 @@ export default function Hero() {
                         <div className="flex-grow relative">
                             <input
                                 name="zipcode"
+                                value={inputValue}
                                 placeholder="Enter city or ZIP code"
                                 className="w-full pl-10 h-12 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                                 required
                                 pattern="^(\d{5}|[a-zA-Z\s-]+)$"
                                 title="Please enter a valid city name or 5-digit ZIP code"
+                                maxLength={/^\d/.test(inputValue) ? 5 : undefined}
+                                onChange={(e) => {
+                                    const value = e.target.value;
+                                    // If the input starts with a number, limit to 5 digits
+                                    if (/^\d/.test(value)) {
+                                        setInputValue(value.slice(0, 5));
+                                    } else {
+                                        setInputValue(value);
+                                    }
+                                }}
+                                onPaste={(e) => {
+                                    const pastedText = e.clipboardData.getData('text');
+                                    // If the pasted text contains numbers
+                                    if (/\d/.test(pastedText)) {
+                                        e.preventDefault();
+                                        // Extract only numbers from the pasted text
+                                        const numbersOnly = pastedText.replace(/\D/g, '');
+                                        // Take only the first 5 digits
+                                        setInputValue(numbersOnly.slice(0, 5));
+                                    }
+                                }}
                             />
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                         </div>
@@ -111,13 +136,13 @@ export default function Hero() {
                     }}>Click me</button> */}
                     <div className="mt-4 flex flex-wrap justify-center sm:justify-start gap-2">
                         <span className="text-sm text-black/80">Popular:</span>
-                        <Link href="/directory?service=lawn-mowing" className="text-sm text-black hover:text-green-700 transition">Lawn Mowing</Link>
+                        <Link href="/directory" className="text-sm text-black hover:text-green-700 transition">Lawn Mowing</Link>
                         <span className="text-sm text-black/80">•</span>
-                        <Link href="/directory?service=landscaping" className="text-sm text-black hover:text-green-700 transition">Landscaping</Link>
+                        <Link href="/directory" className="text-sm text-black hover:text-green-700 transition">Landscaping</Link>
                         <span className="text-sm text-black/80">•</span>
-                        <Link href="/directory?service=garden-design" className="text-sm text-black hover:text-green-700 transition">Garden Design</Link>
+                        <Link href="/directory" className="text-sm text-black hover:text-green-700 transition">Garden Design</Link>
                         <span className="text-sm text-black/80">•</span>
-                        <Link href="/directory?service=irrigation" className="text-sm text-black hover:text-green-700 transition">Irrigation</Link>
+                        <Link href="/directory" className="text-sm text-black hover:text-green-700 transition">Irrigation</Link>
                     </div>
                 </div>
             </div>

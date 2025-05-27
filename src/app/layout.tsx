@@ -23,9 +23,9 @@ export const metadata: Metadata = {
   title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
   description: 'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes for lawn mowing, landscaping, and garden services.',
   keywords: 'lawn care services, lawn maintenance, landscaping services, garden services, lawn mowing, professional lawn care, local lawn services, lawn care near me, landscaping near me, garden maintenance, lawn service providers, lawn care professionals, residential lawn care, commercial lawn care, lawn care company, lawn service company',
-  authors: [{ name: 'FLLawnNetwork' }],
-  creator: 'FLLawnNetwork',
-  publisher: 'FLLawnNetwork',
+  authors: [{ name: 'Florida Lawn Network' }],
+  creator: 'Florida Lawn Network',
+  publisher: 'Florida Lawn Network',
   formatDetection: {
     email: false,
     address: false,
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
     description: 'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes for lawn mowing, landscaping, and garden services.',
     url: 'https://fllawnnetwork.com',
-    siteName: 'FLLawnNetwork',
+    siteName: 'Florida Lawn Network',
     locale: 'en_US',
     type: 'website',
     images: [

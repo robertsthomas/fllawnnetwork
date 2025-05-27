@@ -14,13 +14,13 @@ export default function Footer() {
             <div className="flex items-center">
               <Image
                 src="/logo.png"
-                alt="Florida LawnNetwork Logo"
+                alt="Florida Lawn Network Logo"
                 width={40}
                 height={40}
                 className="h-8 w-8"
                 priority
               />
-              <span className="ml-2 text-xl font-bold text-white">FLLawnNetwork</span>
+              <span className="ml-2 text-xl font-bold text-white">Florida Lawn Network</span>
             </div>
             <p className="text-gray-300 text-base">
               Connecting homeowners with reliable lawn care professionals since 2024.
@@ -160,7 +160,7 @@ export default function Footer() {
         </div>
         <div className="mt-12 border-t border-gray-700 pt-8">
           <p className="text-base text-gray-400 xl:text-center">
-            &copy; {currentYear} FLLawnNetwork. All rights reserved.
+            &copy; {currentYear} Florida Lawn Network. All rights reserved.
           </p>
         </div>
       </div>

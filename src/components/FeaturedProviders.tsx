@@ -52,15 +52,8 @@ export default function FeaturedProviders() {
   const [filteredProviders, setFilteredProviders] = useState<Provider[]>([]);
   const providers = useQuery(api.providers.get) as Provider[] | undefined;
   const isProvidersLoading = providers === undefined;
-  const [debug, setDebug] = useState({
-    featured: 0,
-    filteredCount: 0,
-    hasLocation: false,
-    userPostal: '',
-    radiusZips: 0,
-  });
 
-  console.log(debug);
+
 
   useEffect(() => {
     // Skip processing if providers data is empty
@@ -71,47 +64,25 @@ export default function FeaturedProviders() {
 
     // Filter providers by the featured property
     const featuredProviders = providers.filter(provider => provider.featured);
-    
+
     // Only show providers if we have location info
     if (location && location.postalCode && featuredProviders.length > 0) {
       const userPostalCode = location.postalCode;
-      
+
       // Get all zip codes within 50 miles of user location
       const zipcodesInRadius = getZipcodesInRadius(userPostalCode, 50);
-      
-      // Debug info
-      setDebug({
-        featured: featuredProviders.length,
-        filteredCount: 0,
-        hasLocation: true,
-        userPostal: userPostalCode,
-        radiusZips: zipcodesInRadius.length,
-      });
-      
+
       // Filter providers by whether they're in the radius
       const filtered = featuredProviders.filter(provider => {
         const providerPostalCode = provider.address?.postalCode;
         return providerPostalCode && zipcodesInRadius.includes(providerPostalCode);
       });
-      
-      // Update debug info
-      setDebug(prev => ({
-        ...prev,
-        filteredCount: filtered.length
-      }));
-      
       // Only show providers in the radius
       setFilteredProviders(filtered);
     } else {
       // Debug info for no location case
-      setDebug({
-        featured: featuredProviders.length,
-        filteredCount: 0,
-        hasLocation: !!location,
-        userPostal: location?.postalCode || '',
-        radiusZips: 0,
-      });
-      
+
+
       // If no location, show empty array
       setFilteredProviders([]);
     }
@@ -160,8 +131,8 @@ export default function FeaturedProviders() {
                 <div className="col-span-full text-center py-12">
                   <p className="text-gray-500">We're working hard to find the best providers in your area.</p>
                   <p className="text-gray-500 mt-2">In the meantime, check out our full directory of trusted lawn care professionals.</p>
-                  <Link 
-                    href="/directory" 
+                  <Link
+                    href="/directory"
                     className="inline-block mt-4 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
                   >
                     Browse Directory

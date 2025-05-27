@@ -25,13 +25,13 @@ export default function Header() {
             <Link href="/" className="flex items-center">
               <Image
                 src="/logo.png"
-                alt="Florida LawnNetwork Logo"
+                alt="Florida Lawn Network Logo"
                 width={40}
                 height={40}
                 className="h-8 w-8"
                 priority
               />
-              <span className="ml-2 text-xl font-bold text-gray-900">Florida LawnNetwork</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">Florida Lawn Network</span>
             </Link>
           </div>
           
@@ -85,13 +85,13 @@ export default function Header() {
                   <Link href="/" className="flex items-center">
                     <Image
                       src="/logo.png"
-                      alt="Florida LawnNetwork Logo"
+                      alt="Florida Lawn Network Logo"
                       width={40}
                       height={40}
                       className="h-8 w-8"
                       priority
                     />
-                    <span className="ml-2 text-xl font-bold text-gray-900">FLLawnNetwork</span>
+                    <span className="ml-2 text-xl font-bold text-gray-900">Florida Lawn Network</span>
                   </Link>
                 </div>
                 <div className="-mr-2">
