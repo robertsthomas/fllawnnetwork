@@ -1,15 +1,12 @@
-import { Suspense } from 'react';
 import MainLayout from '~/components/ui/MainLayout';
 import Hero from '~/components/Hero';
-import FeaturedProviders from '~/components/FeaturedProviders';
 import HowItWorks from '~/components/HowItWorks';
 import ServicesList from '~/components/ServicesList';
-import Testimonials from '~/components/Testimonials';
-import CTASection from '~/components/CTASection';
-import { services, reviews } from '~/data/providers';
+import { services } from '~/data/providers';
 import { Skeleton } from '~/components/ui/skeleton';
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 
+// Similar to FeaturedProvidersLoading but as a static component
 function FeaturedProvidersLoadingPlaceholder() {
   return (
     <div className="bg-white py-24 sm:py-32">
@@ -46,17 +43,13 @@ function FeaturedProvidersLoadingPlaceholder() {
   );
 }
 
-export default function Home() {
+export default function Loading() {
   return (
     <MainLayout>
       <Hero />
       <HowItWorks />
-      <Suspense fallback={<FeaturedProvidersLoadingPlaceholder />}>
-        <FeaturedProviders />
-      </Suspense>
+      <FeaturedProvidersLoadingPlaceholder />
       <ServicesList services={services} />
-      {/* <Testimonials reviews={reviews} /> */}
-      {/* <CTASection /> */}
     </MainLayout>
   );
 } 

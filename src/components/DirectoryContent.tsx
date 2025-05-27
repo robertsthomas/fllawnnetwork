@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, memo, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import ProviderCard from './ProviderCard';
 import { XCircle, Star } from 'lucide-react';
@@ -38,10 +38,75 @@ import {
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Provider } from '~/types';
+import DirectoryLoading from './DirectoryLoading';
+
+// Create a more stable memoized version of Select to prevent unnecessary re-renders
+const MemoizedSelect = memo(
+  ({ value, onValueChange, children }: { 
+    value: string, 
+    onValueChange: (value: string) => void,
+    children: React.ReactNode
+  }) => {
+    const previousValueRef = useRef(value);
+    
+    const handleValueChange = useCallback((newValue: string) => {
+      if (newValue !== previousValueRef.current) {
+        previousValueRef.current = newValue;
+        onValueChange(newValue);
+      }
+    }, [onValueChange]);
+    
+    return (
+      <Select value={value} onValueChange={handleValueChange}>
+        {children}
+      </Select>
+    );
+  },
+  (prevProps, nextProps) => {
+    // Custom comparison to prevent unnecessary re-renders
+    return prevProps.value === nextProps.value;
+  }
+);
+
+MemoizedSelect.displayName = 'MemoizedSelect';
+
+// Create a more stable memoized version of RadioGroup to prevent unnecessary re-renders
+const MemoizedRadioGroup = memo(
+  ({ value, onValueChange, children }: { 
+    value: string, 
+    onValueChange: (value: string) => void,
+    children: React.ReactNode
+  }) => {
+    const previousValueRef = useRef(value);
+    
+    const handleValueChange = useCallback((newValue: string) => {
+      if (newValue !== previousValueRef.current) {
+        previousValueRef.current = newValue;
+        onValueChange(newValue);
+      }
+    }, [onValueChange]);
+    
+    return (
+      <RadioGroup value={value} onValueChange={handleValueChange}>
+        {children}
+      </RadioGroup>
+    );
+  },
+  (prevProps, nextProps) => {
+    // Custom comparison to prevent unnecessary re-renders
+    return prevProps.value === nextProps.value;
+  }
+);
+
+MemoizedRadioGroup.displayName = 'MemoizedRadioGroup';
 
 export default function DirectoryContent() {
-  const providers = useQuery(api.providers.get) as Provider[];
+  const providers = useQuery(api.providers.get) as Provider[] | undefined;
+  const isLoading = providers === undefined;
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
+  const searchParams = useSearchParams();
+  const radiusFromUrl = searchParams.get('radius') || '25';
+  const ratingFromUrl = searchParams.get('rating') || '0';
   
   const { 
     filteredProviders,
@@ -60,7 +125,7 @@ export default function DirectoryContent() {
     toggleServiceSelection,
     handleRatingChange,
     handleRadiusChange
-  } = useDirectoryFilters(providers);
+  } = useDirectoryFilters(providers || []);
 
   // Only allow numbers in the input
   const handleZipcodeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,10 +142,6 @@ export default function DirectoryContent() {
       }
     }
   };
-
-  if (!providers) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -143,8 +204,8 @@ export default function DirectoryContent() {
                         
                         <div className="pt-2">
                           <Label htmlFor="radius" className="mb-2">Search Radius</Label>
-                          <Select
-                            value={radius.toString()}
+                          <MemoizedSelect
+                            value={radiusFromUrl}
                             onValueChange={handleRadiusChange}
                           >
                             <SelectTrigger id="radius">
@@ -156,7 +217,7 @@ export default function DirectoryContent() {
                               <SelectItem value="50">50 miles</SelectItem>
                               <SelectItem value="100">100 miles</SelectItem>
                             </SelectContent>
-                          </Select>
+                          </MemoizedSelect>
                         </div>
                       </div>
                     </AccordionContent>
@@ -192,8 +253,8 @@ export default function DirectoryContent() {
                   <AccordionItem value="rating">
                     <AccordionTrigger className="px-6">Minimum Rating</AccordionTrigger>
                     <AccordionContent className="px-6 pb-4">
-                      <RadioGroup 
-                        value={minRating.toString()} 
+                      <MemoizedRadioGroup
+                        value={ratingFromUrl}
                         onValueChange={handleRatingChange}
                       >
                         {[0, 1, 2, 3, 4, 5].map((rating) => (
@@ -216,7 +277,7 @@ export default function DirectoryContent() {
                             </Label>
                           </div>
                         ))}
-                      </RadioGroup>
+                      </MemoizedRadioGroup>
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
@@ -266,35 +327,42 @@ export default function DirectoryContent() {
             </CardContent>
           </Card>
           
-          {/* Provider cards */}
-          {filteredProviders.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-              {filteredProviders.map((provider, index) => (
-                <ProviderCard key={index} provider={provider} />
-              ))}
-            </div>
+          {/* Loading state or providers list */}
+          {isLoading ? (
+            <DirectoryLoading />
           ) : (
-            <div className="text-center py-12">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-12 w-12 text-gray-400 mx-auto"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
-                No providers found
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Try adjusting your search radius or filter criteria.
-              </p>
+            <div className="space-y-6">
+              {/* Provider cards */}
+              {filteredProviders.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                  {filteredProviders.map((provider, index) => (
+                    <ProviderCard key={index} provider={provider} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-12 w-12 text-gray-400 mx-auto"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">
+                    No providers found
+                  </h3>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Try adjusting your search radius or filter criteria.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

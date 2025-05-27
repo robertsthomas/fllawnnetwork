@@ -8,11 +8,59 @@ import zipcodes from 'zipcodes';
 import { Provider } from '~/types';
 import { api } from '~convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { getZipcodesInRadius } from '~/lib/location';
+import Link from 'next/link';
+import { Skeleton } from './ui/skeleton';
+
+// Featured provider loading skeleton component
+function FeaturedProvidersLoading() {
+  return (
+    <div className="mx-auto max-w-7xl px-6 lg:px-8">
+      <Card className="border-none bg-transparent shadow-none">
+        <CardHeader className="px-0 text-center">
+          <Skeleton className="h-10 w-56 mx-auto" />
+          <Skeleton className="h-6 w-96 mx-auto mt-2" />
+        </CardHeader>
+        <CardContent className="px-0">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Card key={i}>
+                <CardContent className="p-6">
+                  <div className="flex flex-col items-center gap-4">
+                    <Skeleton className="h-32 w-32 rounded-full" />
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <div className="flex space-x-2">
+                      {Array.from({ length: 5 }).map((_, j) => (
+                        <Skeleton key={j} className="h-4 w-4" />
+                      ))}
+                    </div>
+                    <Skeleton className="h-10 w-full mt-4" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
 export default function FeaturedProviders() {
   const { location, isLoading: isLocationLoading } = useLocation();
   const [filteredProviders, setFilteredProviders] = useState<Provider[]>([]);
-  const providers = useQuery(api.providers.get) as Provider[];
+  const providers = useQuery(api.providers.get) as Provider[] | undefined;
+  const isProvidersLoading = providers === undefined;
+  const [debug, setDebug] = useState({
+    featured: 0,
+    filteredCount: 0,
+    hasLocation: false,
+    userPostal: '',
+    radiusZips: 0,
+  });
+
+  console.log(debug);
 
   useEffect(() => {
     // Skip processing if providers data is empty
@@ -25,20 +73,45 @@ export default function FeaturedProviders() {
     const featuredProviders = providers.filter(provider => provider.featured);
     
     // If we have location info, further filter by distance
-    if (location && featuredProviders.length > 0) {
-      // Filter providers by distance within 50 miles
-      const filtered = featuredProviders.filter(provider => {
-        // Check if we have postal code to calculate distance
-        const providerPostalCode = provider.address.postalCode;
-        if (providerPostalCode && location.postalCode) {
-          const distance = zipcodes.distance(location.postalCode, providerPostalCode);
-          return distance !== null && distance <= 50;
-        }
-        return false;
+    if (location && location.postalCode && featuredProviders.length > 0) {
+      const userPostalCode = location.postalCode;
+      
+      // Get all zip codes within 50 miles of user location
+      const zipcodesInRadius = getZipcodesInRadius(userPostalCode, 50);
+      
+      // Debug info
+      setDebug({
+        featured: featuredProviders.length,
+        filteredCount: 0,
+        hasLocation: true,
+        userPostal: userPostalCode,
+        radiusZips: zipcodesInRadius.length,
       });
       
+      // Filter providers by whether they're in the radius
+      const filtered = featuredProviders.filter(provider => {
+        const providerPostalCode = provider.address?.postalCode;
+        return providerPostalCode && zipcodesInRadius.includes(providerPostalCode);
+      });
+      
+      // Update debug info
+      setDebug(prev => ({
+        ...prev,
+        filteredCount: filtered.length
+      }));
+      
+      // If no providers in radius, fall back to all featured providers
       setFilteredProviders(filtered.length > 0 ? filtered : featuredProviders);
     } else {
+      // Debug info for no location case
+      setDebug({
+        featured: featuredProviders.length,
+        filteredCount: 0,
+        hasLocation: !!location,
+        userPostal: location?.postalCode || '',
+        radiusZips: 0,
+      });
+      
       // If no location, show all featured providers
       setFilteredProviders(featuredProviders);
     }
@@ -52,22 +125,12 @@ export default function FeaturedProviders() {
     return 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto';
   };
 
-  const isLoading = isLocationLoading;
+  const isLoading = isLocationLoading || isProvidersLoading;
 
   if (isLoading) {
     return (
       <div className="bg-white py-24 sm:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="mx-auto max-w-2xl text-center">
-                <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                  Loading featured providers...
-                </h2>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <FeaturedProvidersLoading />
       </div>
     );
   }
@@ -95,8 +158,14 @@ export default function FeaturedProviders() {
                 ))
               ) : (
                 <div className="col-span-full text-center py-12">
-                  <p className="text-gray-500">No featured providers found in your area.</p>
-                  <p className="text-gray-500 mt-2">Try expanding your search or check back later.</p>
+                  <p className="text-gray-500">We're working hard to find the best providers in your area.</p>
+                  <p className="text-gray-500 mt-2">In the meantime, check out our full directory of trusted lawn care professionals.</p>
+                  <Link 
+                    href="/directory" 
+                    className="inline-block mt-4 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                  >
+                    Browse Directory
+                  </Link>
                 </div>
               )}
             </div>

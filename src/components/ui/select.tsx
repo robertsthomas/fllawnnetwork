@@ -6,7 +6,8 @@ import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "~/lib/utils"
 
-const Select = SelectPrimitive.Root
+// Use memo to prevent unnecessary re-renders
+const Select = React.memo(SelectPrimitive.Root)
 
 const SelectGroup = SelectPrimitive.Group
 
@@ -111,6 +112,9 @@ const SelectLabel = React.forwardRef<
 ))
 SelectLabel.displayName = SelectPrimitive.Label.displayName
 
+// Create stable ref for SelectItemText to avoid infinite render loops
+const StableSelectItemText = React.memo(SelectPrimitive.ItemText);
+
 const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
@@ -128,7 +132,7 @@ const SelectItem = React.forwardRef<
         <Check className="h-4 w-4" />
       </SelectPrimitive.ItemIndicator>
     </span>
-    <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
+    <StableSelectItemText>{children}</StableSelectItemText>
   </SelectPrimitive.Item>
 ))
 SelectItem.displayName = SelectPrimitive.Item.displayName

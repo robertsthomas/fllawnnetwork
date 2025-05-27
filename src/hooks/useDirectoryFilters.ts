@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { filterProvidersByRadius, getLocationInfo } from '~/lib/location';
 import { services } from '~/data/providers';
@@ -7,8 +7,12 @@ import { Provider } from '~/types';
 export function useDirectoryFilters(providers: Provider[] | undefined) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const isInitialMount = useRef(true);
   
+  // State for filtered providers
   const [filteredProviders, setFilteredProviders] = useState<Provider[]>([]);
+  
+  // State for UI filters
   const [activeService, setActiveService] = useState<string>("");
   const [zipcode, setZipcode] = useState<string>("");
   const [zipcodeInput, setZipcodeInput] = useState<string>("");
@@ -16,153 +20,30 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
   const [locationInfo, setLocationInfo] = useState<any>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [minRating, setMinRating] = useState<number>(0);
-
-  // Apply filters and update URL
-  const updateFilters = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    
-    // Update zipcode
-    if (zipcode) {
-      params.set('zipcode', zipcode);
-    } else {
-      params.delete('zipcode');
-    }
-    
-    // Update radius
-    params.set('radius', radius.toString());
-    
-    // Update services
-    if (selectedServices.length > 0) {
-      params.set('services', selectedServices.join(','));
-    } else {
-      params.delete('services');
-    }
-    
-    // Update rating
-    if (minRating > 0) {
-      params.set('rating', minRating.toString());
-    } else {
-      params.delete('rating');
-    }
-    
-    router.push(`?${params.toString()}`);
-  };
-
-  // Update URL directly with a single parameter
-  const updateUrlParam = (key: string, value: string | null) => {
-    const params = new URLSearchParams(searchParams.toString());
-    
-    if (value !== null) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    
-    router.push(`?${params.toString()}`);
-  };
-
-  // Reset all filters
-  const resetFilters = () => {
-    setZipcode('');
-    setZipcodeInput('');
-    setRadius(25);
-    setSelectedServices([]);
-    setMinRating(0);
-    
-    // Keep only service param if it exists, remove all other params
-    const params = new URLSearchParams();
-    if (searchParams.get('service')) {
-      params.set('service', searchParams.get('service')!);
-    }
-    
-    router.push(params.toString() ? `?${params.toString()}` : '');
-  };
-
-  // Handle service selection toggle
-  const toggleServiceSelection = (serviceName: string) => {
-    setSelectedServices(prev => {
-      const newSelectedServices = prev.includes(serviceName)
-        ? prev.filter(s => s !== serviceName)
-        : [...prev, serviceName];
-      
-      setTimeout(() => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (newSelectedServices.length > 0) {
-          params.set('services', newSelectedServices.join(','));
-        } else {
-          params.delete('services');
-        }
-        router.push(`?${params.toString()}`);
-      }, 0);
-      
-      return newSelectedServices;
-    });
-  };
   
-  // Handle rating change
-  const handleRatingChange = (value: string) => {
-    const ratingValue = parseInt(value);
-    setMinRating(ratingValue);
-    updateUrlParam('rating', ratingValue > 0 ? value : null);
-  };
+  // Flag to prevent recursive updates
+  const isUpdatingRef = useRef(false);
 
-  // Handle radius change
-  const handleRadiusChange = (value: string) => {
-    const radiusValue = Number(value);
-    setRadius(radiusValue);
-    updateUrlParam('radius', value);
-  };
-
-  // Normalize service name from URL
-  const normalizeServiceName = (name: string): string => {
-    return name.toLowerCase().replace(/-/g, ' ');
-  };
-
-  // Filter providers based on current filter values
+  // Load initial values from URL on mount
   useEffect(() => {
-    if (!providers) return;
-
+    if (!isInitialMount.current) return;
+    
     // Get parameters from URL
-    const urlZipcode = searchParams.get('zipcode');
-    const service = searchParams.get('service');
-    const urlRadius = searchParams.get('radius');
-    const urlRating = searchParams.get('rating');
-    const urlServices = searchParams.get('services');
-
-    // Set state from URL parameters
-    if (urlZipcode !== null) {
+    const urlZipcode = searchParams.get('zipcode') || "";
+    const urlService = searchParams.get('service') || "";
+    const urlRadius = searchParams.get('radius') || "25";
+    const urlRating = searchParams.get('rating') || "0";
+    const urlServices = searchParams.get('services') || "";
+    
+    // Set initial state from URL
+    if (urlZipcode) {
       setZipcode(urlZipcode);
       setZipcodeInput(urlZipcode);
-      const info = getLocationInfo(urlZipcode);
-      setLocationInfo(info);
-    } else {
-      setZipcode("");
-      setZipcodeInput("");
-      setLocationInfo(null);
+      setLocationInfo(getLocationInfo(urlZipcode));
     }
-
-    if (urlRadius) {
-      setRadius(parseInt(urlRadius));
-    }
-
-    if (urlRating) {
-      setMinRating(parseInt(urlRating));
-    }
-
-    if (urlServices) {
-      setSelectedServices(urlServices.split(','));
-    } else {
-      setSelectedServices([]);
-    }
-
-    // Apply filters to providers
-    let filtered = [...(providers ?? [])] as Provider[];
-
-    // Filter by service from the URL query parameter
-    if (service) {
-      const normalizedService = normalizeServiceName(service);
-      
-      // Find matching service in our service list for display purposes
+    
+    if (urlService) {
+      const normalizedService = normalizeServiceName(urlService);
       const matchingService = services.find(s => 
         normalizeServiceName(s.name) === normalizedService
       );
@@ -170,26 +51,46 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
       if (matchingService) {
         setActiveService(matchingService.name);
       } else {
-        // If no exact match, capitalize first letter of each word for display
         setActiveService(normalizedService
           .split(' ')
           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ')
         );
       }
+    }
+    
+    setRadius(parseInt(urlRadius) || 25);
+    setMinRating(parseInt(urlRating) || 0);
+    
+    if (urlServices) {
+      setSelectedServices(urlServices.split(','));
+    }
+    
+    isInitialMount.current = false;
+  }, [searchParams]);
 
-      // Filter providers by the normalized service
+  // Apply filters to providers whenever providers or filter criteria change
+  useEffect(() => {
+    if (!providers || isUpdatingRef.current) return;
+    
+    // Apply filters to providers
+    let filtered = [...(providers ?? [])] as Provider[];
+    
+    // Filter by service from the URL query parameter
+    const service = searchParams.get('service');
+    if (service) {
+      const normalizedService = normalizeServiceName(service);
       filtered = filtered.filter((provider) =>
         provider.categories?.some(category => 
           normalizeServiceName(category) === normalizedService
         )
       );
     }
-
-    // Filter by selected services
+    
+    // Filter by selected services from URL
+    const urlServices = searchParams.get('services');
     if (urlServices && urlServices.split(',').length > 0) {
       const servicesArray = urlServices.split(',');
-      
       filtered = filtered.filter(provider =>
         provider.categories?.some(category => 
           servicesArray.some(selectedService => 
@@ -198,19 +99,222 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
         )
       );
     }
-
-    // Filter by rating
+    
+    // Filter by rating from URL
+    const urlRating = searchParams.get('rating');
     if (urlRating) {
-      filtered = filtered.filter(provider => (provider.totalScore || 0) >= parseInt(urlRating));
+      filtered = filtered.filter(provider => 
+        (provider.totalScore || 0) >= parseInt(urlRating)
+      );
     }
-
-    // Filter by zipcode and radius
+    
+    // Filter by zipcode and radius from URL
+    const urlZipcode = searchParams.get('zipcode');
+    const urlRadius = searchParams.get('radius') || '25';
     if (urlZipcode) {
-      filtered = filterProvidersByRadius<Provider>(filtered, urlZipcode, parseInt(urlRadius || '25'));
+      filtered = filterProvidersByRadius<Provider>(
+        filtered, 
+        urlZipcode, 
+        parseInt(urlRadius)
+      );
     }
+    
+    // Only update if the filtered results are different
+    if (JSON.stringify(filtered) !== JSON.stringify(filteredProviders)) {
+      setFilteredProviders(filtered);
+    }
+  }, [providers, searchParams, filteredProviders]);
 
-    setFilteredProviders(filtered);
-  }, [providers, searchParams]);
+  // Normalize service name
+  const normalizeServiceName = (name: string): string => {
+    return name.toLowerCase().replace(/-/g, ' ');
+  };
+
+  // Update URL with current filter state
+  const updateUrlWithFilters = useCallback(() => {
+    if (isUpdatingRef.current) return;
+    
+    isUpdatingRef.current = true;
+    
+    try {
+      const params = new URLSearchParams(searchParams.toString());
+      
+      // Update zipcode
+      if (zipcode) {
+        params.set('zipcode', zipcode);
+      } else {
+        params.delete('zipcode');
+      }
+      
+      // Update radius
+      params.set('radius', radius.toString());
+      
+      // Update services
+      if (selectedServices.length > 0) {
+        params.set('services', selectedServices.join(','));
+      } else {
+        params.delete('services');
+      }
+      
+      // Update rating
+      if (minRating > 0) {
+        params.set('rating', minRating.toString());
+      } else {
+        params.delete('rating');
+      }
+      
+      // Preserve service param if it exists
+      const serviceParam = searchParams.get('service');
+      if (serviceParam) {
+        params.set('service', serviceParam);
+      }
+      
+      // Only update URL if params have changed
+      const newParamsString = params.toString();
+      if (newParamsString !== searchParams.toString()) {
+        router.push(`?${newParamsString}`);
+      }
+    } finally {
+      // Clear the updating flag after a delay
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 100);
+    }
+  }, [zipcode, radius, selectedServices, minRating, searchParams, router]);
+
+  // Update a single URL parameter
+  const updateUrlParam = useCallback((key: string, value: string | null) => {
+    if (isUpdatingRef.current) return;
+    
+    isUpdatingRef.current = true;
+    
+    try {
+      const params = new URLSearchParams(searchParams.toString());
+      
+      if (value !== null) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+      
+      router.push(`?${params.toString()}`);
+    } finally {
+      // Clear the updating flag after a delay
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 100);
+    }
+  }, [searchParams, router]);
+
+  // Reset all filters
+  const resetFilters = useCallback(() => {
+    if (isUpdatingRef.current) return;
+    
+    isUpdatingRef.current = true;
+    
+    try {
+      // Reset local state
+      setZipcode('');
+      setZipcodeInput('');
+      setRadius(25);
+      setSelectedServices([]);
+      setMinRating(0);
+      
+      // Keep only service param if it exists, remove all other params
+      const params = new URLSearchParams();
+      const serviceParam = searchParams.get('service');
+      if (serviceParam) {
+        params.set('service', serviceParam);
+      }
+      
+      router.push(params.toString() ? `?${params.toString()}` : '');
+    } finally {
+      // Clear the updating flag after a delay
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 100);
+    }
+  }, [searchParams, router]);
+
+  // Handle service selection toggle
+  const toggleServiceSelection = useCallback((serviceName: string) => {
+    if (isUpdatingRef.current) return;
+    
+    // Update local state first
+    const newSelectedServices = selectedServices.includes(serviceName)
+      ? selectedServices.filter(s => s !== serviceName)
+      : [...selectedServices, serviceName];
+    
+    setSelectedServices(newSelectedServices);
+    
+    // Then update URL
+    isUpdatingRef.current = true;
+    
+    try {
+      const params = new URLSearchParams(searchParams.toString());
+      
+      if (newSelectedServices.length > 0) {
+        params.set('services', newSelectedServices.join(','));
+      } else {
+        params.delete('services');
+      }
+      
+      router.push(`?${params.toString()}`);
+    } finally {
+      // Clear the updating flag after a delay
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 100);
+    }
+  }, [selectedServices, searchParams, router]);
+  
+  // Handle rating change
+  const handleRatingChange = useCallback((value: string) => {
+    if (isUpdatingRef.current) return;
+    
+    const ratingValue = parseInt(value);
+    setMinRating(ratingValue);
+    
+    isUpdatingRef.current = true;
+    
+    try {
+      const params = new URLSearchParams(searchParams.toString());
+      
+      if (ratingValue > 0) {
+        params.set('rating', value);
+      } else {
+        params.delete('rating');
+      }
+      
+      router.push(`?${params.toString()}`);
+    } finally {
+      // Clear the updating flag after a delay
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 100);
+    }
+  }, [searchParams, router]);
+
+  // Handle radius change
+  const handleRadiusChange = useCallback((value: string) => {
+    if (isUpdatingRef.current) return;
+    
+    const radiusValue = Number(value);
+    setRadius(radiusValue);
+    
+    isUpdatingRef.current = true;
+    
+    try {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('radius', value);
+      router.push(`?${params.toString()}`);
+    } finally {
+      // Clear the updating flag after a delay
+      setTimeout(() => {
+        isUpdatingRef.current = false;
+      }, 100);
+    }
+  }, [searchParams, router]);
 
   return {
     filteredProviders,
@@ -223,7 +327,7 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
     locationInfo,
     selectedServices,
     minRating,
-    updateFilters,
+    updateFilters: updateUrlWithFilters,
     updateUrlParam,
     resetFilters,
     toggleServiceSelection,
