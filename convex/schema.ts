@@ -12,6 +12,7 @@ export default defineSchema({
     }),
     website: v.union(v.string(), v.null()),
     phone: v.union(v.string(), v.null()),
+    email: v.union(v.string(), v.null()),
     featured: v.boolean(),
     categories: v.array(v.string()),
     totalScore: v.number(),
@@ -26,6 +27,7 @@ export default defineSchema({
       facebook: v.union(v.string(), v.null()),
       youtube: v.union(v.string(), v.null()),
       tiktok: v.union(v.string(), v.null())
-    })
+    }),
+    isClaimed: v.optional(v.boolean())
   }),
 });

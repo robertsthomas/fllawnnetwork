@@ -14,8 +14,10 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
 import { useTracking } from '~/hooks/useTracking';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from '~/contexts/LocationContext';
+import { cn, formatPhoneNumber } from '~/lib/utils';
+import { Loader2 } from 'lucide-react';
 
 // Define featured provider IDs
 const FEATURED_PLACE_IDS = [
@@ -42,6 +44,8 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
   const { trackProviderProfileClick, trackProviderContact } = useTracking();
   const provider = useQuery(api.providers.getProviderById, { id });
   const { location } = useLocation();
+  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   useEffect(() => {
     if (provider) {
@@ -99,6 +103,46 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
           userLocation: location ? `${location.city}, ${location.state}` : undefined,
         }
       );
+    }
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setFormStatus('submitting');
+    setErrorMessage(null);
+
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      service: formData.get('service'),
+      message: formData.get('message'),
+      providerId: provider?._id.toString(),
+    };
+
+    try {
+      const response = await fetch('/api/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send message');
+      }
+
+      setFormStatus('success');
+      e.currentTarget.reset();
+      handleContactClick('form');
+    } catch (error) {
+      console.error('Error sending form:', error);
+      setFormStatus('error');
+      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   };
 
@@ -168,21 +212,21 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
                 {`Professional lawn care services by ${provider.title}`}
               </p>
               
-              <div className="mt-6 flex flex-wrap gap-4">
+              <div className="mt-6 flex gap-4">
                 <Button 
                   asChild 
-                  className="px-6 py-3 shadow-sm transition transform hover:scale-105"
+                  className={cn("px-6 py-3 shadow-sm transition hover:bg-green-600 bg-green-500 text-white w-full")}
                   onClick={() => handleContactClick('form')}
                 >
                   <Link href={`/contact?provider=${provider._id.toString() || ''}`}>
                     Get a Quote
                   </Link>
                 </Button>
-                {provider.phone && (
+                {provider.isClaimed && provider.phone && (
                   <Button 
                     asChild 
                     variant="outline" 
-                    className="px-6 py-3 border-white text-black hover:bg-white hover:text-gray-900 transition"
+                    className="px-6 py-3 transition bg-white text-black hover:bg-slate-500 hover:text-white w-full"
                     onClick={() => handleContactClick('phone')}
                   >
                     <a href={`tel:${provider.phone}`}>
@@ -343,27 +387,23 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
               <CardContent>
                 <form 
                   className="space-y-4"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleContactClick('form');
-                    // Your existing form submission logic
-                  }}
+                  onSubmit={handleFormSubmit}
                 >
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Name</label>
-                    <Input type="text" />
+                    <Input name="name" type="text" required />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Email</label>
-                    <Input type="email" />
+                    <Input name="email" type="email" required />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Phone</label>
-                    <Input type="tel" />
+                    <Input name="phone" type="tel" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Service</label>
-                    <Select>
+                    <Select name="service">
                       <SelectTrigger>
                         <SelectValue placeholder="Select a service" />
                       </SelectTrigger>
@@ -376,16 +416,118 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Message</label>
-                    <Textarea placeholder="Tell us about your lawn care needs" className="h-24" />
+                    <Textarea name="message" placeholder="Tell us about your lawn care needs" className="h-24" required />
                   </div>
                   
                   <Button 
                     type="submit"
                     className="w-full"
+                    disabled={formStatus === 'submitting'}
                   >
-                    Send Request
+                    {formStatus === 'submitting' ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : 'Send Request'}
                   </Button>
+
+                  {formStatus === 'success' && (
+                    <div className="rounded-md bg-green-50 p-4">
+                      <div className="flex">
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-green-800">
+                            Your message has been sent successfully!
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {formStatus === 'error' && (
+                    <div className="rounded-md bg-red-50 p-4">
+                      <div className="flex">
+                        <div className="ml-3">
+                          <p className="text-sm font-medium text-red-800">
+                            {errorMessage || 'There was an error sending your message. Please try again.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </form>
+
+                {provider.isClaimed && (
+                  <div className="mt-8 pt-6 border-t border-gray-200">
+                    <h3 className="text-sm font-medium text-gray-900 mb-4">Contact Information</h3>
+                    <div className="space-y-3">
+                      {provider.phone && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                          </svg>
+                          <a href={`tel:${provider.phone}`} className="hover:text-primary-600">{formatPhoneNumber(provider.phone)}</a>
+                        </div>
+                      )}
+                      {provider.email && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                          </svg>
+                          <a href={`mailto:${provider.email}`} className="hover:text-primary-600">{provider.email}</a>
+                        </div>
+                      )}
+                      {provider.website && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z" clipRule="evenodd" />
+                          </svg>
+                          <a href={provider.website} target="_blank" rel="noopener noreferrer" className="hover:text-primary-600">{provider.website}</a>
+                        </div>
+                      )}
+                      {(socials.instagram || socials.facebook || socials.twitter || socials.youtube || socials.tiktok) && (
+                        <div className="flex items-center gap-3 mt-4">
+                          {socials.instagram && (
+                            <a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-pink-600 transition-colors">
+                              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                              </svg>
+                            </a>
+                          )}
+                          {socials.facebook && (
+                            <a href={socials.facebook} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors">
+                              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                              </svg>
+                            </a>
+                          )}
+                          {socials.twitter && (
+                            <a href={socials.twitter} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition-colors">
+                              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                              </svg>
+                            </a>
+                          )}
+                          {socials.youtube && (
+                            <a href={socials.youtube} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-red-600 transition-colors">
+                              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                              </svg>
+                            </a>
+                          )}
+                          {socials.tiktok && (
+                            <a href={socials.tiktok} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-black transition-colors">
+                              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+                              </svg>
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

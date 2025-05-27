@@ -22,7 +22,7 @@ function FeaturedProvidersLoading() {
           <Skeleton className="h-6 w-96 mx-auto mt-2" />
         </CardHeader>
         <CardContent className="px-0">
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-20">
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-x-8 gap-y-20">
             {Array.from({ length: 3 }).map((_, i) => (
               <Card key={i}>
                 <CardContent className="p-6">
@@ -72,7 +72,7 @@ export default function FeaturedProviders() {
     // Filter providers by the featured property
     const featuredProviders = providers.filter(provider => provider.featured);
     
-    // If we have location info, further filter by distance
+    // Only show providers if we have location info
     if (location && location.postalCode && featuredProviders.length > 0) {
       const userPostalCode = location.postalCode;
       
@@ -100,8 +100,8 @@ export default function FeaturedProviders() {
         filteredCount: filtered.length
       }));
       
-      // If no providers in radius, fall back to all featured providers
-      setFilteredProviders(filtered.length > 0 ? filtered : featuredProviders);
+      // Only show providers in the radius
+      setFilteredProviders(filtered);
     } else {
       // Debug info for no location case
       setDebug({
@@ -112,8 +112,8 @@ export default function FeaturedProviders() {
         radiusZips: 0,
       });
       
-      // If no location, show all featured providers
-      setFilteredProviders(featuredProviders);
+      // If no location, show empty array
+      setFilteredProviders([]);
     }
   }, [providers, location?.postalCode]);
 
@@ -153,7 +153,7 @@ export default function FeaturedProviders() {
           <CardContent className="px-0">
             <div className={`mt-8 grid gap-x-8 gap-y-20 ${getGridClasses()}`}>
               {filteredProviders.length > 0 ? (
-                filteredProviders.map((provider) => (
+                filteredProviders.slice(0, 3).map((provider) => (
                   <ProviderCard key={provider._id.toString()} provider={provider} />
                 ))
               ) : (

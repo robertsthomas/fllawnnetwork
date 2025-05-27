@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useRef, memo, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import ProviderCard from './ProviderCard';
-import { XCircle, Star } from 'lucide-react';
+import { XCircle, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDirectoryFilters } from '~/hooks/useDirectoryFilters';
 import { services } from '~/data/providers';
 
@@ -100,13 +100,23 @@ const MemoizedRadioGroup = memo(
 
 MemoizedRadioGroup.displayName = 'MemoizedRadioGroup';
 
-export default function DirectoryContent() {
+export default function DirectoryContent({ 
+  initialCity,
+  page = 1,
+  limit = 12
+}: { 
+  initialCity?: string;
+  page?: number;
+  limit?: number;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const providers = useQuery(api.providers.get) as Provider[] | undefined;
   const isLoading = providers === undefined;
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
-  const searchParams = useSearchParams();
   const radiusFromUrl = searchParams.get('radius') || '25';
   const ratingFromUrl = searchParams.get('rating') || '0';
+  const [cityInput, setCityInput] = useState<string>(initialCity || '');
   
   const { 
     filteredProviders,
@@ -125,12 +135,31 @@ export default function DirectoryContent() {
     toggleServiceSelection,
     handleRatingChange,
     handleRadiusChange
-  } = useDirectoryFilters(providers || []);
+  } = useDirectoryFilters(providers || [], initialCity);
+
+  // Calculate pagination
+  const totalProviders = filteredProviders.length;
+  const totalPages = Math.ceil(totalProviders / limit);
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedProviders = filteredProviders.slice(startIndex, endIndex);
+
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', newPage.toString());
+    router.push(`/directory?${params.toString()}`);
+  };
 
   // Only allow numbers in the input
   const handleZipcodeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
     setZipcodeInput(value);
+    // Clear city when zipcode is entered
+    if (value) {
+      setCityInput('');
+      updateUrlParam('city', null);
+    }
   };
 
   // Handle Enter key for zipcode
@@ -139,6 +168,35 @@ export default function DirectoryContent() {
       if (zipcodeInput === "" || zipcodeInput.length === 5) {
         setZipcode(zipcodeInput);
         updateUrlParam('zipcode', zipcodeInput || null);
+      }
+    }
+  };
+
+  // Handle city input change
+  const handleCityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCityInput(value);
+    // Clear zipcode when city is entered
+    if (value) {
+      setZipcodeInput('');
+      setZipcode('');
+      updateUrlParam('zipcode', null);
+    } else {
+      // When city is cleared, update URL to remove city parameter
+      updateUrlParam('city', null);
+      // Navigate back to main directory page
+      window.location.href = '/directory';
+    }
+  };
+
+  // Handle Enter key for city
+  const handleCityInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      if (cityInput) {
+        const formattedCity = cityInput.toLowerCase().replace(/\s+/g, '-');
+        updateUrlParam('city', formattedCity);
+        // Navigate to city-specific URL
+        window.location.href = `/directory/${formattedCity}`;
       }
     }
   };
@@ -173,34 +231,62 @@ export default function DirectoryContent() {
                   <AccordionItem value="location">
                     <AccordionTrigger className="px-6">Location</AccordionTrigger>
                     <AccordionContent className="px-6 pb-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="zipcode">Zipcode</Label>
-                        <div className="relative">
-                          <Input
-                            id="zipcode"
-                            value={zipcodeInput}
-                            onChange={handleZipcodeInputChange}
-                            onKeyDown={handleZipcodeInputKeyDown}
-                            placeholder="Enter zipcode"
-                            minLength={0}
-                            maxLength={5}
-                            className="pr-8"
-                          />
-                          {zipcodeInput && (
-                            <button
-                              type="button"
-                              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
-                              onClick={() => {
-                                setZipcodeInput('');
-                                setZipcode('');
-                                updateUrlParam('zipcode', null);
-                              }}
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </button>
-                          )}
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="city">City</Label>
+                          <div className="relative">
+                            <Input
+                              id="city"
+                              value={cityInput}
+                              onChange={handleCityInputChange}
+                              onKeyDown={handleCityInputKeyDown}
+                              placeholder="Enter city name"
+                              className="pr-8"
+                            />
+                            {cityInput && (
+                              <button
+                                type="button"
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
+                                onClick={() => {
+                                  setCityInput('');
+                                  updateUrlParam('city', null);
+                                }}
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-xs text-muted-foreground">Enter 5 digits and press Enter</p>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="zipcode">Zipcode</Label>
+                          <div className="relative">
+                            <Input
+                              id="zipcode"
+                              value={zipcodeInput}
+                              onChange={handleZipcodeInputChange}
+                              onKeyDown={handleZipcodeInputKeyDown}
+                              placeholder="Enter zipcode"
+                              minLength={0}
+                              maxLength={5}
+                              className="pr-8"
+                            />
+                            {zipcodeInput && (
+                              <button
+                                type="button"
+                                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
+                                onClick={() => {
+                                  setZipcodeInput('');
+                                  setZipcode('');
+                                  updateUrlParam('zipcode', null);
+                                }}
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">Enter 5 digits and press Enter</p>
+                        </div>
                         
                         <div className="pt-2">
                           <Label htmlFor="radius" className="mb-2">Search Radius</Label>
@@ -309,10 +395,16 @@ export default function DirectoryContent() {
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <h2 className="text-lg font-medium text-gray-900">
-                    {filteredProviders.length} providers found
+                    {totalProviders} providers found
                     {activeService && (
                       <span className="text-gray-600 text-base font-normal">
                         for {activeService}
+                      </span>
+                    )}
+                    {cityInput && (
+                      <span className="text-gray-600 text-base font-normal">
+                        {activeService ? " " : " in "}
+                        {cityInput}
                       </span>
                     )}
                     {zipcode && locationInfo && (
@@ -333,12 +425,41 @@ export default function DirectoryContent() {
           ) : (
             <div className="space-y-6">
               {/* Provider cards */}
-              {filteredProviders.length > 0 ? (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                  {filteredProviders.map((provider, index) => (
-                    <ProviderCard key={index} provider={provider} />
-                  ))}
-                </div>
+              {paginatedProviders.length > 0 ? (
+                <>
+                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                    {paginatedProviders.map((provider, index) => (
+                      <ProviderCard key={index} provider={provider} />
+                    ))}
+                  </div>
+
+                  {/* Pagination controls */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center space-x-2 mt-8">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={page === 1}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Previous
+                      </Button>
+                      <div className="text-sm text-gray-600">
+                        Page {page} of {totalPages}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={page === totalPages}
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="text-center py-12">
                   <svg

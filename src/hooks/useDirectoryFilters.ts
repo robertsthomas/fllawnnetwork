@@ -4,7 +4,7 @@ import { filterProvidersByRadius, getLocationInfo } from '~/lib/location';
 import { services } from '~/data/providers';
 import { Provider } from '~/types';
 
-export function useDirectoryFilters(providers: Provider[] | undefined) {
+export function useDirectoryFilters(providers: Provider[] | undefined, initialCity?: string) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isInitialMount = useRef(true);
@@ -20,6 +20,7 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
   const [locationInfo, setLocationInfo] = useState<any>(null);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [minRating, setMinRating] = useState<number>(0);
+  const [city, setCity] = useState<string>(initialCity || "");
   
   // Flag to prevent recursive updates
   const isUpdatingRef = useRef(false);
@@ -34,12 +35,17 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
     const urlRadius = searchParams.get('radius') || "25";
     const urlRating = searchParams.get('rating') || "0";
     const urlServices = searchParams.get('services') || "";
+    const urlCity = searchParams.get('city') || initialCity || "";
     
     // Set initial state from URL
     if (urlZipcode) {
       setZipcode(urlZipcode);
       setZipcodeInput(urlZipcode);
       setLocationInfo(getLocationInfo(urlZipcode));
+    }
+    
+    if (urlCity) {
+      setCity(urlCity);
     }
     
     if (urlService) {
@@ -67,7 +73,7 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
     }
     
     isInitialMount.current = false;
-  }, [searchParams]);
+  }, [searchParams, initialCity]);
 
   // Apply filters to providers whenever providers or filter criteria change
   useEffect(() => {
@@ -108,6 +114,15 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
       );
     }
     
+    // Filter by city from URL or initialCity
+    const urlCity = searchParams.get('city') || initialCity;
+    if (urlCity) {
+      const normalizedCity = urlCity.toLowerCase();
+      filtered = filtered.filter(provider => 
+        provider.address?.city?.toLowerCase() === normalizedCity
+      );
+    }
+    
     // Filter by zipcode and radius from URL
     const urlZipcode = searchParams.get('zipcode');
     const urlRadius = searchParams.get('radius') || '25';
@@ -123,7 +138,7 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
     if (JSON.stringify(filtered) !== JSON.stringify(filteredProviders)) {
       setFilteredProviders(filtered);
     }
-  }, [providers, searchParams, filteredProviders]);
+  }, [providers, searchParams, filteredProviders, initialCity]);
 
   // Normalize service name
   const normalizeServiceName = (name: string): string => {
@@ -327,6 +342,7 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
     locationInfo,
     selectedServices,
     minRating,
+    city,
     updateFilters: updateUrlWithFilters,
     updateUrlParam,
     resetFilters,

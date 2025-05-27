@@ -19,21 +19,33 @@ import { resend } from "~/lib/resend";
 
 const FormSchema = z.object({
     zipcode: z.string()
-        .min(5, { message: "ZIP code must be 5 digits" })
-        .max(5, { message: "ZIP code must be 5 digits" })
-        .regex(/^\d+$/, { message: "ZIP code must contain only numbers" }),
+        .min(1, { message: "Please enter a city or ZIP code" })
+        .refine((val) => {
+            // Allow either a 5-digit ZIP code or a city name
+            return /^\d{5}$/.test(val) || /^[a-zA-Z\s-]+$/.test(val);
+        }, { message: "Please enter a valid city name or 5-digit ZIP code" }),
 });
 
+type FormValues = z.infer<typeof FormSchema>;
+
 export default function Hero() {
-    const form = useForm<z.infer<typeof FormSchema>>({
+    const form = useForm<FormValues>({
         resolver: zodResolver(FormSchema),
         defaultValues: {
             zipcode: "",
         },
     });
 
-    function onSubmit(data: z.infer<typeof FormSchema>) {
-        window.location.href = `/directory?zipcode=${encodeURIComponent(data.zipcode)}`;
+    function onSubmit(data: FormValues) {
+        const location = data.zipcode.trim();
+        if (/^\d{5}$/.test(location)) {
+            // If it's a ZIP code, use the query parameter approach
+            window.location.href = `/directory?zipcode=${encodeURIComponent(location)}`;
+        } else {
+            // If it's a city name, use the city-specific URL
+            const formattedCity = location.toLowerCase().replace(/\s+/g, '-');
+            window.location.href = `/directory/${formattedCity}`;
+        }
     }
 
     return (
@@ -58,40 +70,37 @@ export default function Hero() {
                 </p>
 
                 <div className="mt-10 max-w-xl animate-slide-up bg-white/95 backdrop-blur-sm rounded-lg p-4" style={{ animationDelay: '200ms' }}>
-                    <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col sm:flex-row gap-4">
-                            <FormField
-                                control={form.control}
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        const location = formData.get('zipcode')?.toString().trim() || '';
+                        
+                        if (/^\d{5}$/.test(location)) {
+                            window.location.href = `/directory?zipcode=${encodeURIComponent(location)}`;
+                        } else {
+                            const formattedCity = location.toLowerCase().replace(/\s+/g, '-');
+                            window.location.href = `/directory/${formattedCity}`;
+                        }
+                    }} className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex-grow relative">
+                            <input
                                 name="zipcode"
-                                render={({ field }) => (
-                                    <FormItem className="flex-grow">
-                                        <FormControl>
-                                            <div className="relative">
-                                                <Input
-                                                    {...field}
-                                                    placeholder="Enter ZIP code"
-                                                    className="pl-10"
-                                                    maxLength={5}
-                                                    inputMode="numeric"
-                                                    data-1p-ignore="true"
-                                                    data-lpignore="true"
-                                                />
-                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                            </div>
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
+                                placeholder="Enter city or ZIP code"
+                                className="w-full pl-10 h-12 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                required
+                                pattern="^(\d{5}|[a-zA-Z\s-]+)$"
+                                title="Please enter a valid city name or 5-digit ZIP code"
                             />
-                            <Button
-                                type="submit"
-                                className="bg-primary-600 hover:bg-primary-700 text-white"
-                            >
-                                <Search className="mr-2 h-4 w-4" />
-                                Search
-                            </Button>
-                        </form>
-                    </Form>
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                        </div>
+                        <Button
+                            type="submit"
+                            className="bg-primary-600 hover:bg-primary-700 text-white"
+                        >
+                            <Search className="mr-2 h-4 w-4" />
+                            Search
+                        </Button>
+                    </form>
                     {/* <button onClick={async () => {
                         await fetch('/api/send', {
                             method: 'POST',

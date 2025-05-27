@@ -15,7 +15,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function DirectoryPage() {
+export default function DirectoryPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
+  // Get pagination parameters from URL
+  const page = typeof searchParams.page === 'string' ? parseInt(searchParams.page) : 1;
+  const limit = typeof searchParams.limit === 'string' ? parseInt(searchParams.limit) : 12;
+
   return (
     <MainLayout>
       <Suspense fallback={
@@ -35,7 +43,7 @@ export default function DirectoryPage() {
           </div>
         </div>
       }>
-        <DirectoryContent />
+        <DirectoryContent page={page} limit={limit} />
       </Suspense>
     </MainLayout>
   );
