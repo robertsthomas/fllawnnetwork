@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import MainLayout from '@/components/ui/MainLayout';
-import ContactForm from '@/components/ContactForm';
+import MainLayout from '~/components/ui/MainLayout';
+import ContactForm from '~/components/ContactForm';
 
 export const metadata: Metadata = {
   title: 'Contact Us - Lawn Care Directory',

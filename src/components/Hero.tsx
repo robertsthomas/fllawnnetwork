@@ -6,16 +6,16 @@ import { z } from "zod";
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Button } from '~/components/ui/button';
 import {
     Form,
     FormControl,
     FormField,
     FormItem,
     FormMessage,
-} from "@/components/ui/form";
-import { resend } from "@/lib/resend";
+} from "~/components/ui/form";
+import { resend } from "~/lib/resend";
 
 const FormSchema = z.object({
     zipcode: z.string()

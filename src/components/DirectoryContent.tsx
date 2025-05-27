@@ -3,64 +3,52 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import ProviderCard from './ProviderCard';
-import { LawnCareProvider } from '@/types';
-import { filterProvidersByRadius, getLocationInfo } from '@/lib/location';
-import { services } from '@/data/providers';
+import { filterProvidersByRadius, getLocationInfo } from '~/lib/location';
+import { services } from '~/data/providers';
 import { XCircle, Star } from 'lucide-react';
-import { useProviders } from '@/hooks/useProviders';
 
 // shadcn UI components
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
 import { 
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue 
-} from '@/components/ui/select';
+} from '~/components/ui/select';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle
-} from '@/components/ui/card';
+} from '~/components/ui/card';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Slider } from '@/components/ui/slider';
+} from '~/components/ui/accordion';
+import { Checkbox } from '~/components/ui/checkbox';
+import { Slider } from '~/components/ui/slider';
 import {
   RadioGroup,
   RadioGroupItem
-} from '@/components/ui/radio-group';
+} from '~/components/ui/radio-group';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { Provider } from '~/types';
 
-interface DirectoryContentProps {
-  initialProviders: LawnCareProvider[];
-}
 
-export default function DirectoryContent({ initialProviders = [] }: DirectoryContentProps) {
+
+export default function DirectoryContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // Get providers from TanStack Query
-  const { data: providersFromApi = [], isLoading: isProvidersLoading } = useProviders();
-  
-  // Use providersFromApi instead of initialProviders
-  const [providers, setProviders] = useState<LawnCareProvider[]>(providersFromApi.length > 0 ? providersFromApi : initialProviders);
-  
-  // Update providers when data from API is loaded
-  useEffect(() => {
-    if (providersFromApi.length > 0) {
-      setProviders(providersFromApi);
-    }
-  }, [providersFromApi]);
+  const providers = useQuery(api.providers.get) as Provider[];
+  console.log('providers', providers);
 
-  const [filteredProviders, setFilteredProviders] = useState<LawnCareProvider[]>([]);
+  const [filteredProviders, setFilteredProviders] = useState<Provider[]>([]);
   const [activeService, setActiveService] = useState<string>("");
   const [zipcode, setZipcode] = useState<string>("");
   const [zipcodeInput, setZipcodeInput] = useState<string>("");
@@ -71,6 +59,8 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
   const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
 
   useEffect(() => {
+    if (!providers) return; // 👈 prevent running before providers is loaded
+
     // Get parameters from URL or sessionStorage
     const urlZipcode = searchParams.get('zipcode') || 
       (typeof window !== 'undefined' ? sessionStorage.getItem('zipcode') : null);
@@ -105,7 +95,7 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
     }
 
     // Filter providers
-    let filtered = [...providers];
+    let filtered = [...(providers ?? [])] as Provider[];
 
     // Normalize service name from URL
     const normalizeServiceName = (name: string): string => {
@@ -166,11 +156,15 @@ export default function DirectoryContent({ initialProviders = [] }: DirectoryCon
 
     // Filter by zipcode and radius
     if (urlZipcode) {
-      filtered = filterProvidersByRadius(filtered, urlZipcode, parseInt(urlRadius || '25'));
+      filtered = filterProvidersByRadius<Provider>(filtered, urlZipcode, parseInt(urlRadius || '25'));
     }
 
     setFilteredProviders(filtered);
   }, [providers, searchParams]);
+
+  if (!providers) {
+    return <div>Loading...</div>;
+  }
 
   const updateFilters = () => {
     const params = new URLSearchParams(searchParams.toString());

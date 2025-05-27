@@ -1,16 +1,18 @@
 'use client';
 
-import { useProvider } from '@/hooks/useProviders';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { getProviderMainImage, getProviderSocials } from '@/lib/apify';
+import { Input } from '~/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
+import { Textarea } from '~/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
+import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
+import { getProviderMainImage, getProviderSocials } from '~/lib/apify';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { Id } from '../../convex/_generated/dataModel';
 
 // Define featured provider IDs
 const FEATURED_PLACE_IDS = [
@@ -30,13 +32,13 @@ const galleryImages = [
 ];
 
 interface ProviderDetailContentProps {
-  id: string;
+  id: Id<"providers">
 }
 
 export default function ProviderDetailContent({ id }: ProviderDetailContentProps) {
-  const { data: provider, isLoading } = useProvider(id);
+  const provider = useQuery(api.providers.getProviderById, { id });
   
-  if (isLoading) {
+  if (!provider) {
     return <div>Loading provider details...</div>;
   }
   
@@ -45,15 +47,15 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
   }
   
   // Get the featured image or fallback to the first image in the array
-  const featuredImage = provider.imageUrl || (provider.imageUrls?.length ? provider.imageUrls[0] : 'https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg');
+  const featuredImage = provider.imageUrls[0] || provider.featuredImageUrl || 'https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg'
   
   // Format address
   const formatAddress = () => {
-    if (!provider.city && !provider.state) return '';
+    if (!provider.address.city && !provider.address.state) return '';
     
     const parts = [];
-    if (provider.city) parts.push(provider.city);
-    if (provider.state) parts.push(provider.state);
+    if (provider.address.city) parts.push(provider.address.city);
+    if (provider.address.state) parts.push(provider.address.state);
     return parts.join(', ');
   };
 
@@ -86,7 +88,7 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
             />
             <div className="mt-6 md:mt-0">
               <div className="flex flex-wrap gap-3">
-                {FEATURED_PLACE_IDS.includes(provider.placeId) && (
+                {FEATURED_PLACE_IDS.includes(provider._id.toString()) && (
                   <Badge variant="secondary" className="bg-accent-500 text-white hover:bg-accent-600 px-3 py-1 rounded-full">
                     Featured Provider
                   </Badge>
@@ -123,18 +125,18 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
               </div>
               
               <p className="mt-4 text-xl text-gray-300 max-w-3xl">
-                {provider.description || `Professional lawn care services by ${provider.title}`}
+                {`Professional lawn care services by ${provider.title}`}
               </p>
               
               <div className="mt-6 flex flex-wrap gap-4">
                 <Button asChild className="px-6 py-3 shadow-sm transition transform hover:scale-105">
-                  <Link href={`/contact?provider=${provider.placeId || ''}`}>
+                  <Link href={`/contact?provider=${provider._id.toString() || ''}`}>
                     Get a Quote
                   </Link>
                 </Button>
                 {provider.phone && (
                   <Button asChild variant="outline" className="px-6 py-3 border-white text-black hover:bg-white hover:text-gray-900 transition">
-                    <a href={`tel:${provider.phoneUnformatted || provider.phone}`}>
+                    <a href={`tel:${provider.phone}`}>
                       Call Now
                     </a>
                   </Button>
@@ -193,7 +195,7 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
                       <h3 className="text-lg font-medium text-gray-900">{category}</h3>
                       <p className="mt-1 text-sm text-gray-600">Professional {category.toLowerCase()} services tailored to your needs</p>
                       <Link 
-                        href={`/contact?provider=${provider.placeId || ''}&service=${category.toLowerCase().replace(' ', '-')}`}
+                        href={`/contact?provider=${provider._id.toString() || ''}&service=${category.toLowerCase().replace(' ', '-')}`}
                         className="mt-2 text-sm text-primary-600 hover:text-primary-700 inline-flex items-center"
                       >
                         Get a quote
@@ -333,7 +335,7 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
                     <div className="flex justify-center space-x-4 mt-2">
                       {provider.phone && (
                         <Button variant="ghost" size="icon" asChild className="text-primary-600 hover:text-primary-700">
-                          <a href={`tel:${provider.phoneUnformatted || provider.phone}`}>
+                          <a href={`tel:${provider.phone}`}>
                             <span className="sr-only">Phone</span>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                               <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />

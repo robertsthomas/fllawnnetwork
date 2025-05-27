@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { LawnCareProvider } from '@/types';
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { getProviderMainImage, isProviderFeatured } from '@/lib/apify';
+import { Card, CardContent, CardFooter, CardHeader } from "~/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import { getProviderMainImage, isProviderFeatured } from '~/lib/apify';
+import { Doc } from '../../convex/_generated/dataModel';
 
 // Define featured provider IDs
 const FEATURED_PLACE_IDS = [
@@ -17,27 +17,27 @@ const FEATURED_PLACE_IDS = [
 ];
 
 interface ProviderCardProps {
-  provider: LawnCareProvider;
+  provider: Doc<"providers">;
 }
 
 export default function ProviderCard({ provider }: ProviderCardProps) {
-  const featured = FEATURED_PLACE_IDS.includes(provider.placeId);
+  const featured = FEATURED_PLACE_IDS.includes(provider._id.toString());
   const featuredImageUrl = getProviderMainImage(provider) || undefined;
   const defaultImage = "https://images.pexels.com/photos/589/garden-grass-meadow-green.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
   const initials = provider.title?.split(' ').map(word => word[0]).join('').toUpperCase() || 'P';
   
   // Format address
   const formatAddress = () => {
-    if (!provider.city && !provider.state) return '';
+    if (!provider.address.city && !provider.address.state) return '';
     
     const parts = [];
-    if (provider.city) parts.push(provider.city);
-    if (provider.state) parts.push(provider.state);
+    if (provider.address.city) parts.push(provider.address.city);
+    if (provider.address.state) parts.push(provider.address.state);
     return parts.join(', ');
   };
   
   // Format description
-  const description = provider.description || `Professional lawn care services by ${provider.title}`;
+  const description = `Professional lawn care services by ${provider.title}`;
   
   return (
     <Card className={`h-full overflow-hidden ${featured ? 'border-2 border-accent-500' : ''}`}>
@@ -106,12 +106,12 @@ export default function ProviderCard({ provider }: ProviderCardProps) {
       
       <CardFooter className="p-4 pt-0 flex space-x-3">
         <Button asChild variant="default" className="flex-1">
-          <Link href={`/providers/${provider.placeId}`}>
+          <Link href={`/providers/${provider._id.toString()}`}>
             View Profile
           </Link>
         </Button>
         <Button asChild variant="outline" className="flex-1 border-primary-600 text-primary-600 hover:bg-primary-50">
-          <Link href={`/contact?provider=${provider.placeId}`}>
+          <Link href={`/contact?provider=${provider._id.toString()}`}>
             Get Quote
           </Link>
         </Button>

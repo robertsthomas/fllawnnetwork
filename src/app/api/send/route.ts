@@ -1,4 +1,4 @@
-import { resend } from '@/lib/resend';
+import { resend } from '~/lib/resend';
 import { NextRequest } from 'next/server';
 
 export async function POST(request: NextRequest) {

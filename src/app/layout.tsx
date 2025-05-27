@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import { Inter, Montserrat } from 'next/font/google'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import Header from '~/components/Header'
+import Footer from '~/components/Footer'
 import './globals.css'
 import Link from 'next/link'
-import { LocationProvider } from '@/contexts/LocationContext'
-import { PostHogProvider } from '@/components/PostHogProvider'
-import { QueryProvider } from '@/components/QueryProvider'
+import { LocationProvider } from '~/contexts/LocationContext'
+import { PostHogProvider } from '~/components/PostHogProvider'
+import { QueryProvider } from '~/components/QueryProvider'
+import { ConvexClientProvider } from '~/providers'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -82,6 +83,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full bg-gray-50">
       <body className={`h-full ${inter.variable} ${montserrat.variable}`}>
+        <ConvexClientProvider>
         <PostHogProvider>
           <QueryProvider>
             <LocationProvider>
@@ -93,6 +95,7 @@ export default function RootLayout({
             </LocationProvider>
           </QueryProvider>
         </PostHogProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   )

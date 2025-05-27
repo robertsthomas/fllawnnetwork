@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import MainLayout from '@/components/ui/MainLayout';
+import MainLayout from '~/components/ui/MainLayout';
 import { Suspense } from 'react';
-import ProviderDetailContent from '@/components/ProviderDetailContent';
+import ProviderDetailContent from '~/components/ProviderDetailContent';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { Button } from '~/components/ui/button';
+import { Id } from '../../../../convex/_generated/dataModel';
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const id = params.id;
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default function ProviderDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: { id: Id<"providers"> };
 }) {
   const { id } = params;
   

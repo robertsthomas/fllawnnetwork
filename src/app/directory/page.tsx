@@ -1,8 +1,7 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import DirectoryContent from '@/components/DirectoryContent';
-import MainLayout from '@/components/ui/MainLayout';
-import { getProviders } from '@/lib/strapi';
+import DirectoryContent from '~/components/DirectoryContent';
+import MainLayout from '~/components/ui/MainLayout';
 
 export const metadata: Metadata = {
   title: 'Lawn Care Services Near Me | Find Local Lawn Maintenance & Landscaping',
@@ -19,7 +18,7 @@ export default function DirectoryPage() {
   return (
     <MainLayout>
       <Suspense fallback={<div>Loading directory...</div>}>
-        <DirectoryContent initialProviders={[]} />
+        <DirectoryContent />
       </Suspense>
     </MainLayout>
   );
