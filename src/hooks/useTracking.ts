@@ -4,8 +4,8 @@ export function useTracking() {
   const posthog = usePostHog();
 
   const trackProviderProfileClick = (
-    providerId: string, 
-    providerName: string, 
+    providerId: string,
+    providerName: string,
     source: string,
     additionalProps?: Record<string, any>
   ) => {
@@ -46,4 +46,4 @@ export function useTracking() {
     trackProviderProfileClick,
     trackProviderContact,
   };
-} 
+}

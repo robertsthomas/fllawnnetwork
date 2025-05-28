@@ -1,28 +1,30 @@
-import type { Metadata } from 'next'
-import { Inter, Montserrat } from 'next/font/google'
-import Header from '~/components/Header'
-import Footer from '~/components/Footer'
-import './globals.css'
-import Link from 'next/link'
-import { LocationProvider } from '~/contexts/LocationContext'
-import { PostHogProvider } from '~/components/PostHogProvider'
-import { QueryProvider } from '~/components/QueryProvider'
-import { ConvexClientProvider } from '~/providers'
+import type { Metadata } from 'next';
+import { Inter, Montserrat } from 'next/font/google';
+import Link from 'next/link';
+import Footer from '~/components/Footer';
+import Header from '~/components/Header';
+import { PostHogProvider } from '~/components/PostHogProvider';
+import { QueryProvider } from '~/components/QueryProvider';
+import { LocationProvider } from '~/contexts/LocationContext';
+import { ConvexClientProvider } from '~/providers';
+import './globals.css';
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
-})
+});
 
 const montserrat = Montserrat({
   subsets: ['latin'],
   variable: '--font-montserrat',
-})
+});
 
 export const metadata: Metadata = {
   title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
-  description: 'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes for lawn mowing, landscaping, and garden services.',
-  keywords: 'lawn care services, lawn maintenance, landscaping services, garden services, lawn mowing, professional lawn care, local lawn services, lawn care near me, landscaping near me, garden maintenance, lawn service providers, lawn care professionals, residential lawn care, commercial lawn care, lawn care company, lawn service company',
+  description:
+    'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes for lawn mowing, landscaping, and garden services.',
+  keywords:
+    'lawn care services, lawn maintenance, landscaping services, garden services, lawn mowing, professional lawn care, local lawn services, lawn care near me, landscaping near me, garden maintenance, lawn service providers, lawn care professionals, residential lawn care, commercial lawn care, lawn care company, lawn service company',
   authors: [{ name: 'Florida Lawn Network' }],
   creator: 'Florida Lawn Network',
   publisher: 'Florida Lawn Network',
@@ -37,7 +39,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
-    description: 'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes for lawn mowing, landscaping, and garden services.',
+    description:
+      'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes for lawn mowing, landscaping, and garden services.',
     url: 'https://fllawnnetwork.com',
     siteName: 'Florida Lawn Network',
     locale: 'en_US',
@@ -54,7 +57,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
-    description: 'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes.',
+    description:
+      'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes.',
     images: ['/twitter-image.jpg'],
     creator: '@fllawnnetwork',
   },
@@ -73,30 +77,28 @@ export const metadata: Metadata = {
     google: 'your-google-site-verification',
     yandex: 'your-yandex-verification',
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" className="h-full bg-gray-50">
       <body className={`h-full ${inter.variable} ${montserrat.variable}`}>
         <ConvexClientProvider>
-        <PostHogProvider>
-          <QueryProvider>
-            <LocationProvider>
-              <Header />
-              <div className="pt-16">
-                {children}
-              </div>
-              <Footer />
-            </LocationProvider>
-          </QueryProvider>
-        </PostHogProvider>
+          <PostHogProvider>
+            <QueryProvider>
+              <LocationProvider>
+                <Header />
+                <div className="pt-16">{children}</div>
+                <Footer />
+              </LocationProvider>
+            </QueryProvider>
+          </PostHogProvider>
         </ConvexClientProvider>
       </body>
     </html>
-  )
+  );
 }

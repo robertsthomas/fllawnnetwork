@@ -1,73 +1,72 @@
 'use client';
 
-import { useState, useRef, memo, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import ProviderCard from './ProviderCard';
-import { XCircle, Star, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useDirectoryFilters } from '~/hooks/useDirectoryFilters';
-import { services } from '~/data/providers';
-import { getLocationInfo } from '~/lib/location';
 import {
-  useReactTable,
+  CellContext,
+  OnChangeFn,
+  PaginationState,
+  Row,
+  createColumnHelper,
+  flexRender,
   getCoreRowModel,
   getPaginationRowModel,
-  flexRender,
-  createColumnHelper,
-  Row,
-  PaginationState,
-  OnChangeFn,
-  CellContext,
+  useReactTable,
 } from '@tanstack/react-table';
 import { useQuery } from 'convex/react';
-import { api } from '../../convex/_generated/api';
+import { ChevronLeft, ChevronRight, Star, XCircle } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { memo, useCallback, useRef, useState } from 'react';
+import { services } from '~/data/providers';
+import { useDirectoryFilters } from '~/hooks/useDirectoryFilters';
+import { getLocationInfo } from '~/lib/location';
 import { Provider } from '~/types';
+import { api } from '../../convex/_generated/api';
 import DirectoryLoading from './DirectoryLoading';
+import ProviderCard from './ProviderCard';
 
-// shadcn UI components
-import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue 
-} from '~/components/ui/select';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '~/components/ui/card';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '~/components/ui/accordion';
+// shadcn UI components
+import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Checkbox } from '~/components/ui/checkbox';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
 import {
-  RadioGroup,
-  RadioGroupItem
-} from '~/components/ui/radio-group';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select';
 
 // Create a more stable memoized version of Select to prevent unnecessary re-renders
 const MemoizedSelect = memo(
-  ({ value, onValueChange, children }: { 
-    value: string, 
-    onValueChange: (value: string) => void,
-    children: React.ReactNode
+  ({
+    value,
+    onValueChange,
+    children,
+  }: {
+    value: string;
+    onValueChange: (value: string) => void;
+    children: React.ReactNode;
   }) => {
     const previousValueRef = useRef(value);
-    
-    const handleValueChange = useCallback((newValue: string) => {
-      if (newValue !== previousValueRef.current) {
-        previousValueRef.current = newValue;
-        onValueChange(newValue);
-      }
-    }, [onValueChange]);
-    
+
+    const handleValueChange = useCallback(
+      (newValue: string) => {
+        if (newValue !== previousValueRef.current) {
+          previousValueRef.current = newValue;
+          onValueChange(newValue);
+        }
+      },
+      [onValueChange]
+    );
+
     return (
       <Select value={value} onValueChange={handleValueChange}>
         {children}
@@ -84,20 +83,27 @@ MemoizedSelect.displayName = 'MemoizedSelect';
 
 // Create a more stable memoized version of RadioGroup to prevent unnecessary re-renders
 const MemoizedRadioGroup = memo(
-  ({ value, onValueChange, children }: { 
-    value: string, 
-    onValueChange: (value: string) => void,
-    children: React.ReactNode
+  ({
+    value,
+    onValueChange,
+    children,
+  }: {
+    value: string;
+    onValueChange: (value: string) => void;
+    children: React.ReactNode;
   }) => {
     const previousValueRef = useRef(value);
-    
-    const handleValueChange = useCallback((newValue: string) => {
-      if (newValue !== previousValueRef.current) {
-        previousValueRef.current = newValue;
-        onValueChange(newValue);
-      }
-    }, [onValueChange]);
-    
+
+    const handleValueChange = useCallback(
+      (newValue: string) => {
+        if (newValue !== previousValueRef.current) {
+          previousValueRef.current = newValue;
+          onValueChange(newValue);
+        }
+      },
+      [onValueChange]
+    );
+
     return (
       <RadioGroup value={value} onValueChange={handleValueChange}>
         {children}
@@ -119,7 +125,7 @@ const columnHelper = createColumnHelper<Provider>();
 function getPageRange(currentPage: number, totalPages: number) {
   const delta = 2; // Number of pages to show on each side of current page
   const range = [];
-  
+
   for (
     let i = Math.max(1, currentPage - delta);
     i <= Math.min(totalPages, currentPage + delta);
@@ -127,7 +133,7 @@ function getPageRange(currentPage: number, totalPages: number) {
   ) {
     range.push(i);
   }
-  
+
   // Add first page and ellipsis if needed
   if (range[0] > 1) {
     range.unshift(1);
@@ -135,7 +141,7 @@ function getPageRange(currentPage: number, totalPages: number) {
       range.splice(1, 0, -1); // -1 represents ellipsis
     }
   }
-  
+
   // Add last page and ellipsis if needed
   if (range[range.length - 1] < totalPages) {
     if (range[range.length - 2] < totalPages - 1) {
@@ -143,7 +149,7 @@ function getPageRange(currentPage: number, totalPages: number) {
     }
     range.push(totalPages);
   }
-  
+
   return range;
 }
 
@@ -152,9 +158,9 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-export default function DirectoryContent({ 
+export default function DirectoryContent({
   initialCity,
-}: { 
+}: {
   initialCity?: string;
 }) {
   const router = useRouter();
@@ -165,8 +171,8 @@ export default function DirectoryContent({
   const radiusFromUrl = searchParams.get('radius') || '25';
   const ratingFromUrl = searchParams.get('rating') || '0';
   const [cityInput, setCityInput] = useState<string>(initialCity || '');
-  
-  const { 
+
+  const {
     filteredProviders,
     activeService,
     zipcode,
@@ -183,7 +189,7 @@ export default function DirectoryContent({
     toggleServiceSelection,
     handleRatingChange,
     handleRadiusChange,
-    setLocationInfo
+    setLocationInfo,
   } = useDirectoryFilters(providers || [], initialCity);
 
   // Setup table
@@ -205,7 +211,7 @@ export default function DirectoryContent({
 
   // Only allow numbers in the input
   const handleZipcodeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9]/g, "");
+    const value = e.target.value.replace(/[^0-9]/g, '');
     setZipcodeInput(value);
     // Clear city when zipcode is entered
     if (value) {
@@ -216,8 +222,8 @@ export default function DirectoryContent({
 
   // Handle Enter key for zipcode
   const handleZipcodeInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      if (zipcodeInput === "" || zipcodeInput.length === 5) {
+    if (e.key === 'Enter') {
+      if (zipcodeInput === '' || zipcodeInput.length === 5) {
         setZipcode(zipcodeInput);
         updateUrlParam('zipcode', zipcodeInput || null);
         // Update location info when zipcode changes
@@ -250,7 +256,7 @@ export default function DirectoryContent({
 
   // Handle Enter key for city
   const handleCityInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       if (cityInput) {
         const formattedCity = cityInput.toLowerCase().replace(/\s+/g, '-');
         updateUrlParam('city', formattedCity);
@@ -271,8 +277,17 @@ export default function DirectoryContent({
             onClick={() => setIsFiltersOpen(!isFiltersOpen)}
           >
             <span>Filters</span>
-            <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transform ${isFiltersOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className={`h-5 w-5 transform ${isFiltersOpen ? 'rotate-180' : ''}`}
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
             </svg>
           </Button>
         </div>
@@ -285,7 +300,7 @@ export default function DirectoryContent({
                 <CardTitle>Filters</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <Accordion type="multiple" className="w-full" defaultValue={["location", "rating"]}>
+                <Accordion type="multiple" className="w-full" defaultValue={['location', 'rating']}>
                   {/* Location filter */}
                   <AccordionItem value="location">
                     <AccordionTrigger className="px-6">Location</AccordionTrigger>
@@ -345,15 +360,16 @@ export default function DirectoryContent({
                               </button>
                             )}
                           </div>
-                          <p className="text-xs text-muted-foreground">Enter 5 digits and press Enter</p>
+                          <p className="text-xs text-muted-foreground">
+                            Enter 5 digits and press Enter
+                          </p>
                         </div>
-                        
+
                         <div className="pt-2">
-                          <Label htmlFor="radius" className="mb-2">Search Radius</Label>
-                          <MemoizedSelect
-                            value={radiusFromUrl}
-                            onValueChange={handleRadiusChange}
-                          >
+                          <Label htmlFor="radius" className="mb-2">
+                            Search Radius
+                          </Label>
+                          <MemoizedSelect value={radiusFromUrl} onValueChange={handleRadiusChange}>
                             <SelectTrigger id="radius">
                               <SelectValue placeholder="Select radius" />
                             </SelectTrigger>
@@ -368,7 +384,7 @@ export default function DirectoryContent({
                       </div>
                     </AccordionContent>
                   </AccordionItem>
-                  
+
                   {/* Services filter */}
                   <AccordionItem value="services">
                     <AccordionTrigger className="px-6">Services</AccordionTrigger>
@@ -382,8 +398,8 @@ export default function DirectoryContent({
                               checked={selectedServices.includes(service.name)}
                               onCheckedChange={() => toggleServiceSelection(service.name)}
                             />
-                            <Label 
-                              htmlFor={`service-${service.id}`} 
+                            <Label
+                              htmlFor={`service-${service.id}`}
                               className="flex items-center text-sm cursor-pointer"
                             >
                               <span className="mr-2">{service.icon}</span>
@@ -394,19 +410,19 @@ export default function DirectoryContent({
                       </div>
                     </AccordionContent>
                   </AccordionItem>
-                  
+
                   {/* Rating filter */}
                   <AccordionItem value="rating">
                     <AccordionTrigger className="px-6">Minimum Rating</AccordionTrigger>
                     <AccordionContent className="px-6 pb-4">
-                      <MemoizedRadioGroup
-                        value={ratingFromUrl}
-                        onValueChange={handleRatingChange}
-                      >
+                      <MemoizedRadioGroup value={ratingFromUrl} onValueChange={handleRatingChange}>
                         {[0, 1, 2, 3, 4, 5].map((rating) => (
                           <div key={rating} className="flex items-center space-x-2 py-1">
                             <RadioGroupItem value={rating.toString()} id={`rating-${rating}`} />
-                            <Label htmlFor={`rating-${rating}`} className="flex items-center cursor-pointer">
+                            <Label
+                              htmlFor={`rating-${rating}`}
+                              className="flex items-center cursor-pointer"
+                            >
                               {rating === 0 ? (
                                 <span>Any rating</span>
                               ) : (
@@ -414,7 +430,11 @@ export default function DirectoryContent({
                                   {Array.from({ length: 5 }).map((_, i) => (
                                     <Star
                                       key={i}
-                                      className={`h-4 w-4 ${i < rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+                                      className={`h-4 w-4 ${
+                                        i < rating
+                                          ? 'text-yellow-400 fill-yellow-400'
+                                          : 'text-gray-300'
+                                      }`}
                                     />
                                   ))}
                                   <span className="ml-1 text-sm">{rating === 1 ? '& up' : ''}</span>
@@ -427,19 +447,12 @@ export default function DirectoryContent({
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
-                
+
                 <div className="p-6 space-y-2">
-                  <Button 
-                    onClick={updateFilters}
-                    className="w-full"
-                  >
+                  <Button onClick={updateFilters} className="w-full">
                     Apply Filters
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={resetFilters}
-                    className="w-full"
-                  >
+                  <Button variant="outline" onClick={resetFilters} className="w-full">
                     Reset Filters
                   </Button>
                 </div>
@@ -463,8 +476,10 @@ export default function DirectoryContent({
                     )}
                     {cityInput ? (
                       <span className="text-gray-600 text-base font-normal">
-                        {activeService ? " " : " in "}
-                        {Array.from(new Set(filteredProviders.map(p => p.address?.city).filter(Boolean))).join(", ")}
+                        {activeService ? ' ' : ' in '}
+                        {Array.from(
+                          new Set(filteredProviders.map((p) => p.address?.city).filter(Boolean))
+                        ).join(', ')}
                       </span>
                     ) : (
                       <span className="text-gray-600 text-base font-normal">
@@ -473,7 +488,7 @@ export default function DirectoryContent({
                     )}
                     {zipcode && locationInfo && (
                       <span className="text-gray-600 text-base font-normal">
-                        {activeService ? " " : " in "}
+                        {activeService ? ' ' : ' in '}
                         {locationInfo.city}, {locationInfo.state} within {radius} miles
                       </span>
                     )}
@@ -482,7 +497,7 @@ export default function DirectoryContent({
               </div>
             </CardContent>
           </Card>
-          
+
           {/* Loading state or providers list */}
           {isLoading ? (
             <DirectoryLoading />
@@ -518,16 +533,25 @@ export default function DirectoryContent({
                         <ChevronLeft className="h-4 w-4" />
                         <span className="hidden sm:inline">Previous</span>
                       </Button>
-                      
+
                       {/* Page numbers */}
                       <div className="flex items-center space-x-1">
-                        {getPageRange(table.getState().pagination.pageIndex + 1, table.getPageCount()).map((pageNum, idx) => (
+                        {getPageRange(
+                          table.getState().pagination.pageIndex + 1,
+                          table.getPageCount()
+                        ).map((pageNum, idx) =>
                           pageNum === -1 ? (
-                            <span key={`ellipsis-${idx}`} className="px-2 text-gray-500">...</span>
+                            <span key={`ellipsis-${idx}`} className="px-2 text-gray-500">
+                              ...
+                            </span>
                           ) : (
                             <Button
                               key={pageNum}
-                              variant={pageNum === table.getState().pagination.pageIndex + 1 ? "default" : "outline"}
+                              variant={
+                                pageNum === table.getState().pagination.pageIndex + 1
+                                  ? 'default'
+                                  : 'outline'
+                              }
                               size="sm"
                               onClick={() => {
                                 table.setPageIndex(pageNum - 1);
@@ -538,7 +562,7 @@ export default function DirectoryContent({
                               {pageNum}
                             </Button>
                           )
-                        ))}
+                        )}
                       </div>
 
                       <Button
@@ -572,9 +596,7 @@ export default function DirectoryContent({
                       d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">
-                    No providers found
-                  </h3>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">No providers found</h3>
                   <p className="mt-1 text-sm text-gray-500">
                     Try adjusting your search radius or filter criteria.
                   </p>
@@ -586,4 +608,4 @@ export default function DirectoryContent({
       </div>
     </div>
   );
-} 
+}

@@ -12,8 +12,8 @@ interface ServiceCardProps {
 
 export default function ServiceCard({ service }: ServiceCardProps) {
   return (
-    <Link 
-      href={`/directory?service=${service.name.toLowerCase().replace(' ', '-')}`} 
+    <Link
+      href={`/directory?service=${service.name.toLowerCase().replace(' ', '-')}`}
       className="block group"
     >
       <div className="bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg hover:translate-y-[-4px] h-full">
@@ -25,4 +25,4 @@ export default function ServiceCard({ service }: ServiceCardProps) {
       </div>
     </Link>
   );
-} 
+}

@@ -15,6 +15,6 @@ declare module 'zipcodes' {
   export default {
     lookup,
     radius,
-    distance
+    distance,
   };
-} 
+}

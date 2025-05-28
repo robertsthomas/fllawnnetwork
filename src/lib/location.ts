@@ -25,11 +25,11 @@ export function filterProvidersByRadius<T extends { address?: { postalCode?: str
 ): T[] {
   // Get all zipcodes within the radius
   const zipcodesInRadius = getZipcodesInRadius(zipcode, radiusInMiles);
-  
+
   if (!zipcodesInRadius.length) return [];
-  
+
   // Filter providers whose postal code is in the radius
-  return providers.filter(provider => {
+  return providers.filter((provider) => {
     if (!provider) return false;
 
     const postalCode = provider.address?.postalCode;
@@ -39,4 +39,4 @@ export function filterProvidersByRadius<T extends { address?: { postalCode?: str
 
 export function getDistanceBetweenZipcodes(zipcode1: string, zipcode2: string): number {
   return zipcodes.distance(zipcode1, zipcode2);
-} 
+}

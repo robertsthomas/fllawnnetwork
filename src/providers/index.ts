@@ -1,1 +1,1 @@
-export * from "./ConvexClientProvider";
+export * from './ConvexClientProvider';

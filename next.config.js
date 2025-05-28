@@ -2,7 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['lh3.googleusercontent.com', 'images.pexels.com', 'streetviewpixels-pa.googleapis.com'],
+    domains: [
+      'lh3.googleusercontent.com',
+      'images.pexels.com',
+      'streetviewpixels-pa.googleapis.com',
+    ],
   },
   async rewrites() {
     return [
@@ -24,7 +28,7 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
   typescript: {
     ignoreBuildErrors: true,
-  }
+  },
 };
 
 module.exports = nextConfig;

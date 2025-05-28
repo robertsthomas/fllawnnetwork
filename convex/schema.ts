@@ -1,5 +1,5 @@
-import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
+import { defineSchema, defineTable } from 'convex/server';
+import { v } from 'convex/values';
 
 export default defineSchema({
   providers: defineTable({
@@ -8,7 +8,7 @@ export default defineSchema({
       street: v.union(v.string(), v.null()),
       city: v.union(v.string(), v.null()),
       state: v.union(v.string(), v.null()),
-      postalCode: v.union(v.string(), v.null())
+      postalCode: v.union(v.string(), v.null()),
     }),
     website: v.union(v.string(), v.null()),
     phone: v.union(v.string(), v.null()),
@@ -26,8 +26,8 @@ export default defineSchema({
       twitter: v.union(v.string(), v.null()),
       facebook: v.union(v.string(), v.null()),
       youtube: v.union(v.string(), v.null()),
-      tiktok: v.union(v.string(), v.null())
+      tiktok: v.union(v.string(), v.null()),
     }),
-    isClaimed: v.optional(v.boolean())
+    isClaimed: v.optional(v.boolean()),
   }),
 });

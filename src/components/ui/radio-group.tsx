@@ -1,10 +1,10 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import * as RadioGroupPrimitive from "@radix-ui/react-radio-group"
-import { Circle } from "lucide-react"
+import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
+import { Circle } from 'lucide-react';
+import * as React from 'react';
 
-import { cn } from "~/lib/utils"
+import { cn } from '~/lib/utils';
 
 // Memoize the RadioGroup to prevent unnecessary re-renders
 const RadioGroup = React.memo(
@@ -13,23 +13,17 @@ const RadioGroup = React.memo(
     React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
   >(({ className, ...props }, ref) => {
     return (
-      <RadioGroupPrimitive.Root
-        className={cn("grid gap-2", className)}
-        {...props}
-        ref={ref}
-      />
-    )
+      <RadioGroupPrimitive.Root className={cn('grid gap-2', className)} {...props} ref={ref} />
+    );
   })
-)
-RadioGroup.displayName = RadioGroupPrimitive.Root.displayName
+);
+RadioGroup.displayName = RadioGroupPrimitive.Root.displayName;
 
 // Create stable indicator component
-const StableIndicator = React.memo(
-  ({ className }: { className?: string }) => (
-    <Circle className={cn("h-3.5 w-3.5 fill-primary", className)} />
-  )
-)
-StableIndicator.displayName = "StableIndicator"
+const StableIndicator = React.memo(({ className }: { className?: string }) => (
+  <Circle className={cn('h-3.5 w-3.5 fill-primary', className)} />
+));
+StableIndicator.displayName = 'StableIndicator';
 
 const RadioGroupItem = React.memo(
   React.forwardRef<
@@ -40,7 +34,7 @@ const RadioGroupItem = React.memo(
       <RadioGroupPrimitive.Item
         ref={ref}
         className={cn(
-          "aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+          'aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
           className
         )}
         {...props}
@@ -49,9 +43,9 @@ const RadioGroupItem = React.memo(
           <StableIndicator />
         </RadioGroupPrimitive.Indicator>
       </RadioGroupPrimitive.Item>
-    )
+    );
   })
-)
-RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName
+);
+RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
 
-export { RadioGroup, RadioGroupItem }
+export { RadioGroup, RadioGroupItem };

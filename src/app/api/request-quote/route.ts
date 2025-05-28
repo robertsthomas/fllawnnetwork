@@ -1,18 +1,18 @@
-import { resend } from '~/lib/resend';
 import { NextRequest } from 'next/server';
-import { validateFormData, sanitizeHTML } from '~/lib/validation';
+import { resend } from '~/lib/resend';
+import { sanitizeHTML, validateFormData } from '~/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
     const { name, email, phone, message, providerId } = formData;
-    
+
     // Validate form data
     const validation = validateFormData({
       name,
       email,
       phone,
-      message
+      message,
     });
 
     if (!validation.isValid) {
@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
     const sanitizedEmail = sanitizeHTML(email);
     const sanitizedPhone = phone ? sanitizeHTML(phone) : '';
     const sanitizedMessage = sanitizeHTML(message);
-    
+
     const subject = `New Quote Request (Provider ID: ${providerId})`;
-    
+
     const htmlContent = `
       <h2>New Quote Request</h2>
       <p><strong>Name:</strong> ${sanitizedName}</p>
@@ -53,8 +53,11 @@ export async function POST(request: NextRequest) {
     return Response.json({ success: true, data });
   } catch (error) {
     console.error('Server error:', error);
-    return Response.json({ 
-      error: error instanceof Error ? error.message : 'Unknown error occurred' 
-    }, { status: 500 });
+    return Response.json(
+      {
+        error: error instanceof Error ? error.message : 'Unknown error occurred',
+      },
+      { status: 500 }
+    );
   }
-} 
+}

@@ -1,10 +1,10 @@
-import MainLayout from '~/components/ui/MainLayout';
 import Hero from '~/components/Hero';
 import HowItWorks from '~/components/HowItWorks';
 import ServicesList from '~/components/ServicesList';
-import { services } from '~/data/providers';
+import MainLayout from '~/components/ui/MainLayout';
+import { Card, CardContent, CardHeader } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { services } from '~/data/providers';
 
 // Similar to FeaturedProvidersLoading but as a static component
 function FeaturedProvidersLoadingPlaceholder() {
@@ -52,4 +52,4 @@ export default function Loading() {
       <ServicesList services={services} />
     </MainLayout>
   );
-} 
+}

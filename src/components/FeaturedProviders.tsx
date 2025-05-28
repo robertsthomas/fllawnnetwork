@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import ProviderCard from './ProviderCard';
-import { useLocation } from '~/contexts/LocationContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { useQuery } from 'convex/react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import zipcodes from 'zipcodes';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { useLocation } from '~/contexts/LocationContext';
+import { getZipcodesInRadius } from '~/lib/location';
 import { Provider } from '~/types';
 import { api } from '~convex/_generated/api';
-import { useQuery } from 'convex/react';
-import { getZipcodesInRadius } from '~/lib/location';
-import Link from 'next/link';
+import ProviderCard from './ProviderCard';
 import { Skeleton } from './ui/skeleton';
 
 // Featured provider loading skeleton component
@@ -53,8 +53,6 @@ export default function FeaturedProviders() {
   const providers = useQuery(api.providers.get) as Provider[] | undefined;
   const isProvidersLoading = providers === undefined;
 
-
-
   useEffect(() => {
     // Skip processing if providers data is empty
     if (!providers || providers.length === 0) {
@@ -63,7 +61,7 @@ export default function FeaturedProviders() {
     }
 
     // Filter providers by the featured property
-    const featuredProviders = providers.filter(provider => provider.featured);
+    const featuredProviders = providers.filter((provider) => provider.featured);
 
     // Only show providers if we have location info
     if (location && location.postalCode && featuredProviders.length > 0) {
@@ -73,7 +71,7 @@ export default function FeaturedProviders() {
       const zipcodesInRadius = getZipcodesInRadius(userPostalCode, 50);
 
       // Filter providers by whether they're in the radius
-      const filtered = featuredProviders.filter(provider => {
+      const filtered = featuredProviders.filter((provider) => {
         const providerPostalCode = provider.address?.postalCode;
         return providerPostalCode && zipcodesInRadius.includes(providerPostalCode);
       });
@@ -81,7 +79,6 @@ export default function FeaturedProviders() {
       setFilteredProviders(filtered);
     } else {
       // Debug info for no location case
-
 
       // If no location, show empty array
       setFilteredProviders([]);
@@ -114,23 +111,34 @@ export default function FeaturedProviders() {
             <CardTitle className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
               Featured {filteredProviders.length === 1 ? 'Provider' : 'Providers'}
               {location && (
-                <span className="text-primary-600"> in {location.city}, {location.state}</span>
+                <span className="text-primary-600">
+                  {' '}
+                  in {location.city}, {location.state}
+                </span>
               )}
             </CardTitle>
             <CardDescription className="text-lg leading-8 text-gray-600">
-              Discover top-rated lawn care {filteredProviders.length === 1 ? 'professional' : 'professionals'} in your area
+              Discover top-rated lawn care{' '}
+              {filteredProviders.length === 1 ? 'professional' : 'professionals'} in your area
             </CardDescription>
           </CardHeader>
           <CardContent className="px-0">
             <div className={`mt-8 grid gap-x-8 gap-y-20 ${getGridClasses()}`}>
               {filteredProviders.length > 0 ? (
-                filteredProviders.slice(0, 3).map((provider) => (
-                  <ProviderCard key={provider._id.toString()} provider={provider} />
-                ))
+                filteredProviders
+                  .slice(0, 3)
+                  .map((provider) => (
+                    <ProviderCard key={provider._id.toString()} provider={provider} />
+                  ))
               ) : (
                 <div className="col-span-full text-center py-12">
-                  <p className="text-gray-500">We're working hard to find the best providers in your area.</p>
-                  <p className="text-gray-500 mt-2">In the meantime, check out our full directory of trusted lawn care professionals.</p>
+                  <p className="text-gray-500">
+                    We're working hard to find the best providers in your area.
+                  </p>
+                  <p className="text-gray-500 mt-2">
+                    In the meantime, check out our full directory of trusted lawn care
+                    professionals.
+                  </p>
                   <Link
                     href="/directory"
                     className="inline-block mt-4 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
@@ -145,4 +153,4 @@ export default function FeaturedProviders() {
       </div>
     </div>
   );
-} 
+}

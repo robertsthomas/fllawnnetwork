@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import MainLayout from '~/components/ui/MainLayout';
 import { Suspense } from 'react';
 import ProviderDetailContent from '~/components/ProviderDetailContent';
-import Link from 'next/link';
+import MainLayout from '~/components/ui/MainLayout';
 import { Button } from '~/components/ui/button';
 import { Id } from '../../../../convex/_generated/dataModel';
 
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function ProviderDetailPage({
   params,
 }: {
-  params: Promise<{ id: Id<"providers"> }>;
+  params: Promise<{ id: Id<'providers'> }>;
 }) {
   const { id } = await params;
   return (
@@ -29,15 +29,14 @@ export default async function ProviderDetailPage({
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Business Owner?</h2>
           <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            If this is your business, claim your listing to update information, respond to reviews, and more.
+            If this is your business, claim your listing to update information, respond to reviews,
+            and more.
           </p>
           <Button asChild className="px-6">
-            <Link href={`/claim-business/${id}`}>
-              Claim This Business
-            </Link>
+            <Link href={`/claim-business/${id}`}>Claim This Business</Link>
           </Button>
         </div>
       </div>
     </MainLayout>
   );
-} 
+}

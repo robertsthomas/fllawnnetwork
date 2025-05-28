@@ -1,14 +1,14 @@
 import { Suspense } from 'react';
-import MainLayout from '~/components/ui/MainLayout';
-import Hero from '~/components/Hero';
+import CTASection from '~/components/CTASection';
 import FeaturedProviders from '~/components/FeaturedProviders';
+import Hero from '~/components/Hero';
 import HowItWorks from '~/components/HowItWorks';
 import ServicesList from '~/components/ServicesList';
 import Testimonials from '~/components/Testimonials';
-import CTASection from '~/components/CTASection';
-import { services, reviews } from '~/data/providers';
+import MainLayout from '~/components/ui/MainLayout';
+import { Card, CardContent, CardHeader } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { reviews, services } from '~/data/providers';
 
 function FeaturedProvidersLoadingPlaceholder() {
   return (
@@ -59,4 +59,4 @@ export default function Home() {
       {/* <CTASection /> */}
     </MainLayout>
   );
-} 
+}

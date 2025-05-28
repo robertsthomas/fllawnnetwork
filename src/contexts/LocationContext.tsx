@@ -36,7 +36,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         // If no saved location, fetch from ipapi.co
         const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
-        
+
         const newLocation = {
           city: data.city,
           state: data.region_code,
@@ -76,4 +76,4 @@ export function useLocation() {
     throw new Error('useLocation must be used within a LocationProvider');
   }
   return context;
-} 
+}

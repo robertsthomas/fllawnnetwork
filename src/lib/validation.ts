@@ -55,6 +55,6 @@ export const validateFormData = (data: {
 
   return {
     isValid: errors.length === 0,
-    errors
+    errors,
   };
-}; 
+};

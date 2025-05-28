@@ -7,9 +7,7 @@ module.exports = {
   sitemapSize: 7000,
   exclude: ['/server-sitemap.xml'],
   robotsTxtOptions: {
-    additionalSitemaps: [
-      'https://fllawnnetwork.com/server-sitemap.xml',
-    ],
+    additionalSitemaps: ['https://fllawnnetwork.com/server-sitemap.xml'],
     policies: [
       {
         userAgent: '*',
@@ -17,4 +15,4 @@ module.exports = {
       },
     ],
   },
-} 
+};

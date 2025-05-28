@@ -1,5 +1,5 @@
-import MainLayout from '~/components/ui/MainLayout';
 import DirectoryLoading from '~/components/DirectoryLoading';
+import MainLayout from '~/components/ui/MainLayout';
 
 export default function Loading() {
   return (
@@ -8,11 +8,9 @@ export default function Loading() {
         <div className="lg:grid lg:grid-cols-12 lg:gap-8">
           {/* Filter sidebar placeholder */}
           <div className="hidden lg:block lg:col-span-3">
-            <div className="sticky top-24">
-              {/* Skeleton for filters */}
-            </div>
+            <div className="sticky top-24">{/* Skeleton for filters */}</div>
           </div>
-          
+
           {/* Main content loading state */}
           <div className="mt-8 lg:mt-0 lg:col-span-9">
             <DirectoryLoading />
@@ -21,4 +19,4 @@ export default function Loading() {
       </div>
     </MainLayout>
   );
-} 
+}

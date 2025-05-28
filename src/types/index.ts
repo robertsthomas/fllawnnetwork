@@ -1,3 +1,3 @@
-import { Doc } from "../../convex/_generated/dataModel";
+import { Doc } from '../../convex/_generated/dataModel';
 
-export type Provider = Doc<"providers">;
+export type Provider = Doc<'providers'>;

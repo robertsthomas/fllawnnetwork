@@ -2,7 +2,7 @@
  * Apify API client for Next.js
  */
 
-import { Provider } from "~/types";
+import { Provider } from '~/types';
 
 /**
  * Check if a provider is featured
@@ -27,6 +27,6 @@ export function getProviderSocials(provider: Provider) {
     twitter: provider.socials?.twitter || null,
     facebook: provider.socials?.facebook || null,
     youtube: provider.socials?.youtube || null,
-    tiktok: provider.socials?.tiktok ||null,
+    tiktok: provider.socials?.tiktok || null,
   };
-} 
+}

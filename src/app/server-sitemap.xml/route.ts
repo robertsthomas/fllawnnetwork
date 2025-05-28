@@ -1,6 +1,6 @@
-import { getServerSideSitemap } from 'next-sitemap'
+import { getServerSideSitemap } from 'next-sitemap';
 
-type Changefreq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
+type Changefreq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
 
 export async function GET(request: Request) {
   // You can fetch dynamic routes from your database or API here
@@ -35,7 +35,7 @@ export async function GET(request: Request) {
       changefreq: 'daily' as Changefreq,
       priority: 0.9,
     },
-  ]
+  ];
 
-  return getServerSideSitemap(fields)
-} 
+  return getServerSideSitemap(fields);
+}
