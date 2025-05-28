@@ -97,15 +97,7 @@ export default function RootLayout({
             })(window,document,'script','dataLayer','GTM-N9MVPDTD');
           `}
         </Script>
-        <Script id="ahrefs-analytics" strategy="afterInteractive">
-          {`
-            var ahrefs_analytics_script = document.createElement('script');
-            ahrefs_analytics_script.async = true;
-            ahrefs_analytics_script.src = 'https://analytics.ahrefs.com/analytics.js';
-            ahrefs_analytics_script.setAttribute('data-key', 'oL/tnPHTlzGLF4rJZYhQlw');
-            document.getElementsByTagName('head')[0].appendChild(ahrefs_analytics_script);
-          `}
-        </Script>
+        <script src="https://analytics.ahrefs.com/analytics.js" data-key="oL/tnPHTlzGLF4rJZYhQlw" async></script>
       </head>
       <body className={`h-full ${inter.variable} ${montserrat.variable}`}>
         {/* Google Tag Manager (noscript) */}
