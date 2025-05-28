@@ -253,8 +253,8 @@ export default function DirectoryContent({
     } else {
       // When city is cleared, update URL to remove city parameter
       updateUrlParam('city', null);
-      // Navigate back to main directory page without city in URL
-      router.push('/directory');
+      // Navigate back to main lawn-care page without city in URL
+      router.push('/lawn-care');
     }
   };
 
@@ -265,7 +265,7 @@ export default function DirectoryContent({
         const formattedCity = cityInput.toLowerCase().replace(/\s+/g, '-');
         updateUrlParam('city', formattedCity);
         // Navigate to city-specific URL
-        router.push(`/directory/${formattedCity}`);
+        router.push(`/lawn-care/${formattedCity}`);
       }
     }
   };
@@ -328,7 +328,7 @@ export default function DirectoryContent({
                                 onClick={() => {
                                   setCityInput('');
                                   updateUrlParam('city', null);
-                                  router.replace('/directory');
+                                  router.replace('/lawn-care');
                                 }}
                               >
                                 <XCircle className="h-4 w-4" />
@@ -611,6 +611,24 @@ export default function DirectoryContent({
                   <p className="mt-1 text-sm text-gray-500">
                     Try adjusting your search radius or filter criteria.
                   </p>
+                  <div className="mt-6">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        resetFilters();
+                        setCityInput('');
+                        setZipcodeInput('');
+                        setZipcode('');
+                        updateUrlParam('city', null);
+                        updateUrlParam('zipcode', null);
+                        updateUrlParam('radius', null);
+                        updateUrlParam('rating', null);
+                        router.push('/lawn-care');
+                      }}
+                    >
+                      Clear All Filters
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>

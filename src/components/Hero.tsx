@@ -28,13 +28,11 @@ export default function Hero() {
     },
     onSubmit: ({ value }) => {
       const location = value.zipcode.trim();
-      if (/^\d{5}$/.test(location)) {
-        // If it's a ZIP code, use the query parameter approach
-        window.location.href = `/directory?zipcode=${encodeURIComponent(location)}`;
+      if (isValidZipcode(location)) {
+        window.location.href = `/lawn-care?zipcode=${encodeURIComponent(location)}`;
       } else {
-        // If it's a city name, use the city-specific URL
         const formattedCity = location.toLowerCase().replace(/\s+/g, '-');
-        window.location.href = `/directory/${formattedCity}`;
+        window.location.href = `/lawn-care/${formattedCity}`;
       }
     },
   });
@@ -139,19 +137,19 @@ export default function Hero() {
 
           <div className="mt-4 flex flex-wrap justify-center sm:justify-start gap-2">
             <span className="text-sm text-black/80">Popular:</span>
-            <Link href="/directory" className="text-sm text-black hover:text-green-700 transition">
+            <Link href="/lawn-care" className="text-sm text-black hover:text-green-700 transition">
               Lawn Mowing
             </Link>
             <span className="text-sm text-black/80">•</span>
-            <Link href="/directory" className="text-sm text-black hover:text-green-700 transition">
+            <Link href="/lawn-care" className="text-sm text-black hover:text-green-700 transition">
               Landscaping
             </Link>
             <span className="text-sm text-black/80">•</span>
-            <Link href="/directory" className="text-sm text-black hover:text-green-700 transition">
+            <Link href="/lawn-care" className="text-sm text-black hover:text-green-700 transition">
               Garden Design
             </Link>
             <span className="text-sm text-black/80">•</span>
-            <Link href="/directory" className="text-sm text-black hover:text-green-700 transition">
+            <Link href="/lawn-care" className="text-sm text-black hover:text-green-700 transition">
               Irrigation
             </Link>
           </div>

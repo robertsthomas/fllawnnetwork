@@ -1,10 +1,9 @@
-# *
+# Allow all crawlers
 User-Agent: *
 Allow: /
 
-# Host
+# Set canonical host
 Host: https://fllawnnetwork.com
 
-# Sitemaps
+# Sitemap
 Sitemap: https://fllawnnetwork.com/sitemap.xml
-Sitemap: https://fllawnnetwork.com/server-sitemap.xml

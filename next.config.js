@@ -24,8 +24,7 @@ const nextConfig = {
       },
     ];
   },
-  // This is required to support PostHog trailing slash API requests
-  skipTrailingSlashRedirect: true,
+  // Remove skipTrailingSlashRedirect to ensure consistent URL patterns
   typescript: {
     ignoreBuildErrors: true,
   },

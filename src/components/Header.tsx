@@ -47,10 +47,10 @@ export default function Header() {
               Home
             </Link>
             <Link
-              href="/directory"
+              href="/lawn-care"
               className="text-base font-medium text-gray-700 hover:text-primary-600 transition"
             >
-              Directory
+              Find Lawn Care
             </Link>
             <Link
               href="/services"
@@ -161,10 +161,10 @@ export default function Header() {
                     Home
                   </Link>
                   <Link
-                    href="/directory"
+                    href="/lawn-care"
                     className="text-base font-medium text-gray-900 hover:text-primary-600 transition"
                   >
-                    Directory
+                    Find Lawn Care
                   </Link>
                   <Link
                     href="/services"
