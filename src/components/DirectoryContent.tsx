@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
   CellContext,
   OnChangeFn,
@@ -22,6 +23,8 @@ import { Provider } from '~/types';
 import { api } from '../../convex/_generated/api';
 import DirectoryLoading from './DirectoryLoading';
 import ProviderCard from './ProviderCard';
+import GoogleAdCard from './GoogleAdCard';
+import { useFeatureFlagEnabled } from 'posthog-js/react';
 
 import {
   Accordion,
@@ -171,6 +174,7 @@ export default function DirectoryContent({
   const radiusFromUrl = searchParams.get('radius') || '25';
   const ratingFromUrl = searchParams.get('rating') || '0';
   const [cityInput, setCityInput] = useState<string>(initialCity || '');
+  const flagEnabled = useFeatureFlagEnabled('show-provider-card-ads');
 
   const {
     filteredProviders,
@@ -507,15 +511,22 @@ export default function DirectoryContent({
               {filteredProviders.length > 0 ? (
                 <>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                    {table.getRowModel().rows.map((row: Row<Provider>) => (
-                      <div key={row.id}>
-                        {flexRender(row.getVisibleCells()[0].column.columnDef.cell, {
-                          row,
-                          table,
-                          getValue: () => row.original,
-                        } as CellContext<Provider, unknown>)}
-                      </div>
-                    ))}
+                    {table.getRowModel().rows.map((row: Row<Provider>, index: number) => {
+                      // Insert ad once per page, after the first 3-4 cards
+                      const shouldInsertAd = flagEnabled && index === Math.floor(Math.random() * 2 + 3);
+                      return (
+                        <React.Fragment key={`row-${row.id}`}>
+                          {shouldInsertAd && <GoogleAdCard key={`ad-${row.id}`} />}
+                          <div key={`provider-${row.id}`}>
+                            {flexRender(row.getVisibleCells()[0].column.columnDef.cell, {
+                              row,
+                              table,
+                              getValue: () => row.original,
+                            } as CellContext<Provider, unknown>)}
+                          </div>
+                        </React.Fragment>
+                      );
+                    })}
                   </div>
 
                   {/* Pagination controls */}
