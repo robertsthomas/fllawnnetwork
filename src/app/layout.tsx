@@ -98,14 +98,16 @@ export default function RootLayout({
           `}
         </Script>
         <script src="https://analytics.ahrefs.com/analytics.js" data-key="oL/tnPHTlzGLF4rJZYhQlw" async></script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8923397311432151"
+     crossOrigin="anonymous"></script>
       </head>
       <body className={`h-full ${inter.variable} ${montserrat.variable}`}>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe 
             src="https://www.googletagmanager.com/ns.html?id=GTM-N9MVPDTD"
-            height="0" 
-            width="0" 
+            height="0"
+            width="0"
             style={{ display: 'none', visibility: 'hidden' }}
           />
         </noscript>

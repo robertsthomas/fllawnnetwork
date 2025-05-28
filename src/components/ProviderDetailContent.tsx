@@ -423,13 +423,13 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
                   asChild
                   className="text-primary-600 hover:text-primary-700 font-medium"
                 >
-                  <a
+                  {/* <a
                     href={`https://www.google.com/search?q=${provider.title}+reviews`}
                     target="_blank"
                     rel="noopener noreferrer"
-                  >
+                  > */}
                     Write a Review
-                  </a>
+                  {/* </a> */}
                 </Button>
               </div>
 
