@@ -14,7 +14,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
 import { useTracking } from '~/hooks/useTracking';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useLocation } from '~/contexts/LocationContext';
 import { cn, formatPhoneNumber } from '~/lib/utils';
 import { Loader2 } from 'lucide-react';
@@ -46,6 +46,7 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
   const { location } = useLocation();
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   
   useEffect(() => {
     if (provider) {
@@ -122,7 +123,7 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
     };
 
     try {
-      const response = await fetch('/api/send', {
+      const response = await fetch('/api/request-quote', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -137,7 +138,7 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
       }
 
       setFormStatus('success');
-      e.currentTarget.reset();
+      formRef.current?.reset();
       handleContactClick('form');
     } catch (error) {
       console.error('Error sending form:', error);
@@ -215,7 +216,7 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
               <div className="mt-6 flex gap-4">
                 <Button 
                   asChild 
-                  className={cn("px-6 py-3 shadow-sm transition hover:bg-green-600 bg-green-500 text-white w-full")}
+                  className={cn("px-6 py-3 shadow-sm transition hover:bg-green-600 bg-green-500 text-white w-1/2", provider.isClaimed && "w-full")}
                   onClick={() => handleContactClick('form')}
                 >
                   <Link href={`/contact?provider=${provider._id.toString() || ''}`}>
@@ -306,12 +307,15 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
             <section className="bg-white rounded-xl shadow-sm p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Opening Hours</h2>
               <div className="grid gap-2">
-                {(provider.openingHours || []).map((hour: any, index: number) => (
-                  <div key={index} className="flex justify-between py-2 border-b border-gray-100">
-                    <span className="font-medium">{hour.day}</span>
-                    <span>{hour.hours}</span>
-                  </div>
-                ))}
+                {(provider.openingHours || []).map((hour: string, index: number) => {
+                  const [day, hours] = hour.split(': ');
+                  return (
+                    <div key={index} className="flex justify-between py-2 border-b border-gray-100">
+                      <span className="font-medium">{day}</span>
+                      <span>{hours === "Open 24 hours" ? "9am - 5pm" : hours}</span>
+                    </div>
+                  );
+                })}
               </div>
             </section>
 
@@ -386,6 +390,7 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
               </CardHeader>
               <CardContent>
                 <form 
+                  ref={formRef}
                   className="space-y-4"
                   onSubmit={handleFormSubmit}
                 >

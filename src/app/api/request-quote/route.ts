@@ -5,7 +5,7 @@ import { validateFormData, sanitizeHTML } from '~/lib/validation';
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
-    const { name, email, phone, message } = formData;
+    const { name, email, phone, message, providerId } = formData;
     
     // Validate form data
     const validation = validateFormData({
@@ -25,13 +25,14 @@ export async function POST(request: NextRequest) {
     const sanitizedPhone = phone ? sanitizeHTML(phone) : '';
     const sanitizedMessage = sanitizeHTML(message);
     
-    const subject = 'New Contact Form Submission';
+    const subject = `New Quote Request (Provider ID: ${providerId})`;
     
     const htmlContent = `
-      <h2>New Contact Form Submission</h2>
+      <h2>New Quote Request</h2>
       <p><strong>Name:</strong> ${sanitizedName}</p>
       <p><strong>Email:</strong> ${sanitizedEmail}</p>
       <p><strong>Phone:</strong> ${sanitizedPhone || 'Not provided'}</p>
+      <p><strong>Provider ID:</strong> ${providerId}</p>
       <h3>Message:</h3>
       <p>${sanitizedMessage}</p>
     `;
@@ -56,4 +57,4 @@ export async function POST(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Unknown error occurred' 
     }, { status: 500 });
   }
-}
+} 

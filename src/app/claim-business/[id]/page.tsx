@@ -19,19 +19,35 @@ export default function ClaimBusinessPage({ params }: { params: { id: string } }
   const [verificationInfo, setVerificationInfo] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here you would typically send the data to your backend
-    console.log({
-      providerId: id,
-      name,
-      email,
-      phone,
-      verificationInfo
-    });
     
-    // For demo purposes, just show success state
-    setIsSubmitted(true);
+    try {
+      const response = await fetch('/api/claim-business', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          providerId: id,
+          name,
+          email,
+          phone,
+          verificationInfo
+        }),
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit claim request');
+      }
+      
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('Error submitting claim:', error);
+      // You might want to show an error message to the user here
+    }
   };
 
   return (

@@ -5,14 +5,14 @@ import { validateFormData, sanitizeHTML } from '~/lib/validation';
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
-    const { name, email, phone, message } = formData;
+    const { name, email, phone, verificationInfo, providerId } = formData;
     
     // Validate form data
     const validation = validateFormData({
       name,
       email,
       phone,
-      message
+      message: verificationInfo
     });
 
     if (!validation.isValid) {
@@ -23,17 +23,18 @@ export async function POST(request: NextRequest) {
     const sanitizedName = sanitizeHTML(name);
     const sanitizedEmail = sanitizeHTML(email);
     const sanitizedPhone = phone ? sanitizeHTML(phone) : '';
-    const sanitizedMessage = sanitizeHTML(message);
+    const sanitizedVerificationInfo = sanitizeHTML(verificationInfo);
     
-    const subject = 'New Contact Form Submission';
+    const subject = `Business Claim Request (Provider ID: ${providerId})`;
     
     const htmlContent = `
-      <h2>New Contact Form Submission</h2>
+      <h2>New Business Claim Request</h2>
       <p><strong>Name:</strong> ${sanitizedName}</p>
       <p><strong>Email:</strong> ${sanitizedEmail}</p>
       <p><strong>Phone:</strong> ${sanitizedPhone || 'Not provided'}</p>
-      <h3>Message:</h3>
-      <p>${sanitizedMessage}</p>
+      <p><strong>Provider ID:</strong> ${providerId}</p>
+      <h3>Verification Information:</h3>
+      <p>${sanitizedVerificationInfo}</p>
     `;
 
     const { data, error } = await resend.emails.send({
@@ -56,4 +57,4 @@ export async function POST(request: NextRequest) {
       error: error instanceof Error ? error.message : 'Unknown error occurred' 
     }, { status: 500 });
   }
-}
+} 
