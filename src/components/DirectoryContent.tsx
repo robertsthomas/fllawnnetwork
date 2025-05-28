@@ -512,8 +512,11 @@ export default function DirectoryContent({
                 <>
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                     {table.getRowModel().rows.map((row: Row<Provider>, index: number) => {
-                      // Insert ad once per page, after the first 3-4 cards
-                      const shouldInsertAd = flagEnabled && index === Math.floor(Math.random() * 2 + 3);
+                      // Only insert ad if we have at least 4 providers and it's after the first 3 cards
+                      const shouldInsertAd = 
+                        flagEnabled && 
+                        filteredProviders.length >= 4 && 
+                        index === Math.floor(Math.random() * 2 + 3);
                       return (
                         <React.Fragment key={`row-${row.id}`}>
                           {shouldInsertAd && <GoogleAdCard key={`ad-${row.id}`} />}

@@ -6,15 +6,20 @@ import { Card } from '~/components/ui/card';
 export default function GoogleAdCard() {
   useEffect(() => {
     try {
-      // Load the AdSense script
-      const script = document.createElement('script');
-      script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8923397311432151';
-      script.async = true;
-      script.crossOrigin = 'anonymous';
-      document.head.appendChild(script);
+      // Check if adsbygoogle is already defined
+      if (!(window as any).adsbygoogle) {
+        // Load the AdSense script
+        const script = document.createElement('script');
+        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8923397311432151';
+        script.async = true;
+        script.crossOrigin = 'anonymous';
+        document.head.appendChild(script);
+      }
 
       // Initialize the ad
-      ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+      const adsbygoogle = (window as any).adsbygoogle || [];
+      (window as any).adsbygoogle = adsbygoogle;
+      adsbygoogle.push({});
     } catch (error) {
       console.error('Error loading AdSense:', error);
     }
