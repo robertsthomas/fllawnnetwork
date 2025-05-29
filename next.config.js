@@ -6,6 +6,7 @@ const nextConfig = {
       'lh3.googleusercontent.com',
       'images.pexels.com',
       'streetviewpixels-pa.googleapis.com',
+      'fllawnnetwork.com',
     ],
   },
   async rewrites() {
@@ -27,6 +28,20 @@ const nextConfig = {
   // Remove skipTrailingSlashRedirect to ensure consistent URL patterns
   typescript: {
     ignoreBuildErrors: true,
+  },
+  // Add hostname configuration to allow connections from your domain
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: 'https://fllawnnetwork.com',
+          },
+        ],
+      },
+    ];
   },
 };
 
