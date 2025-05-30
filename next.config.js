@@ -7,6 +7,7 @@ const nextConfig = {
       'images.pexels.com',
       'streetviewpixels-pa.googleapis.com',
       'fllawnnetwork.com',
+      'images.unsplash.com',
     ],
   },
   async rewrites() {

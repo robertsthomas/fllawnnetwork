@@ -59,6 +59,12 @@ export default function Header() {
               Services
             </Link>
             <Link
+              href="/blog"
+              className="text-base font-medium text-gray-700 hover:text-primary-600 transition"
+            >
+              Blog
+            </Link>
+            <Link
               href="/about"
               className="text-base font-medium text-gray-700 hover:text-primary-600 transition"
             >
@@ -171,6 +177,12 @@ export default function Header() {
                     className="text-base font-medium text-gray-900 hover:text-primary-600 transition"
                   >
                     Services
+                  </Link>
+                  <Link
+                    href="/blog"
+                    className="text-base font-medium text-gray-900 hover:text-primary-600 transition"
+                  >
+                    Blog
                   </Link>
                   <Link
                     href="/about"
