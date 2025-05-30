@@ -54,20 +54,17 @@ export default function Hero() {
       </div>
 
       <div className="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
-        <h1 className="font-display text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl animate-fade-in">
+        <h1 className="font-display text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
           Find the Perfect
           <br />
           <span className="text-accent-400">Lawn Care Professional</span>
         </h1>
-        <p className="mt-6 text-xl text-gray-100 max-w-3xl animate-slide-up">
+        <p className="mt-6 text-xl text-gray-100 max-w-3xl">
           Connect with top-rated lawn care providers in your area. From regular mowing to complete
           landscape transformations, find the right expert for your outdoor space.
         </p>
 
-        <div
-          className="mt-10 max-w-xl animate-slide-up bg-white/95 backdrop-blur-sm rounded-lg p-4"
-          style={{ animationDelay: '200ms' }}
-        >
+        <div className="mt-10 max-w-xl bg-white/95 backdrop-blur-sm rounded-lg p-4">
           <form
             onSubmit={(e) => {
               e.preventDefault();
