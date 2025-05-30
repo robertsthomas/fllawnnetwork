@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Montserrat } from 'next/font/google';
-import Link from 'next/link';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import Footer from '~/components/Footer';
 import Header from '~/components/Header';
 import { PostHogProvider } from '~/components/PostHogProvider';
@@ -118,6 +118,7 @@ export default function RootLayout({
               <LocationProvider>
                 <Header />
                 <div className="pt-16">{children}</div>
+                <SpeedInsights />
                 <Footer />
               </LocationProvider>
             </QueryProvider>
