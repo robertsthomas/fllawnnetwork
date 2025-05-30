@@ -3,8 +3,6 @@
 import React from 'react';
 import {
   CellContext,
-  OnChangeFn,
-  PaginationState,
   Row,
   createColumnHelper,
   flexRender,
@@ -14,7 +12,7 @@ import {
 } from '@tanstack/react-table';
 import { useQuery } from 'convex/react';
 import { ChevronLeft, ChevronRight, Star, XCircle } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { memo, useCallback, useRef, useState } from 'react';
 import { services } from '~/data/providers';
 import { useDirectoryFilters } from '~/hooks/useDirectoryFilters';
@@ -175,6 +173,7 @@ export default function DirectoryContent({
   const ratingFromUrl = searchParams.get('rating') || '0';
   const [cityInput, setCityInput] = useState<string>(initialCity || '');
   const flagEnabled = useFeatureFlagEnabled('show-provider-card-ads');
+  const params = useParams();
 
   const {
     filteredProviders,
@@ -493,7 +492,7 @@ export default function DirectoryContent({
                     {zipcode && locationInfo && (
                       <span className="text-gray-600 text-base font-normal">
                         {activeService ? ' ' : ' in '}
-                        {locationInfo.city}, {locationInfo.state} within {radius} miles
+                        {params?.city ? (params.city as string).replace(/-/g, ' ') : locationInfo.city}, {locationInfo.state} within {radius} miles
                       </span>
                     )}
                   </h2>
@@ -596,40 +595,81 @@ export default function DirectoryContent({
                 </>
               ) : (
                 <div className="text-center py-12">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-12 w-12 text-gray-400 mx-auto"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No providers found</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Try adjusting your search radius or filter criteria.
-                  </p>
-                  <div className="mt-6">
+                  <div className="max-w-3xl mx-auto">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                      Lawn Care in {(params?.city as string)?.replace(/-/g, ' ') || cityInput || 'Your Area'}
+                    </h2>
+                    
+                    {/* City-specific description */}
+                    {(params?.city || cityInput) && (
+                      <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                          About {(params?.city as string)?.replace(/-/g, ' ') || cityInput}
+                        </h3>
+                        <p className="text-gray-600">
+                          {(params?.city as string)?.replace(/-/g, ' ') || cityInput}, Florida is known for its subtropical climate, which supports year-round lawn growth. 
+                          Warm-season grasses like St. Augustine and Bahia thrive in this region, making it ideal for 
+                          maintaining lush, green lawns throughout the year. The area's unique climate and soil conditions 
+                          require specific lawn care practices to ensure optimal growth and health.
+                        </p>
+                      </div>
+                    )}
+
+                    <p className="text-gray-600 mb-6">
+                      We're working on listing the best lawn care providers in {(params?.city as string)?.replace(/-/g, ' ') || cityInput || 'your area'}. In the meantime, here's what you need to know about maintaining your lawn in this region.
+                    </p>
+                    
+                    <div className="grid gap-6 md:grid-cols-2 text-left mb-8">
+                      <div className="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3">🌱 Recommended Grass Types</h3>
+                        <ul className="space-y-2 text-gray-600">
+                          <li>• St. Augustine Grass</li>
+                          <li>• Zoysia Grass</li>
+                          <li>• Bahia Grass</li>
+                          <li>• Bermuda Grass</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="bg-white p-6 rounded-lg shadow-sm border">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3">📅 Typical Mowing Schedule</h3>
+                        <ul className="space-y-2 text-gray-600">
+                          <li>• Spring: Weekly mowing</li>
+                          <li>• Summer: Every 5-7 days</li>
+                          <li>• Fall: Every 7-10 days</li>
+                          <li>• Winter: Monthly maintenance</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">💡 DIY Maintenance Tips</h3>
+                      <ul className="space-y-2 text-gray-600">
+                        <li>• Keep grass height between 2.5-3.5 inches</li>
+                        <li>• Water deeply but infrequently (1-1.5 inches per week)</li>
+                        <li>• Fertilize 3-4 times per year</li>
+                        <li>• Aerate your lawn annually</li>
+                        <li>• Control weeds early in the season</li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-white p-6 rounded-lg shadow-sm border">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">💰 Estimated Service Costs</h3>
+                      <ul className="space-y-2 text-gray-600">
+                        <li>• Basic Lawn Mowing: $30-50 per visit</li>
+                        <li>• Fertilization: $40-80 per application</li>
+                        <li>• Weed Control: $40-60 per treatment</li>
+                        <li>• Aeration: $60-100 per service</li>
+                      </ul>
+                    </div>
+
+                    <p className="text-gray-600 mt-8">
+                      Check back soon as we continue to add top-rated service providers in your area. In the meantime, feel free to explore our full directory of trusted lawn care professionals.
+                    </p>
                     <Button
-                      variant="outline"
-                      onClick={() => {
-                        resetFilters();
-                        setCityInput('');
-                        setZipcodeInput('');
-                        setZipcode('');
-                        updateUrlParam('city', null);
-                        updateUrlParam('zipcode', null);
-                        updateUrlParam('radius', null);
-                        updateUrlParam('rating', null);
-                        router.push('/lawn-care');
-                      }}
+                      onClick={() => router.push('/directory')}
+                      className="mt-6"
                     >
-                      Clear All Filters
+                      Browse Full Directory
                     </Button>
                   </div>
                 </div>
