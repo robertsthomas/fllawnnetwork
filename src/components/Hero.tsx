@@ -21,6 +21,10 @@ const FormSchema = z.object({
     ),
 });
 
+const isValidZipcode = (value: string): boolean => {
+  return /^\d{5}$/.test(value);
+};
+
 export default function Hero() {
   const form = useForm({
     defaultValues: {
@@ -113,8 +117,8 @@ export default function Hero() {
                   />
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   {field.state.meta.errors ? (
-                    <p className="text-sm text-red-500 mt-1">
-                      {field.state.meta.errors.join(', ')}
+                    <p className="text-sm text-red-500 mt-1.5 px-1">
+                      {field.state.meta.errors[0]}
                     </p>
                   ) : null}
                 </div>
@@ -122,7 +126,7 @@ export default function Hero() {
             </form.Field>
 
             <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-              {([canSubmit, isSubmitting]) => (
+              {([canSubmit]) => (
                 <Button
                   type="submit"
                   className="bg-primary-600 hover:bg-primary-700 text-white"
