@@ -183,13 +183,28 @@ export default function Footer() {
                 </h3>
                 <ul className="mt-4 space-y-4">
                   <li>
-                    <PrivacyDialog />
+                    <Link
+                      href="/privacy"
+                      className="text-base text-gray-400 hover:text-gray-300 transition"
+                    >
+                      Privacy Policy
+                    </Link>
                   </li>
                   <li>
-                    <TermsDialog />
+                    <Link
+                      href="/terms"
+                      className="text-base text-gray-400 hover:text-gray-300 transition"
+                    >
+                      Terms of Service
+                    </Link>
                   </li>
                   <li>
-                    <CookiePolicyDialog />
+                    <Link
+                      href="/cookies"
+                      className="text-base text-gray-400 hover:text-gray-300 transition"
+                    >
+                      Cookie Policy
+                    </Link>
                   </li>
                 </ul>
               </div>
