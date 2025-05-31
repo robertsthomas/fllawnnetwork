@@ -21,9 +21,9 @@ const defaultDescription =
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
-  const service = searchParams.service as string | undefined;
+  const service = (await searchParams).service as string | undefined;
   const description =
     service && serviceDescriptions[service] ? serviceDescriptions[service] : defaultDescription;
 

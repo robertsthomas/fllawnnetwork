@@ -1,4 +1,4 @@
-import { parseAsString, parseAsInteger, parseAsArrayOf } from 'nuqs';
+import { parseAsString, parseAsInteger, parseAsArrayOf } from 'nuqs/server';
 import { createSearchParamsCache } from 'nuqs/server';
 
 export const directorySearchParams = {
