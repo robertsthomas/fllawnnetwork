@@ -119,3 +119,55 @@ export const backfillEmail = mutation(async (ctx) => {
     });
   }
 });
+
+export const setFeaturedByCity = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const allProviders = await ctx.db.query('providers').collect();
+    
+    // Group providers by city
+    const providersByCity = new Map<string, typeof allProviders>();
+    
+    for (const provider of allProviders) {
+      const city = provider.address?.city?.toLowerCase() || 'unknown';
+      if (!providersByCity.has(city)) {
+        providersByCity.set(city, []);
+      }
+      providersByCity.get(city)?.push(provider);
+    }
+    
+    const updatedProviders: { city: string; providers: { id: string; title: string; totalScore: number }[] }[] = [];
+    
+    // For each city, select up to 3 providers and set them as featured
+    await Promise.all(Array.from(providersByCity.entries()).map(async ([city, providers]) => {
+      // Sort by totalScore in descending order to select the best providers
+      const sortedProviders = providers.sort((a: typeof providers[0], b: typeof providers[0]) => b.totalScore - a.totalScore);
+      
+      // Take up to 3 providers
+      const selectedProviders = sortedProviders.slice(0, 3);
+      
+      // Update their featured status
+      for (const provider of selectedProviders) {
+        await ctx.db.patch(provider._id, {
+          featured: true
+        });
+      }
+
+      // Add to updated providers list
+      updatedProviders.push({
+        city,
+        providers: selectedProviders.map(p => ({
+          id: p._id,
+          title: p.title,
+          totalScore: p.totalScore
+        }))
+      });
+    }));
+    
+    return {
+      success: true,
+      message: "Featured providers have been updated for each city",
+      updatedProviders
+    };
+  },
+});

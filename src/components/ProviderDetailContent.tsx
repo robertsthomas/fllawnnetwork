@@ -73,6 +73,9 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const [imageError, setImageError] = useState(false);
+  const defaultImage = 'https://images.pexels.com/photos/2132250/pexels-photo-2132250.jpeg';
+  const [galleryImageErrors, setGalleryImageErrors] = useState<Record<number, boolean>>({});
 
   const form = useForm({
     defaultValues: {
@@ -178,11 +181,12 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
       <div className="relative bg-gray-900">
         <div className="absolute inset-0">
           <Image
-            src={featuredImage}
+            src={imageError ? defaultImage : featuredImage}
             alt={`${provider.title || 'Provider'} showcase`}
             fill
             className="object-cover opacity-40"
             priority
+            onError={() => setImageError(true)}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-gray-900/80 to-gray-900/60 mix-blend-multiply"></div>
         </div>
@@ -190,11 +194,12 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
         <div className="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
           <div className="md:flex md:items-center md:space-x-8">
             <Image
-              src={featuredImage}
+              src={imageError ? defaultImage : featuredImage}
               alt={`${provider.title || 'Provider'} logo`}
               width={128}
               height={128}
               className="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover"
+              onError={() => setImageError(true)}
             />
             <div className="mt-6 md:mt-0">
               <div className="flex flex-wrap gap-3">
@@ -399,10 +404,11 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
                       className="relative aspect-square group overflow-hidden rounded-lg"
                     >
                       <Image
-                        src={image}
+                        src={galleryImageErrors[index] ? defaultImage : image}
                         alt="Project showcase"
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-110"
+                        onError={() => setGalleryImageErrors(prev => ({ ...prev, [index]: true }))}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="absolute bottom-0 left-0 right-0 p-4">

@@ -147,6 +147,14 @@ export default function FeaturedProviders() {
                 </div>
               )}
             </div>
+            <div className="mt-12 text-center">
+              <Link
+                href="/lawn-care"
+                className="inline-flex items-center justify-center rounded-md bg-primary-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+              >
+                View Full Lawn Care Directory
+              </Link>
+            </div>
           </CardContent>
         </Card>
       </div>
