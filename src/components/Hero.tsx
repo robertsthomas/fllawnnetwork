@@ -44,13 +44,15 @@ export default function Hero() {
   return (
     <section className="relative">
       <div className="absolute inset-0 bg-primary-900/90 overflow-hidden">
-        <Image
-          src="https://images.pexels.com/photos/1546166/pexels-photo-1546166.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-          alt="Beautiful lawn"
-          fill
-          className="object-cover opacity-50"
-          priority
-        />
+        <div className="relative w-full h-full">
+          <Image
+            src="/images/hero-image.webp"
+            alt="Beautiful lawn"
+            className="object-cover opacity-50"
+            fill
+            priority
+          />
+        </div>
       </div>
 
       <div className="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
@@ -114,9 +116,7 @@ export default function Hero() {
                   />
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   {field.state.meta.errors ? (
-                    <p className="text-sm text-red-500 mt-1.5 px-1">
-                      {field.state.meta.errors[0]}
-                    </p>
+                    <p className="text-sm text-red-500 mt-1.5 px-1">{field.state.meta.errors[0]}</p>
                   ) : null}
                 </div>
               )}
