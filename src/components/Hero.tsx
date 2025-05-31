@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { z } from 'zod';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
+import React from 'react';
 
 const FormSchema = z.object({
   zipcode: z
@@ -26,11 +27,13 @@ const isValidZipcode = (value: string): boolean => {
 };
 
 export default function Hero() {
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);
   const form = useForm({
     defaultValues: {
       zipcode: '',
     },
     onSubmit: ({ value }) => {
+      setHasAttemptedSubmit(true);
       const location = value.zipcode.trim();
       if (isValidZipcode(location)) {
         window.location.href = `/lawn-care?zipcode=${encodeURIComponent(location)}`;
@@ -40,6 +43,13 @@ export default function Hero() {
       }
     },
   });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setHasAttemptedSubmit(true);
+    form.handleSubmit();
+  };
 
   return (
     <section className="relative">
@@ -67,55 +77,55 @@ export default function Hero() {
         </p>
 
         <div className="mt-10 max-w-xl bg-white/95 backdrop-blur-sm rounded-lg p-4">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              form.handleSubmit();
-            }}
-            className="flex flex-col sm:flex-row gap-4"
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4">
             <form.Field
               name="zipcode"
               validators={{
                 onChange: ({ value }) => {
                   const result = FormSchema.shape.zipcode.safeParse(value);
-                  return result.success ? undefined : result.error.message;
+                  if (!result.success) {
+                    return result.error.errors[0].message;
+                  }
+                  return undefined;
                 },
               }}
             >
               {(field) => (
                 <div className="flex-grow relative">
-                  <Input
-                    name={field.name}
-                    value={field.state.value}
-                    onBlur={field.handleBlur}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      // If the input starts with a number, limit to 5 digits
-                      if (/^\d/.test(value)) {
-                        field.handleChange(value.slice(0, 5));
-                      } else {
-                        field.handleChange(value);
-                      }
-                    }}
-                    onPaste={(e) => {
-                      const pastedText = e.clipboardData.getData('text');
-                      // If the pasted text contains numbers
-                      if (/\d/.test(pastedText)) {
-                        e.preventDefault();
-                        // Extract only numbers from the pasted text
-                        const numbersOnly = pastedText.replace(/\D/g, '');
-                        // Take only the first 5 digits
-                        field.handleChange(numbersOnly.slice(0, 5));
-                      }
-                    }}
-                    placeholder="Enter city or ZIP code"
-                    className="w-full pl-10"
-                    required
-                  />
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  {field.state.meta.errors ? (
+                  <div className="relative w-full">
+                    <Input
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // If the input starts with a number, limit to 5 digits
+                        if (/^\d/.test(value)) {
+                          field.handleChange(value.slice(0, 5));
+                        } else {
+                          field.handleChange(value);
+                        }
+                      }}
+                      onPaste={(e) => {
+                        const pastedText = e.clipboardData.getData('text');
+                        // If the pasted text contains numbers
+                        if (/\d/.test(pastedText)) {
+                          e.preventDefault();
+                          // Extract only numbers from the pasted text
+                          const numbersOnly = pastedText.replace(/\D/g, '');
+                          // Take only the first 5 digits
+                          field.handleChange(numbersOnly.slice(0, 5));
+                        }
+                      }}
+                      placeholder="Enter city or ZIP code"
+                      className="w-full pl-10 pr-4"
+                      required
+                    />
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <Search className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                  {hasAttemptedSubmit && field.state.meta.errors ? (
                     <p className="text-sm text-red-500 mt-1.5 px-1">{field.state.meta.errors[0]}</p>
                   ) : null}
                 </div>
@@ -123,16 +133,14 @@ export default function Hero() {
             </form.Field>
 
             <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
-              {([canSubmit]) => (
-                <Button
-                  type="submit"
-                  className="bg-primary-600 hover:bg-primary-700 text-white"
-                  disabled={!canSubmit}
-                >
-                  <Search className="mr-2 h-4 w-4" />
-                  Search
-                </Button>
-              )}
+              <Button
+                type="submit"
+                className="bg-primary-600 hover:bg-primary-700 text-white"
+                onClick={() => setHasAttemptedSubmit(true)}
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Search
+              </Button>
             </form.Subscribe>
           </form>
 

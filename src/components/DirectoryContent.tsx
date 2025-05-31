@@ -478,11 +478,11 @@ export default function DirectoryContent({
                       </span>
                     )}
                     {cityInput ? (
-                      <span className="text-gray-600 text-base font-normal">
+                      <span className="text-gray-600 text-base font-normal capitalize">
                         {activeService ? ' ' : ' in '}
                         {Array.from(
                           new Set(filteredProviders.map((p) => p.address?.city).filter(Boolean))
-                        ).join(', ')}
+                        ).join(', ') || params?.city}
                       </span>
                     ) : (
                       <span className="text-gray-600 text-base font-normal">
@@ -492,7 +492,10 @@ export default function DirectoryContent({
                     {zipcode && locationInfo && (
                       <span className="text-gray-600 text-base font-normal">
                         {activeService ? ' ' : ' in '}
-                        {params?.city ? (params.city as string).replace(/-/g, ' ') : locationInfo.city}, {locationInfo.state} within {radius} miles
+                        {params?.city
+                          ? (params.city as string).replace(/-/g, ' ')
+                          : locationInfo.city}
+                        , {locationInfo.state} within {radius} miles
                       </span>
                     )}
                   </h2>
@@ -512,9 +515,9 @@ export default function DirectoryContent({
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                     {table.getRowModel().rows.map((row: Row<Provider>, index: number) => {
                       // Only insert ad if we have at least 4 providers and it's after the first 3 cards
-                      const shouldInsertAd = 
-                        flagEnabled && 
-                        filteredProviders.length >= 4 && 
+                      const shouldInsertAd =
+                        flagEnabled &&
+                        filteredProviders.length >= 4 &&
                         index === Math.floor(Math.random() * 2 + 3);
                       return (
                         <React.Fragment key={`row-${row.id}`}>
@@ -597,9 +600,10 @@ export default function DirectoryContent({
                 <div className="text-center py-12">
                   <div className="max-w-3xl mx-auto">
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                      Lawn Care in {(params?.city as string)?.replace(/-/g, ' ') || cityInput || 'Your Area'}
+                      Lawn Care in{' '}
+                      {(params?.city as string)?.replace(/-/g, ' ') || cityInput || 'Your Area'}
                     </h2>
-                    
+
                     {/* City-specific description */}
                     {(params?.city || cityInput) && (
                       <div className="bg-white p-6 rounded-lg shadow-sm border mb-6">
@@ -607,21 +611,28 @@ export default function DirectoryContent({
                           About {(params?.city as string)?.replace(/-/g, ' ') || cityInput}
                         </h3>
                         <p className="text-gray-600">
-                          {(params?.city as string)?.replace(/-/g, ' ') || cityInput}, Florida is known for its subtropical climate, which supports year-round lawn growth. 
-                          Warm-season grasses like St. Augustine and Bahia thrive in this region, making it ideal for 
-                          maintaining lush, green lawns throughout the year. The area's unique climate and soil conditions 
-                          require specific lawn care practices to ensure optimal growth and health.
+                          {(params?.city as string)?.replace(/-/g, ' ') || cityInput}, Florida is
+                          known for its subtropical climate, which supports year-round lawn growth.
+                          Warm-season grasses like St. Augustine and Bahia thrive in this region,
+                          making it ideal for maintaining lush, green lawns throughout the year. The
+                          area's unique climate and soil conditions require specific lawn care
+                          practices to ensure optimal growth and health.
                         </p>
                       </div>
                     )}
 
                     <p className="text-gray-600 mb-6">
-                      We're working on listing the best lawn care providers in {(params?.city as string)?.replace(/-/g, ' ') || cityInput || 'your area'}. In the meantime, here's what you need to know about maintaining your lawn in this region.
+                      We're working on listing the best lawn care providers in{' '}
+                      {(params?.city as string)?.replace(/-/g, ' ') || cityInput || 'your area'}. In
+                      the meantime, here's what you need to know about maintaining your lawn in this
+                      region.
                     </p>
-                    
+
                     <div className="grid gap-6 md:grid-cols-2 text-left mb-8">
                       <div className="bg-white p-6 rounded-lg shadow-sm border">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3">🌱 Recommended Grass Types</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                          🌱 Recommended Grass Types
+                        </h3>
                         <ul className="space-y-2 text-gray-600">
                           <li>• St. Augustine Grass</li>
                           <li>• Zoysia Grass</li>
@@ -629,9 +640,11 @@ export default function DirectoryContent({
                           <li>• Bermuda Grass</li>
                         </ul>
                       </div>
-                      
+
                       <div className="bg-white p-6 rounded-lg shadow-sm border">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3">📅 Typical Mowing Schedule</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                          📅 Typical Mowing Schedule
+                        </h3>
                         <ul className="space-y-2 text-gray-600">
                           <li>• Spring: Weekly mowing</li>
                           <li>• Summer: Every 5-7 days</li>
@@ -642,7 +655,9 @@ export default function DirectoryContent({
                     </div>
 
                     <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">💡 DIY Maintenance Tips</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                        💡 DIY Maintenance Tips
+                      </h3>
                       <ul className="space-y-2 text-gray-600">
                         <li>• Keep grass height between 2.5-3.5 inches</li>
                         <li>• Water deeply but infrequently (1-1.5 inches per week)</li>
@@ -653,7 +668,9 @@ export default function DirectoryContent({
                     </div>
 
                     <div className="bg-white p-6 rounded-lg shadow-sm border">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">💰 Estimated Service Costs</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                        💰 Estimated Service Costs
+                      </h3>
                       <ul className="space-y-2 text-gray-600">
                         <li>• Basic Lawn Mowing: $30-50 per visit</li>
                         <li>• Fertilization: $40-80 per application</li>
@@ -663,12 +680,11 @@ export default function DirectoryContent({
                     </div>
 
                     <p className="text-gray-600 mt-8">
-                      Check back soon as we continue to add top-rated service providers in your area. In the meantime, feel free to explore our full directory of trusted lawn care professionals.
+                      Check back soon as we continue to add top-rated service providers in your
+                      area. In the meantime, feel free to explore our full directory of trusted lawn
+                      care professionals.
                     </p>
-                    <Button
-                      onClick={() => router.push('/lawn-care')}
-                      className="mt-6"
-                    >
+                    <Button onClick={() => router.push('/lawn-care')} className="mt-6">
                       Browse Full Directory
                     </Button>
                   </div>
