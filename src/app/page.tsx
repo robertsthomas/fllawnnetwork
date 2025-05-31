@@ -4,11 +4,10 @@ import FeaturedProviders from '~/components/FeaturedProviders';
 import Hero from '~/components/Hero';
 import HowItWorks from '~/components/HowItWorks';
 import ServicesList from '~/components/ServicesList';
-import Testimonials from '~/components/Testimonials';
 import MainLayout from '~/components/ui/MainLayout';
 import { Card, CardContent, CardHeader } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
-import { reviews, services } from '~/data/providers';
+import { services } from '~/data/providers';
 
 function FeaturedProvidersLoadingPlaceholder() {
   return (

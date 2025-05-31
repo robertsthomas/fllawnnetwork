@@ -1,26 +1,23 @@
-import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { services } from '~/data/providers';
-import { filterProvidersByRadius, getLocationInfo } from '~/lib/location';
+import { filterProvidersByRadius, getLocationInfo, type LocationInfo } from '~/lib/location';
+import { directorySearchParams } from '~/lib/search-params';
 import { Provider } from '~/types';
+import { useQueryStates, parseAsString, parseAsInteger, parseAsArrayOf } from 'nuqs';
 
-export function useDirectoryFilters(providers: Provider[] | undefined, initialCity?: string) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export function useDirectoryFilters(providers: Provider[] | undefined) {
   const isInitialMount = useRef(true);
 
   // State for filtered providers
   const [filteredProviders, setFilteredProviders] = useState<Provider[]>([]);
 
-  // State for UI filters
-  const [activeService, setActiveService] = useState<string>('');
-  const [zipcode, setZipcode] = useState<string>('');
+  // URL state management with nuqs
+  const [filters, setFilters] = useQueryStates(directorySearchParams);
+
+  // Local state for UI
   const [zipcodeInput, setZipcodeInput] = useState<string>('');
-  const [radius, setRadius] = useState<number>(25);
-  const [locationInfo, setLocationInfo] = useState<any>(null);
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [minRating, setMinRating] = useState<number>(0);
-  const [city, setCity] = useState<string>(initialCity || '');
+  const [locationInfo, setLocationInfo] = useState<LocationInfo | null>(null);
+  const [activeService, setActiveService] = useState<string>('');
 
   // Flag to prevent recursive updates
   const isUpdatingRef = useRef(false);
@@ -29,27 +26,13 @@ export function useDirectoryFilters(providers: Provider[] | undefined, initialCi
   useEffect(() => {
     if (!isInitialMount.current) return;
 
-    // Get parameters from URL
-    const urlZipcode = searchParams.get('zipcode') || '';
-    const urlService = searchParams.get('service') || '';
-    const urlRadius = searchParams.get('radius') || '25';
-    const urlRating = searchParams.get('rating') || '0';
-    const urlServices = searchParams.get('services') || '';
-    const urlCity = searchParams.get('city') || initialCity || '';
-
-    // Set initial state from URL
-    if (urlZipcode) {
-      setZipcode(urlZipcode);
-      setZipcodeInput(urlZipcode);
-      setLocationInfo(getLocationInfo(urlZipcode));
+    if (filters.zipcode) {
+      setZipcodeInput(filters.zipcode);
+      setLocationInfo(getLocationInfo(filters.zipcode));
     }
 
-    if (urlCity) {
-      setCity(urlCity);
-    }
-
-    if (urlService) {
-      const normalizedService = normalizeServiceName(urlService);
+    if (filters.service) {
+      const normalizedService = normalizeServiceName(filters.service);
       const matchingService = services.find(
         (s) => normalizeServiceName(s.name) === normalizedService
       );
@@ -66,15 +49,8 @@ export function useDirectoryFilters(providers: Provider[] | undefined, initialCi
       }
     }
 
-    setRadius(parseInt(urlRadius) || 25);
-    setMinRating(parseInt(urlRating) || 0);
-
-    if (urlServices) {
-      setSelectedServices(urlServices.split(','));
-    }
-
     isInitialMount.current = false;
-  }, [searchParams, initialCity]);
+  }, [filters.zipcode, filters.service]);
 
   // Apply filters to providers whenever providers or filter criteria change
   useEffect(() => {
@@ -83,10 +59,9 @@ export function useDirectoryFilters(providers: Provider[] | undefined, initialCi
     // Apply filters to providers
     let filtered = [...(providers ?? [])] as Provider[];
 
-    // Filter by service from the URL query parameter
-    const service = searchParams.get('service');
-    if (service) {
-      const normalizedService = normalizeServiceName(service);
+    // Filter by service
+    if (filters.service) {
+      const normalizedService = normalizeServiceName(filters.service);
       filtered = filtered.filter((provider) =>
         provider.categories?.some(
           (category) => normalizeServiceName(category) === normalizedService
@@ -94,13 +69,11 @@ export function useDirectoryFilters(providers: Provider[] | undefined, initialCi
       );
     }
 
-    // Filter by selected services from URL
-    const urlServices = searchParams.get('services');
-    if (urlServices && urlServices.split(',').length > 0) {
-      const servicesArray = urlServices.split(',');
+    // Filter by selected services
+    if (filters.services.length > 0) {
       filtered = filtered.filter((provider) =>
         provider.categories?.some((category) =>
-          servicesArray.some(
+          filters.services.some(
             (selectedService) =>
               normalizeServiceName(category) === normalizeServiceName(selectedService)
           )
@@ -108,116 +81,65 @@ export function useDirectoryFilters(providers: Provider[] | undefined, initialCi
       );
     }
 
-    // Filter by rating from URL
-    const urlRating = searchParams.get('rating');
-    if (urlRating) {
-      filtered = filtered.filter((provider) => (provider.totalScore || 0) >= parseInt(urlRating));
+    // Filter by rating
+    if (filters.rating > 0) {
+      filtered = filtered.filter((provider) => (provider.totalScore || 0) >= filters.rating);
     }
 
-    // Filter by city from URL or initialCity
-    const urlCity = searchParams.get('city') || initialCity;
-    if (urlCity) {
-      const normalizedCity = urlCity.toLowerCase();
+    // Filter by city
+    if (filters.city) {
+      const normalizedCity = filters.city.toLowerCase();
       filtered = filtered.filter((provider) =>
         provider.address?.city?.toLowerCase().includes(normalizedCity)
       );
     }
 
-    // Filter by zipcode and radius from URL
-    const urlZipcode = searchParams.get('zipcode');
-    const urlRadius = searchParams.get('radius') || '25';
-    if (urlZipcode) {
-      filtered = filterProvidersByRadius<Provider>(filtered, urlZipcode, parseInt(urlRadius));
+    // Filter by zipcode and radius
+    if (filters.zipcode) {
+      filtered = filterProvidersByRadius<Provider>(filtered, filters.zipcode, filters.radius);
     }
 
     // Only update if the filtered results are different
     if (JSON.stringify(filtered) !== JSON.stringify(filteredProviders)) {
       setFilteredProviders(filtered);
     }
-  }, [providers, searchParams, filteredProviders, initialCity]);
+  }, [providers, filters, filteredProviders]);
 
   // Normalize service name
   const normalizeServiceName = (name: string): string => {
     return name.toLowerCase().replace(/-/g, ' ');
   };
 
-  // Update URL with current filter state
-  const updateUrlWithFilters = useCallback(() => {
-    if (isUpdatingRef.current) return;
-
-    isUpdatingRef.current = true;
-
-    try {
-      const params = new URLSearchParams(searchParams.toString());
-
-      // Update zipcode
-      if (zipcode) {
-        params.set('zipcode', zipcode);
-      } else {
-        params.delete('zipcode');
-      }
-
-      // Update radius
-      params.set('radius', radius.toString());
-
-      // Update services
-      if (selectedServices.length > 0) {
-        params.set('services', selectedServices.join(','));
-      } else {
-        params.delete('services');
-      }
-
-      // Update rating
-      if (minRating > 0) {
-        params.set('rating', minRating.toString());
-      } else {
-        params.delete('rating');
-      }
-
-      // Preserve service param if it exists
-      const serviceParam = searchParams.get('service');
-      if (serviceParam) {
-        params.set('service', serviceParam);
-      }
-
-      // Only update URL if params have changed
-      const newParamsString = params.toString();
-      if (newParamsString !== searchParams.toString()) {
-        router.push(`?${newParamsString}`);
-      }
-    } finally {
-      // Clear the updating flag after a delay
-      setTimeout(() => {
-        isUpdatingRef.current = false;
-      }, 100);
-    }
-  }, [zipcode, radius, selectedServices, minRating, searchParams, router]);
-
-  // Update a single URL parameter
-  const updateUrlParam = useCallback(
-    (key: string, value: string | null) => {
+  // Handle service selection toggle
+  const toggleServiceSelection = useCallback(
+    (serviceName: string) => {
       if (isUpdatingRef.current) return;
 
-      isUpdatingRef.current = true;
+      const newSelectedServices = filters.services.includes(serviceName)
+        ? filters.services.filter((s) => s !== serviceName)
+        : [...filters.services, serviceName];
 
-      try {
-        const params = new URLSearchParams(searchParams.toString());
-
-        if (value !== null) {
-          params.set(key, value);
-        } else {
-          params.delete(key);
-        }
-
-        router.push(`?${params.toString()}`);
-      } finally {
-        // Clear the updating flag after a delay
-        setTimeout(() => {
-          isUpdatingRef.current = false;
-        }, 100);
-      }
+      setFilters({ services: newSelectedServices });
     },
-    [searchParams, router]
+    [filters.services, setFilters]
+  );
+
+  // Handle rating change
+  const handleRatingChange = useCallback(
+    (value: string) => {
+      const ratingValue = parseInt(value);
+      setFilters({ rating: ratingValue });
+    },
+    [setFilters]
+  );
+
+  // Handle radius change
+  const handleRadiusChange = useCallback(
+    (value: string) => {
+      const radiusValue = Number(value);
+      setFilters({ radius: radiusValue });
+    },
+    [setFilters]
   );
 
   // Reset all filters
@@ -228,132 +150,36 @@ export function useDirectoryFilters(providers: Provider[] | undefined, initialCi
 
     try {
       // Reset local state
-      setZipcode('');
       setZipcodeInput('');
-      setRadius(25);
-      setSelectedServices([]);
-      setMinRating(0);
-
-      // Keep only service param if it exists, remove all other params
-      const params = new URLSearchParams();
-      const serviceParam = searchParams.get('service');
-      if (serviceParam) {
-        params.set('service', serviceParam);
-      }
-
-      router.push(params.toString() ? `?${params.toString()}` : '');
+      setFilters({
+        zipcode: null,
+        radius: 25,
+        services: [],
+        rating: 0,
+        city: null,
+      });
     } finally {
       // Clear the updating flag after a delay
       setTimeout(() => {
         isUpdatingRef.current = false;
       }, 100);
     }
-  }, [searchParams, router]);
-
-  // Handle service selection toggle
-  const toggleServiceSelection = useCallback(
-    (serviceName: string) => {
-      if (isUpdatingRef.current) return;
-
-      // Update local state first
-      const newSelectedServices = selectedServices.includes(serviceName)
-        ? selectedServices.filter((s) => s !== serviceName)
-        : [...selectedServices, serviceName];
-
-      setSelectedServices(newSelectedServices);
-
-      // Then update URL
-      isUpdatingRef.current = true;
-
-      try {
-        const params = new URLSearchParams(searchParams.toString());
-
-        if (newSelectedServices.length > 0) {
-          params.set('services', newSelectedServices.join(','));
-        } else {
-          params.delete('services');
-        }
-
-        router.push(`?${params.toString()}`);
-      } finally {
-        // Clear the updating flag after a delay
-        setTimeout(() => {
-          isUpdatingRef.current = false;
-        }, 100);
-      }
-    },
-    [selectedServices, searchParams, router]
-  );
-
-  // Handle rating change
-  const handleRatingChange = useCallback(
-    (value: string) => {
-      if (isUpdatingRef.current) return;
-
-      const ratingValue = parseInt(value);
-      setMinRating(ratingValue);
-
-      isUpdatingRef.current = true;
-
-      try {
-        const params = new URLSearchParams(searchParams.toString());
-
-        if (ratingValue > 0) {
-          params.set('rating', value);
-        } else {
-          params.delete('rating');
-        }
-
-        router.push(`?${params.toString()}`);
-      } finally {
-        // Clear the updating flag after a delay
-        setTimeout(() => {
-          isUpdatingRef.current = false;
-        }, 100);
-      }
-    },
-    [searchParams, router]
-  );
-
-  // Handle radius change
-  const handleRadiusChange = useCallback(
-    (value: string) => {
-      if (isUpdatingRef.current) return;
-
-      const radiusValue = Number(value);
-      setRadius(radiusValue);
-
-      isUpdatingRef.current = true;
-
-      try {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('radius', value);
-        router.push(`?${params.toString()}`);
-      } finally {
-        // Clear the updating flag after a delay
-        setTimeout(() => {
-          isUpdatingRef.current = false;
-        }, 100);
-      }
-    },
-    [searchParams, router]
-  );
+  }, [setFilters]);
 
   return {
     filteredProviders,
     activeService,
-    zipcode,
+    zipcode: filters.zipcode,
     zipcodeInput,
     setZipcodeInput,
-    setZipcode,
-    radius,
+    setZipcode: (value: string | null) => setFilters({ zipcode: value }),
+    radius: filters.radius,
     locationInfo,
     setLocationInfo,
-    selectedServices,
-    minRating,
-    city,
-    updateFilters: updateUrlWithFilters,
-    updateUrlParam,
+    selectedServices: filters.services,
+    rating: filters.rating,
+    city: filters.city,
+    setCity: (value: string | null) => setFilters({ city: value }),
     resetFilters,
     toggleServiceSelection,
     handleRatingChange,

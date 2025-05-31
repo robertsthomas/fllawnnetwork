@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Montserrat } from 'next/font/google';
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import Footer from '~/components/Footer';
 import Header from '~/components/Header';
 import { PostHogProvider } from '~/components/PostHogProvider';
@@ -9,6 +9,8 @@ import { LocationProvider } from '~/contexts/LocationContext';
 import { ConvexClientProvider } from '~/providers';
 import Script from 'next/script';
 import './globals.css';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import type { ReactNode } from 'react';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -82,7 +84,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <html lang="en" className="h-full bg-gray-50">
@@ -96,13 +98,21 @@ export default function RootLayout({
             })(window,document,'script','dataLayer','GTM-N9MVPDTD');
           `}
         </Script>
-        <script src="https://analytics.ahrefs.com/analytics.js" data-key="oL/tnPHTlzGLF4rJZYhQlw" async />
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8923397311432151" crossOrigin="anonymous" />
+        <script
+          src="https://analytics.ahrefs.com/analytics.js"
+          data-key="oL/tnPHTlzGLF4rJZYhQlw"
+          async
+        />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8923397311432151"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className={`h-full ${inter.variable} ${montserrat.variable}`}>
         {/* Google Tag Manager (noscript) */}
         <noscript>
-          <iframe 
+          <iframe
             title="Google Tag Manager"
             src="https://www.googletagmanager.com/ns.html?id=GTM-N9MVPDTD"
             height="0"
@@ -111,18 +121,20 @@ export default function RootLayout({
           />
         </noscript>
         {/* End Google Tag Manager (noscript) */}
-        <ConvexClientProvider>
-          <PostHogProvider>
-            <QueryProvider>
-              <LocationProvider>
-                <Header />
-                <div className="pt-16">{children}</div>
-                <SpeedInsights />
-                <Footer />
-              </LocationProvider>
-            </QueryProvider>
-          </PostHogProvider>
-        </ConvexClientProvider>
+        <NuqsAdapter>
+          <ConvexClientProvider>
+            <PostHogProvider>
+              <QueryProvider>
+                <LocationProvider>
+                  <Header />
+                  <div className="pt-16">{children}</div>
+                  <SpeedInsights />
+                  <Footer />
+                </LocationProvider>
+              </QueryProvider>
+            </PostHogProvider>
+          </ConvexClientProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

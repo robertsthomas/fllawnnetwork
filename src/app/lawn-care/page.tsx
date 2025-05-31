@@ -1,5 +1,4 @@
 import DirectoryContent from '~/components/DirectoryContent';
-
 import type { Metadata } from 'next';
 
 const serviceDescriptions: { [key: string]: string } = {
@@ -40,6 +39,9 @@ export async function generateMetadata({
   return {
     title: title,
     description: description,
+    alternates: {
+      canonical: '/lawn-care',
+    },
   };
 }
 

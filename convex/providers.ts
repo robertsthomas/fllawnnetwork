@@ -9,6 +9,15 @@ export const get = query({
   },
 });
 
+export const prefetch = query({
+  args: {},
+  handler: async (ctx) => {
+    // Prefetch all providers
+    const providers = await ctx.db.query('providers').collect();
+    return providers;
+  },
+});
+
 export const create = mutation({
   args: {
     provider: v.object({
