@@ -24,7 +24,7 @@ type BlogPost = {
 const blogPosts: Record<string, BlogPost> = {
   "spring-lawn-care-guide": {
     slug: "spring-lawn-care-guide",
-    title: "Spring Lawn Care Guide: Getting Your Yard Ready for Summer",
+    title: "Spring Lawn Guide",
     content: [
       {
         type: "paragraph" as const,
@@ -68,7 +68,7 @@ const blogPosts: Record<string, BlogPost> = {
   },
   "watering-tips": {
     slug: "watering-tips",
-    title: "Smart Watering: How to Keep Your Lawn Hydrated Without Waste",
+    title: "Smart Watering Guide",
     content: [
       {
         type: "paragraph" as const,
@@ -117,7 +117,7 @@ const blogPosts: Record<string, BlogPost> = {
   },
   "lawn-mowing-techniques": {
     slug: "lawn-mowing-techniques",
-    title: "Professional Lawn Mowing Techniques for a Perfect Cut",
+    title: "Techniques for a Perfect Cut",
     content: [
       {
         type: "paragraph" as const,
