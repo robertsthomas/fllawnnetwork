@@ -94,11 +94,12 @@ export default function ServicesPage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-2">{service.name}</h2>
                 <p className="text-gray-600 mb-4">{service.description}</p>
                 <Link
-                  href={`/directory?service=${service.slug}`}
-                  className="inline-flex items-center text-primary-600 hover:text-primary-500"
+                  href={`/lawn-care?service=${service.slug}`}
+                  className="text-blue-600 hover:text-blue-800"
                 >
                   Find providers
-                  <svg className="h-5 w-5 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="h-5 w-5 ml-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <title>Arrow right</title>
                     <path
                       fillRule="evenodd"
                       d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"

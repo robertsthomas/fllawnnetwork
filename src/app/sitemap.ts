@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { floridaCities } from '~/data/florida-cities';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://fllawnnetwork.com';
+  const baseUrl = 'https://www.fllawnnetwork.com';
   const staticRoutes = [
     {
       url: baseUrl,
@@ -36,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const cityRoutes = floridaCities.map(city => ({
+  const cityRoutes = floridaCities.map((city) => ({
     url: `${baseUrl}/lawn-care/${city.slug}`,
     lastModified: new Date(),
     changeFrequency: 'weekly' as const,
@@ -44,4 +44,4 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
 
   return [...staticRoutes, ...cityRoutes];
-} 
+}

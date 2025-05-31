@@ -3,7 +3,6 @@
 import { useQuery } from 'convex/react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import zipcodes from 'zipcodes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { useLocation } from '~/contexts/LocationContext';
 import { getZipcodesInRadius } from '~/lib/location';
@@ -64,7 +63,7 @@ export default function FeaturedProviders() {
     const featuredProviders = providers.filter((provider) => provider.featured);
 
     // Only show providers if we have location info
-    if (location && location.postalCode && featuredProviders.length > 0) {
+    if (location?.postalCode && featuredProviders.length > 0) {
       const userPostalCode = location.postalCode;
 
       // Get all zip codes within 50 miles of user location
@@ -140,10 +139,10 @@ export default function FeaturedProviders() {
                     professionals.
                   </p>
                   <Link
-                    href="/directory"
-                    className="inline-block mt-4 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                    href="/lawn-care"
+                    className="text-blue-600 hover:text-blue-800 font-medium"
                   >
-                    Browse Directory
+                    View all providers →
                   </Link>
                 </div>
               )}

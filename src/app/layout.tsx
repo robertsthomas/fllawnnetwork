@@ -21,9 +21,9 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
+  title: 'Top Lawn Care in Florida | FL Lawn Network',
   description:
-    'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes for lawn mowing, landscaping, and garden services.',
+    'Find local lawn care and landscaping pros near you. Read reviews, compare quotes, and book expert service.',
   keywords:
     'lawn care services, lawn maintenance, landscaping services, garden services, lawn mowing, professional lawn care, local lawn services, lawn care near me, landscaping near me, garden maintenance, lawn service providers, lawn care professionals, residential lawn care, commercial lawn care, lawn care company, lawn service company',
   authors: [{ name: 'Florida Lawn Network' }],
@@ -34,21 +34,21 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://fllawnnetwork.com'),
+  metadataBase: new URL('https://www.fllawnnetwork.com'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
+    title: 'Top Lawn Care in Florida | FL Lawn Network',
     description:
-      'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes for lawn mowing, landscaping, and garden services.',
-    url: 'https://fllawnnetwork.com',
+      'Find local lawn care and landscaping pros near you. Read reviews, compare quotes, and book expert service.',
+    url: 'https://www.fllawnnetwork.com',
     siteName: 'Florida Lawn Network',
     locale: 'en_US',
     type: 'website',
     images: [
       {
-        url: '/og-image.jpg',
+        url: 'https://www.fllawnnetwork.com/og-image.jpg',
         width: 1200,
         height: 630,
         alt: 'Professional Lawn Care Services and Landscaping Experts',
@@ -57,10 +57,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Lawn Care Services Near Me | Professional Lawn Maintenance & Landscaping',
+    title: 'Top Lawn Care in Florida | FL Lawn Network',
     description:
-      'Find local lawn care services, professional lawn maintenance, and landscaping experts near you. Compare top-rated lawn care providers, read reviews, and get free quotes.',
-    images: ['/twitter-image.jpg'],
+      'Find local lawn care and landscaping pros near you. Read reviews, compare quotes, and book expert service.',
+    images: ['https://www.fllawnnetwork.com/twitter-image.jpg'],
     creator: '@fllawnnetwork',
   },
   robots: {
@@ -97,14 +97,14 @@ export default function RootLayout({
             })(window,document,'script','dataLayer','GTM-N9MVPDTD');
           `}
         </Script>
-        <script src="https://analytics.ahrefs.com/analytics.js" data-key="oL/tnPHTlzGLF4rJZYhQlw" async></script>
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8923397311432151"
-     crossOrigin="anonymous"></script>
+        <script src="https://analytics.ahrefs.com/analytics.js" data-key="oL/tnPHTlzGLF4rJZYhQlw" async />
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8923397311432151" crossOrigin="anonymous" />
       </head>
       <body className={`h-full ${inter.variable} ${montserrat.variable}`}>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe 
+            title="Google Tag Manager"
             src="https://www.googletagmanager.com/ns.html?id=GTM-N9MVPDTD"
             height="0"
             width="0"

@@ -666,7 +666,7 @@ export default function DirectoryContent({
                       Check back soon as we continue to add top-rated service providers in your area. In the meantime, feel free to explore our full directory of trusted lawn care professionals.
                     </p>
                     <Button
-                      onClick={() => router.push('/directory')}
+                      onClick={() => router.push('/lawn-care')}
                       className="mt-6"
                     >
                       Browse Full Directory

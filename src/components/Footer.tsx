@@ -61,10 +61,10 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold text-gray-200 tracking-wider uppercase">
                   Services
                 </h3>
-                <ul role="list" className="mt-4 space-y-4">
+                <ul className="mt-4 space-y-4">
                   <li>
                     <Link
-                      href="/directory"
+                      href="/lawn-care"
                       className="text-base text-gray-400 hover:text-gray-300 transition"
                     >
                       Lawn Mowing
@@ -72,7 +72,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      href="/directory"
+                      href="/lawn-care"
                       className="text-base text-gray-400 hover:text-gray-300 transition"
                     >
                       Landscaping
@@ -80,7 +80,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      href="/directory"
+                      href="/lawn-care"
                       className="text-base text-gray-400 hover:text-gray-300 transition"
                     >
                       Garden Design
@@ -88,7 +88,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      href="/directory"
+                      href="/lawn-care"
                       className="text-base text-gray-400 hover:text-gray-300 transition"
                     >
                       Irrigation
@@ -96,7 +96,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      href="/directory"
+                      href="/lawn-care"
                       className="text-base text-gray-400 hover:text-gray-300 transition"
                     >
                       Tree Services
@@ -108,7 +108,7 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold text-gray-200 tracking-wider uppercase">
                   For Providers
                 </h3>
-                <ul role="list" className="mt-4 space-y-4">
+                <ul className="mt-4 space-y-4">
                   <li>
                     <Link
                       href="/providers/list"
@@ -149,7 +149,7 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold text-gray-200 tracking-wider uppercase">
                   Company
                 </h3>
-                <ul role="list" className="mt-4 space-y-4">
+                <ul className="mt-4 space-y-4">
                   <li>
                     <Link
                       href="/about"
@@ -181,7 +181,7 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold text-gray-200 tracking-wider uppercase">
                   Legal
                 </h3>
-                <ul role="list" className="mt-4 space-y-4">
+                <ul className="mt-4 space-y-4">
                   <li>
                     <PrivacyDialog />
                   </li>

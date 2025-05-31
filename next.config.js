@@ -38,7 +38,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Access-Control-Allow-Origin',
-            value: 'https://fllawnnetwork.com',
+            value: 'https://www.fllawnnetwork.com',
           },
         ],
       },
