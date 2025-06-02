@@ -18,14 +18,6 @@ const serviceDescriptions: { [key: string]: string } = {
 const defaultDescription =
   'Find qualified lawn care professionals and services in your area. Get quotes for mowing, fertilization, pest control, and more.';
 
-export const metadata: Metadata = {
-  title: 'Lawn Care Services in Florida | Professional Lawn Maintenance',
-  description: 'Find professional lawn care services in Florida. Get expert lawn maintenance, mowing, fertilization, and more from trusted local providers.',
-  alternates: {
-    canonical: '/lawn-care',
-  },
-};
-
 export async function generateMetadata({
   searchParams,
 }: {
