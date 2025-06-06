@@ -392,13 +392,9 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
                   View All
                 </Button>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {(provider.imageUrls && provider.imageUrls.length > 0
-                  ? provider.imageUrls
-                  : galleryImages
-                )
-                  .slice(0, 6)
-                  .map((image: string, index: number) => (
+              {provider.imageUrls && provider.imageUrls.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {provider.imageUrls.slice(0, 6).map((image: string, index: number) => (
                     <div
                       key={index}
                       className="relative aspect-square group overflow-hidden rounded-lg"
@@ -417,7 +413,8 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
                       </div>
                     </div>
                   ))}
-              </div>
+                </div>
+              )}
             </section>
 
             {/* Reviews Section */}
