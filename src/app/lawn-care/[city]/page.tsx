@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import DirectoryContent from '~/components/DirectoryContent';
-import { floridaCities } from '~/data/florida-cities';
+import floridaCitiesData from '~/data/florida-cities.json';
+const { cities: floridaCities } = floridaCitiesData;
 import { directoryCache } from '~/lib/search-params';
 import type { SearchParams } from 'nuqs/server';
 
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description:
         'Find the best lawn care services in your city. Browse our directory of trusted lawn care professionals in Florida.',
       alternates: {
-        canonical: '/lawn-care',
+        canonical: 'https://www.fllawnnetwork.com/lawn-care',
       },
     };
   }
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `Lawn Care Services in ${cityData.name}, FL | Find Local Providers`,
     description: `Find the best lawn care services in ${cityData.name}, Florida. Browse our directory of trusted lawn care professionals in ${cityData.name} and surrounding areas.`,
     alternates: {
-      canonical: `/lawn-care/${city}`,
+      canonical: `https://www.fllawnnetwork.com/lawn-care/${city}`,
     },
   };
 }

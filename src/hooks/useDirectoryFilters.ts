@@ -4,8 +4,10 @@ import { filterProvidersByRadius, getLocationInfo, type LocationInfo } from '~/l
 import { directorySearchParams } from '~/lib/search-params';
 import { Provider } from '~/types';
 import { useQueryStates, parseAsString, parseAsInteger, parseAsArrayOf } from 'nuqs';
+import { useRouter } from 'next/navigation';
 
-export function useDirectoryFilters(providers: Provider[] | undefined) {
+export function useDirectoryFilters(providers: Provider[] | undefined, initialCity?: string) {
+  const router = useRouter();
   const isInitialMount = useRef(true);
 
   // State for filtered providers
@@ -18,6 +20,7 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
   const [zipcodeInput, setZipcodeInput] = useState<string>('');
   const [locationInfo, setLocationInfo] = useState<LocationInfo | null>(null);
   const [activeService, setActiveService] = useState<string>('');
+  const [city, setCity] = useState<string | null>(initialCity || null);
 
   // Flag to prevent recursive updates
   const isUpdatingRef = useRef(false);
@@ -87,8 +90,8 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
     }
 
     // Filter by city
-    if (filters.city) {
-      const normalizedCity = filters.city.toLowerCase();
+    if (city) {
+      const normalizedCity = city.toLowerCase();
       filtered = filtered.filter((provider) =>
         provider.address?.city?.toLowerCase().includes(normalizedCity)
       );
@@ -103,7 +106,7 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
     if (JSON.stringify(filtered) !== JSON.stringify(filteredProviders)) {
       setFilteredProviders(filtered);
     }
-  }, [providers, filters, filteredProviders]);
+  }, [providers, filters, city, filteredProviders]);
 
   // Normalize service name
   const normalizeServiceName = (name: string): string => {
@@ -142,7 +145,8 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
     [setFilters]
   );
 
-  // Reset all filters
+  // 
+  //  filters
   const resetFilters = useCallback(() => {
     if (isUpdatingRef.current) return;
 
@@ -156,15 +160,40 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
         radius: 25,
         services: [],
         rating: 0,
-        city: null,
       });
+      setCity(null);
+      
+      // Navigate to the base lawn-care page
+      router.push('/lawn-care');
     } finally {
       // Clear the updating flag after a delay
       setTimeout(() => {
         isUpdatingRef.current = false;
       }, 100);
     }
-  }, [setFilters]);
+  }, [setFilters, router]);
+
+  // Handle city change
+  const handleCityChange = useCallback(
+    (value: string | null) => {
+      setCity(value);
+      if (!value) {
+        router.push('/lawn-care');
+      }
+    },
+    [router]
+  );
+
+  // Handle zipcode change
+  const handleZipcodeChange = useCallback(
+    (value: string | null) => {
+      setFilters({ zipcode: value });
+      if (!value) {
+        router.push('/lawn-care');
+      }
+    },
+    [setFilters, router]
+  );
 
   return {
     filteredProviders,
@@ -172,14 +201,14 @@ export function useDirectoryFilters(providers: Provider[] | undefined) {
     zipcode: filters.zipcode,
     zipcodeInput,
     setZipcodeInput,
-    setZipcode: (value: string | null) => setFilters({ zipcode: value }),
+    setZipcode: handleZipcodeChange,
     radius: filters.radius,
     locationInfo,
     setLocationInfo,
     selectedServices: filters.services,
     rating: filters.rating,
-    city: filters.city,
-    setCity: (value: string | null) => setFilters({ city: value }),
+    city,
+    setCity: handleCityChange,
     resetFilters,
     toggleServiceSelection,
     handleRatingChange,

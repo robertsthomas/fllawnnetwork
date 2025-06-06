@@ -1,0 +1,164 @@
+{
+  "cities": [
+    {
+      "name": "Altamonte Springs",
+      "slug": "altamonte-springs"
+    },
+    {
+      "name": "Altoona",
+      "slug": "altoona"
+    },
+    {
+      "name": "Apopka",
+      "slug": "apopka"
+    },
+    {
+      "name": "Astor",
+      "slug": "astor"
+    },
+    {
+      "name": "Auburndale",
+      "slug": "auburndale"
+    },
+    {
+      "name": "Clermont",
+      "slug": "clermont"
+    },
+    {
+      "name": "Davenport",
+      "slug": "davenport"
+    },
+    {
+      "name": "Eustis",
+      "slug": "eustis"
+    },
+    {
+      "name": "Fort Lauderdale",
+      "slug": "fort-lauderdale"
+    },
+    {
+      "name": "Gainesville",
+      "slug": "gainesville"
+    },
+    {
+      "name": "Groveland",
+      "slug": "groveland"
+    },
+    {
+      "name": "Haines City",
+      "slug": "haines-city"
+    },
+    {
+      "name": "Howey-In-The-Hills",
+      "slug": "howey-in-the-hills"
+    },
+    {
+      "name": "Jacksonville",
+      "slug": "jacksonville"
+    },
+    {
+      "name": "Jacksonville Beach",
+      "slug": "jacksonville-beach"
+    },
+    {
+      "name": "Kissimmee",
+      "slug": "kissimmee"
+    },
+    {
+      "name": "Lady Lake",
+      "slug": "lady-lake"
+    },
+    {
+      "name": "Lake Alfred",
+      "slug": "lake-alfred"
+    },
+    {
+      "name": "Leesburg",
+      "slug": "leesburg"
+    },
+    {
+      "name": "Lockhart",
+      "slug": "lockhart"
+    },
+    {
+      "name": "Longwood",
+      "slug": "longwood"
+    },
+    {
+      "name": "Mascotte",
+      "slug": "mascotte"
+    },
+    {
+      "name": "Miami",
+      "slug": "miami"
+    },
+    {
+      "name": "Minneola",
+      "slug": "minneola"
+    },
+    {
+      "name": "Mt Dora",
+      "slug": "mt-dora"
+    },
+    {
+      "name": "Ocala",
+      "slug": "ocala"
+    },
+    {
+      "name": "Ocoee",
+      "slug": "ocoee"
+    },
+    {
+      "name": "Orlando",
+      "slug": "orlando"
+    },
+    {
+      "name": "Paisley",
+      "slug": "paisley"
+    },
+    {
+      "name": "Pierson",
+      "slug": "pierson"
+    },
+    {
+      "name": "Polk City",
+      "slug": "polk-city"
+    },
+    {
+      "name": "St. Petersburg",
+      "slug": "st-petersburg"
+    },
+    {
+      "name": "Tallahassee",
+      "slug": "tallahassee"
+    },
+    {
+      "name": "Tavares",
+      "slug": "tavares"
+    },
+    {
+      "name": "Umatilla",
+      "slug": "umatilla"
+    },
+    {
+      "name": "Weirsdale",
+      "slug": "weirsdale"
+    },
+    {
+      "name": "Winter Garden",
+      "slug": "winter-garden"
+    },
+    {
+      "name": "Winter Haven",
+      "slug": "winter-haven"
+    },
+    {
+      "name": "Winter Park",
+      "slug": "winter-park"
+    },
+    {
+      "name": "Zellwood",
+      "slug": "zellwood"
+    }
+  ]
+}

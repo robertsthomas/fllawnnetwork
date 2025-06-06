@@ -171,3 +171,52 @@ export const setFeaturedByCity = mutation({
     };
   },
 });
+
+export const getFloridaCities = query({
+  args: {},
+  handler: async (ctx) => {
+    // Get all providers
+    const providers = await ctx.db.query('providers').collect();
+    
+    // Filter for Florida providers and extract unique cities
+    const uniqueCities = new Set<string>();
+    const citySlugMap = new Map<string, string>();
+    
+    providers.forEach(provider => {
+      const city = provider.address?.city;
+      const state = provider.address?.state;
+      
+      // Only include Florida cities
+      if (city && 
+          state && 
+          (state.toLowerCase() === 'florida' || state.toLowerCase() === 'fl')) {
+        
+        // Normalize the city name
+        const normalizedCity = city.trim();
+        
+        if (normalizedCity && !uniqueCities.has(normalizedCity)) {
+          uniqueCities.add(normalizedCity);
+          
+          // Generate a slug from the city name
+          const slug = normalizedCity
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
+          
+          citySlugMap.set(normalizedCity, slug);
+        }
+      }
+    });
+    
+    // Convert to array of objects with name and slug properties
+    const floridaCities = Array.from(uniqueCities).map(city => ({
+      name: city,
+      slug: citySlugMap.get(city) || ''
+    }));
+    
+    // Sort alphabetically by city name
+    floridaCities.sort((a, b) => a.name.localeCompare(b.name));
+    
+    return floridaCities;
+  }
+});

@@ -7,7 +7,6 @@ export const directorySearchParams = {
   radius: parseAsInteger.withDefault(25),
   rating: parseAsInteger.withDefault(0),
   services: parseAsArrayOf(parseAsString).withDefault([]),
-  city: parseAsString,
 };
 
 export const directoryCache = createSearchParamsCache(directorySearchParams);

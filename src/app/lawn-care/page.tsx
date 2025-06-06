@@ -40,7 +40,7 @@ export async function generateMetadata({
     title: title,
     description: description,
     alternates: {
-      canonical: '/lawn-care',
+      canonical: 'https://www.fllawnnetwork.com/lawn-care',
     },
   };
 }

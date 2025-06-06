@@ -12,7 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useQuery } from 'convex/react';
-import { ChevronLeft, ChevronRight, Star, XCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, XCircle, X } from 'lucide-react';
 import { memo, useCallback, useRef, useState } from 'react';
 import { services } from '~/data/providers';
 import { useDirectoryFilters } from '~/hooks/useDirectoryFilters';
@@ -187,7 +187,28 @@ export default function DirectoryContent({ initialCity }: { initialCity?: string
     handleRatingChange,
     handleRadiusChange,
     setLocationInfo,
-  } = useDirectoryFilters(providers || []);
+  } = useDirectoryFilters(providers || [], initialCity);
+
+  const hasActiveFilters =
+    activeService ||
+    zipcode ||
+    selectedServices.length > 0 ||
+    rating > 0 ||
+    city;
+
+  // Generate the H1 text based on filters
+  const getH1Text = () => {
+    if (city) {
+      return `Lawn Care Services in ${city}`;
+    }
+    if (activeService) {
+      return `${activeService} Services`;
+    }
+    if (selectedServices.length > 0) {
+      return `${selectedServices.join(' & ')} Services`;
+    }
+    return 'Lawn Care Services';
+  };
 
   // Setup table
   const table = useReactTable({
@@ -268,6 +289,7 @@ export default function DirectoryContent({ initialCity }: { initialCity?: string
 
   return (
     <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <h1 className="text-3xl font-bold mb-8 text-center">{getH1Text()}</h1>
       <div className="lg:grid lg:grid-cols-12 lg:gap-8">
         {/* Mobile filter button */}
         <div className="lg:hidden mb-4">
@@ -328,7 +350,7 @@ export default function DirectoryContent({ initialCity }: { initialCity?: string
                                   setCity(null);
                                 }}
                               >
-                                <XCircle className="h-4 w-4" />
+                                <X className="h-4 w-4" />
                               </button>
                             )}
                           </div>
@@ -356,7 +378,7 @@ export default function DirectoryContent({ initialCity }: { initialCity?: string
                                   setZipcode(null);
                                 }}
                               >
-                                <XCircle className="h-4 w-4" />
+                                <X className="h-4 w-4" />
                               </button>
                             )}
                           </div>
@@ -459,7 +481,15 @@ export default function DirectoryContent({ initialCity }: { initialCity?: string
                 </Accordion>
 
                 <div className="p-6 space-y-2">
-                  <Button onClick={resetFilters} className="w-full">
+                  <Button 
+                    className="w-full" 
+                    onClick={() => {
+                      if (zipcodeInput) setZipcode(zipcodeInput);
+                    }}
+                  >
+                    Apply Filters
+                  </Button>
+                  <Button variant="ghost" onClick={resetFilters} className="w-full">
                     Reset Filters
                   </Button>
                 </div>
@@ -527,6 +557,57 @@ export default function DirectoryContent({ initialCity }: { initialCity?: string
             <DirectoryLoading />
           ) : (
             <div className="space-y-6">
+              {/* Active Filters */}
+              {hasActiveFilters && (
+                <div className="mb-6 flex flex-wrap gap-2">
+                  {activeService && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="flex items-center gap-1"
+                      onClick={() => toggleServiceSelection(activeService)}
+                    >
+                      {activeService}
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+                  {selectedServices.map((service) => (
+                    <Button
+                      key={service}
+                      variant="secondary"
+                      size="sm"
+                      className="flex items-center gap-1"
+                      onClick={() => toggleServiceSelection(service)}
+                    >
+                      {service}
+                      <X className="h-3 w-3" />
+                    </Button>
+                  ))}
+                  {zipcode && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="flex items-center gap-1"
+                      onClick={() => setZipcode(null)}
+                    >
+                      {zipcode}
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+                  {rating > 0 && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="flex items-center gap-1"
+                      onClick={() => handleRatingChange('0')}
+                    >
+                      {rating}+ Stars
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              )}
+
               {/* Provider cards */}
               {filteredProviders.length > 0 ? (
                 <>

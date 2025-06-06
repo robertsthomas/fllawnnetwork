@@ -32,6 +32,35 @@ const nextConfig = {
       },
     ];
   },
+  // Add redirects to standardize on www version
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: 'https://www.fllawnnetwork.com/',
+        permanent: true,
+        basePath: false,
+        has: [
+          {
+            type: 'host',
+            value: 'fllawnnetwork.com',
+          },
+        ],
+      },
+      {
+        source: '/:path*',
+        destination: 'https://www.fllawnnetwork.com/:path*',
+        permanent: true,
+        basePath: false,
+        has: [
+          {
+            type: 'host',
+            value: 'fllawnnetwork.com',
+          },
+        ],
+      },
+    ];
+  },
   // Remove skipTrailingSlashRedirect to ensure consistent URL patterns
   typescript: {
     ignoreBuildErrors: true,

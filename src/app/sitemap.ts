@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
-import { floridaCities } from '~/data/florida-cities';
+import floridaCitiesData from '~/data/florida-cities.json';
+const { cities: floridaCities } = floridaCitiesData;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // Use HTTPS www as the canonical domain

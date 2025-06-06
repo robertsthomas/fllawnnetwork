@@ -107,15 +107,15 @@ export default function Footer() {
                 <h3 className="text-sm font-semibold text-gray-200 tracking-wider uppercase">
                   For Providers
                 </h3>
-                <ul className="mt-4 space-y-4">
-                  <li>
-                    <Link
-                      href="/providers/list"
+                {/* <ul className="mt-4 space-y-4"> */}
+                  {/* <li> */}
+                    {/* <Link
+                      href="/providers/claim"
                       className="text-base text-gray-400 hover:text-gray-300 transition"
                     >
                       List Your Business
-                    </Link>
-                  </li>
+                    </Link> */}
+                  {/* </li> */}
                   {/* <li>
                     <Link
                       href="/providers/pricing"
@@ -140,7 +140,7 @@ export default function Footer() {
                       Resources
                     </Link>
                   </li> */}
-                </ul>
+                {/* </ul> */}
               </div>
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-8">
