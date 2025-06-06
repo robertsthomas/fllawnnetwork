@@ -1,6 +1,33 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
+import { getAuthUserId } from '@convex-dev/auth/server';
 import { Id } from './_generated/dataModel';
+
+export const getCurrentAdmin = query({
+  args: {},
+  returns: v.union(v.object({
+    _id: v.id('admins'),
+    email: v.string(),
+    name: v.string(),
+    role: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    userId: v.string(),
+    _creationTime: v.number(),
+  }), v.null()),
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return null;
+    }
+    
+    const admin = await ctx.db
+      .query('admins')
+      .withIndex('byUserId', (q: any) => q.eq('userId', userId))
+      .first();
+    return admin;
+  },
+});
 
 export const getAdminByUserId = query({
   args: {
@@ -9,7 +36,7 @@ export const getAdminByUserId = query({
   handler: async (ctx, args) => {
     const admin = await ctx.db
       .query('admins')
-      .withIndex('byUserId', (q) => q.eq('userId', args.userId))
+      .withIndex('byUserId', (q: any) => q.eq('userId', args.userId))
       .first();
     return admin;
   },
@@ -22,7 +49,7 @@ export const getAdminByEmail = query({
   handler: async (ctx, args) => {
     const admin = await ctx.db
       .query('admins')
-      .withIndex('byEmail', (q) => q.eq('email', args.email))
+      .withIndex('byEmail', (q: any) => q.eq('email', args.email))
       .first();
     return admin;
   },
@@ -35,10 +62,11 @@ export const createAdmin = mutation({
     role: v.optional(v.string()),
     userId: v.string(),
   },
+  returns: v.id('admins'),
   handler: async (ctx, args) => {
     const existingAdmin = await ctx.db
       .query('admins')
-      .withIndex('byEmail', (q) => q.eq('email', args.email))
+      .withIndex('byEmail', (q: any) => q.eq('email', args.email))
       .first();
 
     if (existingAdmin) {
@@ -52,6 +80,43 @@ export const createAdmin = mutation({
       createdAt: Date.now(),
       updatedAt: Date.now(),
       userId: args.userId,
+    });
+
+    return adminId;
+  },
+});
+
+export const createAdminFromAuth = mutation({
+  args: {
+    email: v.string(),
+    name: v.string(),
+    role: v.optional(v.string()),
+  },
+  returns: v.union(v.id('admins'), v.null()),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error('Not authenticated');
+    }
+
+    // Check if admin already exists
+    const existingAdmin = await ctx.db
+      .query('admins')
+      .withIndex('byUserId', (q: any) => q.eq('userId', userId))
+      .first();
+
+    if (existingAdmin) {
+      return existingAdmin._id;
+    }
+
+    // Create new admin
+    const adminId = await ctx.db.insert('admins', {
+      email: args.email,
+      name: args.name,
+      role: args.role || 'admin',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      userId: userId,
     });
 
     return adminId;

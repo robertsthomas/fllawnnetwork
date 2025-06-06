@@ -10,6 +10,16 @@ type Provider = {
   _id: Id<'providers'>;
   title: string;
   email: string | null;
+  companyId?: Id<'companies'>;
+  role?: string;
+  company?: {
+    _id: Id<'companies'>;
+    name: string;
+    description?: string;
+    website?: string;
+    phone?: string;
+    email?: string;
+  } | null;
 } | null;
 
 interface ProviderAuthContextType {

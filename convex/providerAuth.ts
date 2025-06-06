@@ -10,7 +10,7 @@ export const getProviderByUserId = query({
   handler: async (ctx, args) => {
     const provider = await ctx.db
       .query('providers')
-      .withIndex('byUserId', (q) => q.eq('userId', args.userId))
+      .withIndex('byUserId', (q: any) => q.eq('userId', args.userId))
       .first();
     return provider;
   },
@@ -26,9 +26,23 @@ export const getCurrentProvider = query({
     
     const provider = await ctx.db
       .query('providers')
-      .withIndex('byUserId', (q) => q.eq('userId', userId))
+      .withIndex('byUserId', (q: any) => q.eq('userId', userId))
       .first();
-    return provider;
+    
+    if (!provider) {
+      return null;
+    }
+
+    // Get company information if provider is linked to a company
+    let company = null;
+    if (provider.companyId) {
+      company = await ctx.db.get(provider.companyId);
+    }
+
+    return {
+      ...provider,
+      company,
+    };
   },
 });
 

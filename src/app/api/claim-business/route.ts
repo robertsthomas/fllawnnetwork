@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { resend } from '~/lib/resend';
 import { sanitizeHTML, validateFormData } from '~/lib/validation';
+import { renderBusinessClaimEmail } from '~/lib/email-templates';
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,21 +28,36 @@ export async function POST(request: NextRequest) {
 
     const subject = `Business Claim Request (Provider ID: ${providerId})`;
 
-    const htmlContent = `
-      <h2>New Business Claim Request</h2>
-      <p><strong>Name:</strong> ${sanitizedName}</p>
-      <p><strong>Email:</strong> ${sanitizedEmail}</p>
-      <p><strong>Phone:</strong> ${sanitizedPhone || 'Not provided'}</p>
-      <p><strong>Provider ID:</strong> ${providerId}</p>
-      <h3>Verification Information:</h3>
-      <p>${sanitizedVerificationInfo}</p>
-    `;
+    // Use React Email template or fallback to simple HTML
+    let html;
+    try {
+      html = await renderBusinessClaimEmail({
+        name: sanitizedName,
+        email: sanitizedEmail,
+        phone: sanitizedPhone || 'Not provided',
+        verificationInfo: sanitizedVerificationInfo,
+        providerId,
+      });
+    } catch (error) {
+      console.error('Error rendering email template:', error);
+      
+      // Fallback to simple HTML format
+      html = `
+        <h2>New Business Claim Request</h2>
+        <p><strong>Name:</strong> ${sanitizedName}</p>
+        <p><strong>Email:</strong> ${sanitizedEmail}</p>
+        <p><strong>Phone:</strong> ${sanitizedPhone || 'Not provided'}</p>
+        <p><strong>Provider ID:</strong> ${providerId}</p>
+        <h3>Verification Information:</h3>
+        <p>${sanitizedVerificationInfo}</p>
+      `;
+    }
 
     const { data, error } = await resend.emails.send({
       from: 'contact@fllawnnetwork.com',
       to: ['thomas.roberts@fllawnnetwork.com'],
       subject: subject,
-      html: htmlContent,
+      html: html,
       replyTo: sanitizedEmail,
     });
 

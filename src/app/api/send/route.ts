@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { resend } from '~/lib/resend';
 import { sanitizeHTML, validateFormData } from '~/lib/validation';
+import { renderWelcomeEmail } from '~/lib/email-templates';
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,20 +28,32 @@ export async function POST(request: NextRequest) {
 
     const subject = 'New Contact Form Submission';
 
-    const htmlContent = `
-      <h2>New Contact Form Submission</h2>
-      <p><strong>Name:</strong> ${sanitizedName}</p>
-      <p><strong>Email:</strong> ${sanitizedEmail}</p>
-      <p><strong>Phone:</strong> ${sanitizedPhone || 'Not provided'}</p>
-      <h3>Message:</h3>
-      <p>${sanitizedMessage}</p>
-    `;
+    // Use React Email template or fallback to simple HTML
+    let html;
+    try {
+      html = await renderWelcomeEmail({
+        name: sanitizedName,
+        email: sanitizedEmail,
+      });
+    } catch (error) {
+      console.error('Error rendering email template:', error);
+      
+      // Fallback to simple HTML format
+      html = `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${sanitizedName}</p>
+        <p><strong>Email:</strong> ${sanitizedEmail}</p>
+        <p><strong>Phone:</strong> ${sanitizedPhone || 'Not provided'}</p>
+        <h3>Message:</h3>
+        <p>${sanitizedMessage}</p>
+      `;
+    }
 
     const { data, error } = await resend.emails.send({
       from: 'contact@fllawnnetwork.com',
       to: ['thomas.roberts@fllawnnetwork.com'],
       subject: subject,
-      html: htmlContent,
+      html: html,
       replyTo: sanitizedEmail,
     });
 

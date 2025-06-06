@@ -6,7 +6,7 @@ import { useAdminAuth } from '~/contexts/AdminAuthContext';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
-import { LogOut, Users, Eye, Star, Phone, Mail, Globe } from 'lucide-react';
+import { LogOut, Users, Eye, Star, Phone, Mail, Globe, Building2 } from 'lucide-react';
 
 // Mock provider data - in production this would come from your database
 const mockProviders = [
@@ -101,10 +101,16 @@ export default function AdminDashboardPage() {
                 <p className="text-sm text-gray-600">Welcome back, {admin.name}</p>
               </div>
             </div>
-            <Button onClick={handleLogout} variant="outline">
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <div className="flex space-x-2">
+              <Button onClick={() => router.push('/admin/companies')} variant="outline">
+                <Building2 className="h-4 w-4 mr-2" />
+                Companies
+              </Button>
+              <Button onClick={handleLogout} variant="outline">
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </div>

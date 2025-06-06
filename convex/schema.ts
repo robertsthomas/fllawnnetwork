@@ -4,6 +4,25 @@ import { v } from 'convex/values';
 
 const schema = defineSchema({
   ...authTables,
+  companies: defineTable({
+    name: v.string(),
+    description: v.optional(v.string()),
+    website: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    email: v.optional(v.string()),
+    address: v.optional(v.object({
+      street: v.optional(v.string()),
+      city: v.optional(v.string()),
+      state: v.optional(v.string()),
+      postalCode: v.optional(v.string()),
+    })),
+    logo: v.optional(v.string()),
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    createdBy: v.id('users'), // Admin who created the company
+  }).index('byName', ['name'])
+    .index('byCreatedBy', ['createdBy']),
   providers: defineTable({
     title: v.string(),
     address: v.object({
@@ -44,7 +63,12 @@ const schema = defineSchema({
     emergencyService: v.optional(v.boolean()),
     freeEstimates: v.optional(v.boolean()),
     userId: v.optional(v.id('users')),
-  }).index('byUserId', ['userId']),
+    companyId: v.optional(v.id('companies')), // Link to company
+    isActive: v.optional(v.boolean()),
+    role: v.optional(v.string()), // 'owner', 'manager', 'employee'
+  }).index('byUserId', ['userId'])
+    .index('byCompany', ['companyId'])
+    .index('byEmail', ['email']),
   admins: defineTable({
     email: v.string(),
     name: v.string(),
