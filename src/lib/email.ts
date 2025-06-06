@@ -3,8 +3,14 @@ import ProviderConfirmationEmail from '../emails/provider-confirmation';
 import QuoteRequestEmail from '../emails/quote-request';
 import WelcomeEmail from '~/emails/welcome-preview';
 
-// Initialize Resend with API key
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Initialize Resend with API key and fallback for build time
+const apiKey = process.env.RESEND_API_KEY || process.env.NEXT_PUBLIC_RESEND_API_KEY || 'dummy-key-for-build';
+
+// Validate API key format (Resend keys start with 're_')
+const isValidKey = apiKey.startsWith('re_') || apiKey === 'dummy-key-for-build';
+const finalKey = isValidKey ? apiKey : 'dummy-key-for-build';
+
+const resend = new Resend(finalKey);
 
 // Default from email address
 const defaultFrom = 'Lawn Care Directory <noreply@lawncare-directory.com>';
@@ -32,6 +38,15 @@ export async function sendEmail({
   bcc,
   replyTo,
 }: SendEmailOptions) {
+  // Skip email sending during build time or when no valid API key is available
+  const hasValidApiKey = (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.startsWith('re_')) || 
+                         (process.env.NEXT_PUBLIC_RESEND_API_KEY && process.env.NEXT_PUBLIC_RESEND_API_KEY.startsWith('re_'));
+  
+  if (!hasValidApiKey) {
+    console.log('Skipping email send - no valid API key available');
+    return { success: true, data: { id: 'build-time-skip' } };
+  }
+
   try {
     // Send the email using Resend with React component
     const { data, error } = await resend.emails.send({

@@ -11,6 +11,15 @@ export async function sendProviderWelcomeEmail({
   name: string; 
   email: string; 
 }) {
+  // Skip email sending during build time or when no valid API key is available
+  const hasValidApiKey = (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.startsWith('re_')) || 
+                         (process.env.NEXT_PUBLIC_RESEND_API_KEY && process.env.NEXT_PUBLIC_RESEND_API_KEY.startsWith('re_'));
+  
+  if (!hasValidApiKey) {
+    console.log('Skipping email send - no valid API key available');
+    return { success: true, data: { id: 'build-time-skip' } };
+  }
+
   try {
     const html = await renderWelcomeEmail({ name, email });
     
@@ -46,6 +55,15 @@ export async function sendProviderConfirmationEmail({
   email: string; 
   providerId: string;
 }) {
+  // Skip email sending during build time or when no valid API key is available
+  const hasValidApiKey = (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.startsWith('re_')) || 
+                         (process.env.NEXT_PUBLIC_RESEND_API_KEY && process.env.NEXT_PUBLIC_RESEND_API_KEY.startsWith('re_'));
+  
+  if (!hasValidApiKey) {
+    console.log('Skipping email send - no valid API key available');
+    return { success: true, data: { id: 'build-time-skip' } };
+  }
+
   try {
     const html = await renderProviderConfirmationEmail({ 
       name, 
@@ -91,6 +109,15 @@ export async function sendQuoteRequestEmail({
   providerId: string;
   providerEmail: string;
 }) {
+  // Skip email sending during build time or when no valid API key is available
+  const hasValidApiKey = (process.env.RESEND_API_KEY && process.env.RESEND_API_KEY.startsWith('re_')) || 
+                         (process.env.NEXT_PUBLIC_RESEND_API_KEY && process.env.NEXT_PUBLIC_RESEND_API_KEY.startsWith('re_'));
+  
+  if (!hasValidApiKey) {
+    console.log('Skipping email send - no valid API key available');
+    return { success: true, data: { id: 'build-time-skip' } };
+  }
+
   try {
     const html = await renderQuoteRequestEmail({ 
       name, 
