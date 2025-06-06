@@ -1,6 +1,7 @@
 import { Resend } from 'resend';
 import ProviderConfirmationEmail from '../emails/provider-confirmation';
 import QuoteRequestEmail from '../emails/quote-request';
+import WelcomeEmail from '~/emails/welcome-preview';
 
 // Initialize Resend with API key
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -68,7 +69,7 @@ export async function sendWelcomeEmail({
   return sendEmail({
     to,
     subject: 'Welcome to Lawn Care Directory',
-    react: WelcomeEmail({ username }),
+    react: WelcomeEmail({ name: username, email: to }),
   });
 }
 
