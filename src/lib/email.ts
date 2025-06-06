@@ -1,5 +1,4 @@
 import { Resend } from 'resend';
-import WelcomeEmail from '../emails/welcome';
 import ProviderConfirmationEmail from '../emails/provider-confirmation';
 import QuoteRequestEmail from '../emails/quote-request';
 
