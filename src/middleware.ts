@@ -1,31 +1,6 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { convexAuthNextjsMiddleware } from "@convex-dev/auth/nextjs/server";
 
-export function middleware(request: NextRequest) {
-  const url = request.nextUrl.clone();
-  
-  // // Only apply HTTPS and www redirects in production
-  // if (process.env.NODE_ENV === 'production') {
-  //   // Handle www to non-www and http to https redirects
-  //   if (url.hostname.startsWith('www.') || url.protocol === 'http:') {
-  //     url.hostname = url.hostname.replace(/^www\./, '');
-  //     url.protocol = 'https:';
-  //     return NextResponse.redirect(url, {
-  //       status: 301, // Permanent redirect
-  //     });
-  //   }
-  // }
-
-  // // Remove trailing slash except for root path
-  // if (url.pathname !== '/' && url.pathname.endsWith('/')) {
-  //   url.pathname = url.pathname.slice(0, -1);
-  //   return NextResponse.redirect(url, {
-  //     status: 301, // Permanent redirect
-  //   });
-  // }
-
-  return NextResponse.next();
-}
+export default convexAuthNextjsMiddleware();
 
 export const config = {
   matcher: [
