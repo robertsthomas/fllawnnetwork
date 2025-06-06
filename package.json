@@ -9,7 +9,8 @@
     "lint": "biome lint .",
     "format": "biome format . --write",
     "check": "biome check --apply .",
-    "generate-cities": "tsx src/scripts/generate-florida-cities.ts"
+    "generate-cities": "tsx src/scripts/generate-florida-cities.ts",
+    "indexnow": "tsx src/scripts/submit-to-indexnow.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -59,9 +60,11 @@
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
     "@types/leaflet": "^1.9.8",
+    "@types/node-fetch": "^2.6.12",
     "dotenv": "^16.5.0",
     "eslint": "^8.55.0",
     "eslint-config-next": "^15.0.0",
+    "node-fetch": "2",
     "tsx": "^4.19.4"
   }
 }
