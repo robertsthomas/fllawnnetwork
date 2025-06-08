@@ -4,7 +4,7 @@ import Header from '~/components/Header';
 import Footer from '~/components/Footer';
 import './globals.css';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
-import { ConvexAuthNextjsServerProvider } from '@convex-dev/auth/nextjs/server';
+import { ClerkProvider } from '@clerk/nextjs';
 import type { ReactNode } from 'react';
 
 export const metadata = {
@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ConvexAuthNextjsServerProvider>
+    <ClerkProvider>
       <html lang="en" className="h-full bg-gray-50">
         <head>
           <link rel="canonical" href="https://www.fllawnnetwork.com/" />
@@ -35,6 +35,6 @@ export default function RootLayout({
           </NuqsAdapter>
         </body>
       </html>
-    </ConvexAuthNextjsServerProvider>
+    </ClerkProvider>
   );
 }

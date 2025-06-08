@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -78,11 +79,31 @@ export default function Header() {
             </Link>
           </nav>
 
-          {/* <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0">
-            <Link href="/get-listed" className="ml-8 whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 transition">
-              List Your Business
-            </Link>
-          </div> */}
+          <div className="hidden md:flex items-center justify-end md:flex-1 lg:w-0 space-x-4">
+            <SignedOut>
+              <SignInButton mode="modal">
+                <button className="text-base font-medium text-gray-700 hover:text-primary-600 transition">
+                  Sign In
+                </button>
+              </SignInButton>
+              {/* <Link 
+                href="/providers/signup" 
+                className="whitespace-nowrap inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 transition"
+              >
+                List Your Business
+              </Link> */}
+            </SignedOut>
+            <SignedIn>
+              <UserButton 
+                appearance={{
+                  elements: {
+                    avatarBox: "h-8 w-8"
+                  }
+                }}
+                userProfileMode="modal"
+              />
+            </SignedIn>
+          </div>
 
           {/* Mobile menu button */}
           <div className="-mr-2 -my-2 md:hidden">
@@ -199,11 +220,36 @@ export default function Header() {
                 </nav>
               </div>
             </div>
-            {/* <div className="py-6 px-5 space-y-6">
-              <Link href="/get-listed" className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 transition">
-                List Your Business
-              </Link>
-            </div> */}
+            <div className="py-6 px-5 space-y-6">
+              <SignedOut>
+                <div className="space-y-4">
+                  <SignInButton mode="modal">
+                    <button className="w-full text-left text-base font-medium text-gray-900 hover:text-primary-600 transition">
+                      Sign In
+                    </button>
+                  </SignInButton>
+                  <Link 
+                    href="/providers/signup" 
+                    className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-600 hover:bg-primary-700 transition"
+                  >
+                    List Your Business
+                  </Link>
+                </div>
+              </SignedOut>
+              <SignedIn>
+                <div className="flex items-center space-x-4">
+                  <UserButton 
+                    appearance={{
+                      elements: {
+                        avatarBox: "h-8 w-8"
+                      }
+                    }}
+                    userProfileMode="modal"
+                  />
+                  <span className="text-base font-medium text-gray-900">Account</span>
+                </div>
+              </SignedIn>
+            </div>
           </div>
         </div>
       )}

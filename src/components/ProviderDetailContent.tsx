@@ -303,7 +303,7 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
       </div>
 
       {/* Social Proof Metrics */}
-      <div className="bg-white shadow-md border-b">
+      {/* <div className="bg-white shadow-md border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="text-center">
@@ -324,7 +324,7 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="lg:grid lg:grid-cols-3 lg:gap-8">
@@ -485,74 +485,34 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
               )}
             </section>
 
-            {/* Customer Testimonials */}
-            <section className="bg-white rounded-xl shadow-sm p-8 mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">What Our Customers Say</h2>
-              <div className="grid gap-6 md:grid-cols-2">
-                <div className="bg-gray-50 p-6 rounded-lg">
-                  <div className="flex items-center mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className="h-5 w-5 text-yellow-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-gray-600 mb-4 italic">
-                    "Excellent service! They transformed our lawn from brown patches to a lush green paradise. Highly professional and punctual."
-                  </p>
-                  <div className="text-sm">
-                    <p className="font-semibold text-gray-900">Sarah Johnson</p>
-                    <p className="text-gray-500">December 2023</p>
-                  </div>
-                </div>
-                <div className="bg-gray-50 p-6 rounded-lg">
-                  <div className="flex items-center mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className="h-5 w-5 text-yellow-400"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-gray-600 mb-4 italic">
-                    "Fast response and fair pricing. They explained everything clearly and delivered exactly what was promised. Will definitely use again!"
-                  </p>
-                  <div className="text-sm">
-                    <p className="font-semibold text-gray-900">Mike Rodriguez</p>
-                    <p className="text-gray-500">November 2023</p>
-                  </div>
-                </div>
-              </div>
-            </section>
+
 
             {/* FAQs Section */}
             <section className="bg-white rounded-xl shadow-sm p-8 mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
-              <div className="space-y-4">
-                <div className="border-b border-gray-200 pb-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">Do you provide free estimates?</h3>
-                  <p className="text-gray-600 text-sm">Yes, we provide free, no-obligation estimates for all our services. Contact us to schedule your free consultation.</p>
-                </div>
-                <div className="border-b border-gray-200 pb-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">How often should I have my lawn serviced?</h3>
-                  <p className="text-gray-600 text-sm">It depends on your lawn's needs, but typically we recommend weekly maintenance during growing season and bi-weekly during slower periods.</p>
-                </div>
-                <div className="border-b border-gray-200 pb-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">Are you licensed and insured?</h3>
-                  <p className="text-gray-600 text-sm">Yes, we are fully licensed and insured for your protection and peace of mind.</p>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">What payment methods do you accept?</h3>
-                  <p className="text-gray-600 text-sm">We accept cash, check, and all major credit cards. We also offer convenient online payment options.</p>
+              <div className="text-center py-8 bg-gray-50 rounded-lg">
+                <div className="max-w-md mx-auto">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    This provider hasn't added any FAQs yet
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-4">
+                    Have questions about their services? Please use the contact form to get in touch directly.
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="text-primary-600 hover:text-primary-700"
+                    onClick={() => {
+                      const contactForm = document.getElementById('contact-form');
+                      contactForm?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    Contact Provider
+                  </Button>
                 </div>
               </div>
             </section>

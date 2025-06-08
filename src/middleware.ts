@@ -1,6 +1,37 @@
-import { convexAuthNextjsMiddleware } from "@convex-dev/auth/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-export default convexAuthNextjsMiddleware();
+// Define public routes that don't require authentication
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/lawn-care(.*)',
+  '/providers(.*)',
+  '/services(.*)',
+  '/blog(.*)',
+  '/about',
+  '/contact',
+  '/terms',
+  '/privacy',
+  '/cookies',
+  '/api/providers(.*)',
+  '/api/contact(.*)',
+  '/api/claim-business',
+  '/admin/setup', // Allow access to initial admin setup
+  '/admin/login(.*)', // Allow access to admin login page
+  '/admin/signout', // Allow access to admin signout page
+]);
+
+// Define admin routes that require admin authentication
+const isAdminRoute = createRouteMatcher(['/admin(.*)']);
+
+export default clerkMiddleware(async (auth, req) => {
+  // First check if it's a public route - if so, don't protect it
+  if (isPublicRoute(req)) {
+    return;
+  }
+
+  // All other routes require authentication
+  await auth.protect();
+});
 
 export const config = {
   matcher: [

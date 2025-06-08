@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuthActions } from '@convex-dev/auth/react';
+import { useConvexAuth } from 'convex/react';
+import { useClerk } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 
@@ -25,7 +26,8 @@ const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefin
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signOut } = useAuthActions();
+  const { isAuthenticated, isLoading: convexLoading } = useConvexAuth();
+  const { signOut } = useClerk();
   
   // Check if current user is an admin
   const currentAdmin = useQuery(api.admins.getCurrentAdmin);
@@ -45,27 +47,17 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [currentAdmin]);
 
   const login = async (email: string, password: string) => {
-    try {
-      setIsLoading(true);
-      
-      // First, authenticate with Convex Auth
-      await signIn('password', { email, password });
-      
-      // The useEffect above will handle setting the admin state
-      // once the currentAdmin query returns the admin data
-      
-    } catch (error) {
-      console.error('Admin login error:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    // With Clerk, login is handled by the SignIn component
+    // This function is kept for compatibility but should redirect to sign-in
+    throw new Error('Please use the Clerk SignIn component for authentication');
   };
 
   const logout = async () => {
     try {
       await signOut();
       setAdmin(null);
+      // Force redirect to home page
+      window.location.href = '/';
     } catch (error) {
       console.error('Admin logout error:', error);
       throw error;
@@ -74,7 +66,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const value = {
     admin,
-    isLoading,
+    isLoading: isLoading || convexLoading,
     login,
     logout,
   };

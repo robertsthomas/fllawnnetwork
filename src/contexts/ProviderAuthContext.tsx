@@ -1,7 +1,7 @@
 'use client';
 
-import { useQuery } from 'convex/react';
-import { useAuthActions } from '@convex-dev/auth/react';
+import { useQuery, useConvexAuth } from 'convex/react';
+import { useClerk } from '@clerk/nextjs';
 import { createContext, useContext } from 'react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
@@ -31,13 +31,14 @@ interface ProviderAuthContextType {
 const ProviderAuthContext = createContext<ProviderAuthContextType | undefined>(undefined);
 
 export function ProviderAuthProvider({ children }: { children: React.ReactNode }) {
-  const { signOut } = useAuthActions();
+  const { isAuthenticated } = useConvexAuth();
+  const { signOut } = useClerk();
   const provider = useQuery(api.providerAuth.getCurrentProvider);
 
   return (
     <ProviderAuthContext.Provider
       value={{
-        isAuthenticated: !!provider,
+        isAuthenticated,
         provider: provider || null,
         signOut,
       }}

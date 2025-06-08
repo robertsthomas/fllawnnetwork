@@ -11,39 +11,70 @@ import { ConvexHttpClient } from 'convex/browser';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const provider = await convex.query(api.providers.getProviderById, { id: params.id as Id<'providers'> });
+// Helper function to validate if a string is a valid Convex ID
+function isValidConvexId(id: string): boolean {
+  // Convex IDs typically start with a table prefix followed by an underscore and a base64-like string
+  // For providers table, it should start with something like "j" or similar prefix
+  return /^[a-zA-Z0-9_-]+$/.test(id) && id.length > 10 && !['onboarding', 'dashboard', 'login', 'signup', 'register', 'add'].includes(id);
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
   
-  if (!provider) {
+  // Check if the ID is a valid Convex ID format
+  if (!isValidConvexId(id)) {
     return {
       title: 'Provider Not Found - Lawn Care Directory',
       description: 'The requested provider could not be found.',
     };
   }
+  
+  try {
+    const provider = await convex.query(api.providers.getProviderById, { id: id as Id<'providers'> });
+    
+    if (!provider) {
+      return {
+        title: 'Provider Not Found - Lawn Care Directory',
+        description: 'The requested provider could not be found.',
+      };
+    }
 
-  return {
-    title: `${provider.title} - Lawn Care Services in ${provider.address?.city || 'Florida'}`,
-    description: `${provider.title} provides professional lawn care services in ${provider.address?.city || 'Florida'}. Contact us for a free quote.`,
-    alternates: {
-      canonical: `/providers/${provider._id}`,
-    },
-  };
+    return {
+      title: `${provider.title} - Lawn Care Services in ${provider.address?.city || 'Florida'}`,
+      description: `${provider.title} provides professional lawn care services in ${provider.address?.city || 'Florida'}. Contact us for a free quote.`,
+      alternates: {
+        canonical: `/providers/${provider._id}`,
+      },
+    };
+  } catch (error) {
+    return {
+      title: 'Provider Not Found - Lawn Care Directory',
+      description: 'The requested provider could not be found.',
+    };
+  }
 }
 
 export default async function ProviderDetailPage({
   params,
 }: {
-  params: Promise<{ id: Id<'providers'> }>;
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const provider = await convex.query(api.providers.getProviderById, { id });
-
-  if (!provider) {
+  
+  // Check if the ID is a valid Convex ID format
+  if (!isValidConvexId(id)) {
     notFound();
   }
+  
+  try {
+    const provider = await convex.query(api.providers.getProviderById, { id: id as Id<'providers'> });
 
-  // Generate LocalBusiness schema
-  const businessSchema = {
+    if (!provider) {
+      notFound();
+    }
+
+    // Generate LocalBusiness schema
+    const businessSchema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "@id": `https://www.fllawnnetwork.com/providers/${provider._id}`,
@@ -102,27 +133,30 @@ export default async function ProviderDetailPage({
     }
   };
 
-  return (
-    <MainLayout>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }}
-      />
-      <Suspense fallback={<div>Loading provider details...</div>}>
-        <ProviderDetailContent id={id} />
-      </Suspense>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-50">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Business Owner?</h2>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            If this is your business, claim your listing to update information, respond to reviews,
-            and more.
-          </p>
-          <Button asChild className="px-6">
-            <Link href={`/claim-business/${id}`}>Claim This Business</Link>
-          </Button>
+    return (
+      <MainLayout>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(businessSchema) }}
+        />
+        <Suspense fallback={<div>Loading provider details...</div>}>
+          <ProviderDetailContent id={id as Id<'providers'>} />
+        </Suspense>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-gray-50">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Business Owner?</h2>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              If this is your business, claim your listing to update information, respond to reviews,
+              and more.
+            </p>
+            <Button asChild className="px-6">
+              <Link href={`/claim-business/${id}`}>Claim This Business</Link>
+            </Button>
+          </div>
         </div>
-      </div>
-    </MainLayout>
-  );
+      </MainLayout>
+    );
+  } catch (error) {
+    notFound();
+  }
 }

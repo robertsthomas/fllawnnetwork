@@ -81,7 +81,7 @@ export default function AdminDashboardPage() {
 
   const handleLogout = async () => {
     await logout();
-    router.push('/admin/login');
+    // Clerk's signOut will handle the redirect to /admin/login
   };
 
   const formatDate = (timestamp: number) => {

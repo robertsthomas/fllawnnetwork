@@ -1,61 +1,74 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAction, useMutation } from 'convex/react';
+import { useSignUp, useClerk, useUser } from '@clerk/nextjs';
+import { useMutation, useQuery } from 'convex/react';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Shield, User } from 'lucide-react';
+import { Shield, User, LogOut } from 'lucide-react';
 import { api } from '../../../../convex/_generated/api';
+import { SignUp } from '@clerk/nextjs';
 
 export default function AdminSetupPage() {
   const router = useRouter();
+  const { signOut } = useClerk();
+  const { user, isLoaded: userLoaded } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
     name: '',
   });
 
-  const signUp = useAction(api.auth.signIn);
   const createAdmin = useMutation(api.admins.createAdminFromAuth);
+  const hasAnyAdmins = useQuery(api.admins.hasAnyAdmins);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Check if user is already signed in and populate form data
+  useEffect(() => {
+    if (user && userLoaded) {
+      setFormData({
+        name: user.fullName || '',
+      });
+    }
+  }, [user, userLoaded]);
+
+  // Handle creating admin for already authenticated user
+  const handleCreateAdminForExistingUser = async () => {
+    if (!user) return;
+    
     setIsLoading(true);
     setError(null);
 
     try {
-      // First, create the user account
-      await signUp({
-        provider: 'password',
-        params: {
-          email: formData.email,
-          password: formData.password,
-        },
-      });
-
-      // Then create the admin record
       await createAdmin({
-        email: formData.email,
-        name: formData.name,
+        email: user.primaryEmailAddress?.emailAddress || '',
+        name: formData.name || user.fullName || '',
         role: 'super_admin',
       });
 
       setSuccess(true);
       setTimeout(() => {
-        router.push('/admin/login');
+        router.push('/admin/dashboard');
       }, 2000);
-
-    } catch (error) {
-      console.error('Admin setup error:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create admin account');
+    } catch (error: any) {
+      console.error('Admin creation error:', error);
+      setError(error?.message || 'Failed to create admin account');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setFormData({ name: '' });
+      // Force redirect to home page
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out error:', error);
     }
   };
 
@@ -67,10 +80,10 @@ export default function AdminSetupPage() {
             <Shield className="mx-auto h-12 w-12 text-green-600 mb-4" />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Admin Account Created!</h2>
             <p className="text-gray-600 mb-4">
-              Your admin account has been successfully created. You'll be redirected to the login page.
+              Your admin account has been successfully created. You'll be redirected to the dashboard.
             </p>
-            <Button onClick={() => router.push('/admin/login')}>
-              Go to Login
+            <Button onClick={() => router.push('/admin/dashboard')}>
+              Go to Dashboard
             </Button>
           </CardContent>
         </Card>
@@ -78,6 +91,100 @@ export default function AdminSetupPage() {
     );
   }
 
+  // Show loading while checking user status
+  if (!userLoaded || hasAnyAdmins === undefined) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Card className="max-w-md w-full">
+          <CardContent className="text-center py-12">
+            <Shield className="mx-auto h-12 w-12 text-blue-600 mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Loading...</h2>
+            <p className="text-gray-600">Checking authentication status...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // If user is already signed in, show option to create admin for existing account
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <div className="text-center">
+            <User className="mx-auto h-12 w-12 text-blue-600" />
+            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+              Admin Setup
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              You're signed in with Google. Create admin privileges for your account.
+            </p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Create Admin Account</CardTitle>
+              <CardDescription>
+                You're signed in as {user.primaryEmailAddress?.emailAddress}. 
+                Create admin privileges for this account.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-md p-4">
+                  <p className="text-sm text-red-800">{error}</p>
+                </div>
+              )}
+
+              <div>
+                <Label htmlFor="name">Admin Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  className="mt-1"
+                  placeholder="Your full name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  This will be displayed in the admin dashboard
+                </p>
+              </div>
+
+              <Button
+                onClick={handleCreateAdminForExistingUser}
+                className="w-full"
+                disabled={isLoading || !formData.name.trim()}
+              >
+                {isLoading ? 'Creating Admin Account...' : 'Create Admin Account'}
+              </Button>
+
+              <div className="text-center">
+                <Button
+                  onClick={handleSignOut}
+                  variant="outline"
+                  size="sm"
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign out and use different account
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="text-center">
+            <p className="text-xs text-gray-500">
+              This will create admin privileges for your existing Google account.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is not signed in, show Google signup
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -87,82 +194,41 @@ export default function AdminSetupPage() {
             Admin Setup
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Create your first admin account to get started
+            Sign up with Google to create your first admin account
           </p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Create Admin Account</CardTitle>
+            <CardTitle>Sign Up with Google</CardTitle>
             <CardDescription>
-              This will create the first admin account for your lawn care directory
+              Use your Google account to create the first admin account
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-md p-4">
-                  <p className="text-sm text-red-800">{error}</p>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    className="mt-1"
-                    placeholder="John Smith"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="email">Email address</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    className="mt-1"
-                    placeholder="admin@fllawnnetwork.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    className="mt-1"
-                    placeholder="Choose a strong password"
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  />
-                  <p className="mt-1 text-xs text-gray-500">
-                    Password must be at least 8 characters long
-                  </p>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Creating Account...' : 'Create Admin Account'}
-              </Button>
-            </form>
+          <CardContent className="flex justify-center">
+            <SignUp 
+              routing="hash"
+              fallbackRedirectUrl="/admin/setup"
+              appearance={{
+                elements: {
+                  card: 'shadow-none border-0',
+                  socialButtonsBlockButton: 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700',
+                  socialButtonsBlockButtonText: 'font-medium',
+                  formFieldInput: 'hidden',
+                  formFieldLabel: 'hidden',
+                  dividerLine: 'hidden',
+                  dividerText: 'hidden',
+                  formButtonPrimary: 'hidden',
+                  footerAction: 'hidden',
+                  identityPreviewText: 'hidden',
+                  identityPreviewEditButton: 'hidden',
+                },
+                layout: {
+                  socialButtonsPlacement: 'top',
+                  showOptionalFields: false,
+                }
+              }}
+            />
           </CardContent>
         </Card>
 

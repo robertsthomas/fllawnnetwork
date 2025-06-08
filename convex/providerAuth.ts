@@ -1,11 +1,10 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
 import { Id } from './_generated/dataModel';
-import { getAuthUserId } from '@convex-dev/auth/server';
 
 export const getProviderByUserId = query({
   args: {
-    userId: v.id('users'),
+    userId: v.string(),
   },
   handler: async (ctx, args) => {
     const provider = await ctx.db
@@ -19,14 +18,14 @@ export const getProviderByUserId = query({
 export const getCurrentProvider = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       return null;
     }
     
     const provider = await ctx.db
       .query('providers')
-      .withIndex('byUserId', (q: any) => q.eq('userId', userId))
+      .withIndex('byUserId', (q: any) => q.eq('userId', identity.subject))
       .first();
     
     if (!provider) {
@@ -61,8 +60,8 @@ export const createProvider = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
@@ -102,7 +101,7 @@ export const createProvider = mutation({
         tiktok: null,
       },
       isClaimed: true,
-      userId: userId,
+      userId: identity.subject,
     });
 
     return providerId;
@@ -124,8 +123,8 @@ export const updateProvider = mutation({
     })),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
@@ -134,7 +133,7 @@ export const updateProvider = mutation({
       throw new Error('Provider not found');
     }
 
-    if (provider.userId !== userId) {
+    if (provider.userId !== identity.subject) {
       throw new Error('Not authorized');
     }
 
@@ -165,8 +164,8 @@ export const deleteProvider = mutation({
     id: v.id('providers'),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
@@ -175,7 +174,7 @@ export const deleteProvider = mutation({
       throw new Error('Provider not found');
     }
 
-    if (provider.userId !== userId) {
+    if (provider.userId !== identity.subject) {
       throw new Error('Not authorized');
     }
 

@@ -1,9 +1,7 @@
 import { defineSchema, defineTable } from 'convex/server';
-import { authTables } from '@convex-dev/auth/server';
 import { v } from 'convex/values';
 
 const schema = defineSchema({
-  ...authTables,
   companies: defineTable({
     name: v.string(),
     description: v.optional(v.string()),
@@ -20,7 +18,7 @@ const schema = defineSchema({
     isActive: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
-    createdBy: v.id('users'), // Admin who created the company
+    createdBy: v.string(), // Clerk user ID who created the company
   }).index('byName', ['name'])
     .index('byCreatedBy', ['createdBy']),
   providers: defineTable({
@@ -62,7 +60,7 @@ const schema = defineSchema({
     licenseNumber: v.optional(v.string()),
     emergencyService: v.optional(v.boolean()),
     freeEstimates: v.optional(v.boolean()),
-    userId: v.optional(v.id('users')),
+    userId: v.optional(v.string()), // Clerk user ID
     companyId: v.optional(v.id('companies')), // Link to company
     isActive: v.optional(v.boolean()),
     role: v.optional(v.string()), // 'owner', 'manager', 'employee'
@@ -75,7 +73,7 @@ const schema = defineSchema({
     role: v.string(), // 'super_admin', 'admin', etc.
     createdAt: v.number(),
     updatedAt: v.number(),
-    userId: v.string(), // This will be linked to the auth user
+    userId: v.string(), // Clerk user ID
   }).index('byEmail', ['email'])
     .index('byUserId', ['userId']),
   reviews: defineTable({
@@ -84,7 +82,7 @@ const schema = defineSchema({
     comment: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
-    userId: v.string(), // This will be linked to the auth user
+    userId: v.string(), // Clerk user ID
   }).index('byProvider', ['providerId'])
     .index('byUser', ['userId']),
   contacts: defineTable({
@@ -96,7 +94,7 @@ const schema = defineSchema({
     status: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
-    userId: v.string(), // This will be linked to the auth user
+    userId: v.string(), // Clerk user ID
   }).index('byProvider', ['providerId'])
     .index('byUser', ['userId']),
 });

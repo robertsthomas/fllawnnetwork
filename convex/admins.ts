@@ -1,6 +1,5 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
-import { getAuthUserId } from '@convex-dev/auth/server';
 import { Id } from './_generated/dataModel';
 
 export const getCurrentAdmin = query({
@@ -16,16 +15,25 @@ export const getCurrentAdmin = query({
     _creationTime: v.number(),
   }), v.null()),
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       return null;
     }
     
     const admin = await ctx.db
       .query('admins')
-      .withIndex('byUserId', (q: any) => q.eq('userId', userId))
+      .withIndex('byUserId', (q: any) => q.eq('userId', identity.subject))
       .first();
     return admin;
+  },
+});
+
+export const hasAnyAdmins = query({
+  args: {},
+  returns: v.boolean(),
+  handler: async (ctx) => {
+    const firstAdmin = await ctx.db.query('admins').first();
+    return firstAdmin !== null;
   },
 });
 
@@ -94,15 +102,15 @@ export const createAdminFromAuth = mutation({
   },
   returns: v.union(v.id('admins'), v.null()),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
     // Check if admin already exists
     const existingAdmin = await ctx.db
       .query('admins')
-      .withIndex('byUserId', (q: any) => q.eq('userId', userId))
+      .withIndex('byUserId', (q: any) => q.eq('userId', identity.subject))
       .first();
 
     if (existingAdmin) {
@@ -116,7 +124,7 @@ export const createAdminFromAuth = mutation({
       role: args.role || 'admin',
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      userId: userId,
+      userId: identity.subject,
     });
 
     return adminId;

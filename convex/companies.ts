@@ -1,6 +1,5 @@
 import { v } from 'convex/values';
 import { mutation, query } from './_generated/server';
-import { getAuthUserId } from '@convex-dev/auth/server';
 
 // Check if user is an admin
 async function isAdmin(ctx: any, userId: string) {
@@ -30,16 +29,16 @@ export const getAllCompanies = query({
     isActive: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
-    createdBy: v.id('users'),
+    createdBy: v.string(),
     _creationTime: v.number(),
   })),
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
-    if (!(await isAdmin(ctx, userId))) {
+    if (!(await isAdmin(ctx, identity.subject))) {
       throw new Error('Admin access required');
     }
 
@@ -66,16 +65,16 @@ export const getCompanyById = query({
     isActive: v.boolean(),
     createdAt: v.number(),
     updatedAt: v.number(),
-    createdBy: v.id('users'),
+    createdBy: v.string(),
     _creationTime: v.number(),
   }), v.null()),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
-    if (!(await isAdmin(ctx, userId))) {
+    if (!(await isAdmin(ctx, identity.subject))) {
       throw new Error('Admin access required');
     }
 
@@ -100,12 +99,12 @@ export const createCompany = mutation({
   },
   returns: v.id('companies'),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
-    if (!(await isAdmin(ctx, userId))) {
+    if (!(await isAdmin(ctx, identity.subject))) {
       throw new Error('Admin access required');
     }
 
@@ -131,7 +130,7 @@ export const createCompany = mutation({
       isActive: true,
       createdAt: now,
       updatedAt: now,
-      createdBy: userId,
+      createdBy: identity.subject,
     });
   },
 });
@@ -155,12 +154,12 @@ export const updateCompany = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
-    if (!(await isAdmin(ctx, userId))) {
+    if (!(await isAdmin(ctx, identity.subject))) {
       throw new Error('Admin access required');
     }
 
@@ -181,12 +180,12 @@ export const deleteCompany = mutation({
   args: { id: v.id('companies') },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
-    if (!(await isAdmin(ctx, userId))) {
+    if (!(await isAdmin(ctx, identity.subject))) {
       throw new Error('Admin access required');
     }
 
@@ -219,16 +218,16 @@ export const getCompanyProviders = query({
     phone: v.union(v.string(), v.null()),
     role: v.optional(v.string()),
     isActive: v.optional(v.boolean()),
-    userId: v.optional(v.id('users')),
+    userId: v.optional(v.string()),
     _creationTime: v.number(),
   })),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
-    if (!(await isAdmin(ctx, userId))) {
+    if (!(await isAdmin(ctx, identity.subject))) {
       throw new Error('Admin access required');
     }
 
@@ -247,12 +246,12 @@ export const assignProviderToCompany = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
-    if (!(await isAdmin(ctx, userId))) {
+    if (!(await isAdmin(ctx, identity.subject))) {
       throw new Error('Admin access required');
     }
 
@@ -279,12 +278,12 @@ export const removeProviderFromCompany = mutation({
   args: { providerId: v.id('providers') },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
       throw new Error('Not authenticated');
     }
 
-    if (!(await isAdmin(ctx, userId))) {
+    if (!(await isAdmin(ctx, identity.subject))) {
       throw new Error('Admin access required');
     }
 
