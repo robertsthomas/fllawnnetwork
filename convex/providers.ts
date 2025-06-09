@@ -32,6 +32,7 @@ export const create = mutation({
       phone: v.union(v.string(), v.null()),
       featured: v.boolean(),
       categories: v.array(v.string()),
+      specialties: v.array(v.string()),
       totalScore: v.number(),
       reviewsCount: v.number(),
       reviewsLink: v.union(v.string(), v.null()),
@@ -47,6 +48,7 @@ export const create = mutation({
       }),
       email: v.union(v.string(), v.null()),
       isClaimed: v.boolean(),
+      isActive: v.boolean(),
     }),
   },
   handler: async (ctx, args) => {

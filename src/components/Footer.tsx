@@ -15,8 +15,8 @@ export default function Footer() {
               <Image
                 src="/logo.png"
                 alt="Florida Lawn Network Logo"
-                width={40}
-                height={40}
+                width={32}
+                height={32}
                 className="h-8 w-8"
                 priority
               />

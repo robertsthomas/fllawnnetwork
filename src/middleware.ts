@@ -1,31 +1,37 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-export function middleware(request: NextRequest) {
-  const url = request.nextUrl.clone();
-  
-  // // Only apply HTTPS and www redirects in production
-  // if (process.env.NODE_ENV === 'production') {
-  //   // Handle www to non-www and http to https redirects
-  //   if (url.hostname.startsWith('www.') || url.protocol === 'http:') {
-  //     url.hostname = url.hostname.replace(/^www\./, '');
-  //     url.protocol = 'https:';
-  //     return NextResponse.redirect(url, {
-  //       status: 301, // Permanent redirect
-  //     });
-  //   }
-  // }
+// Define public routes that don't require authentication
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/lawn-care(.*)',
+  '/providers(.*)',
+  '/services(.*)',
+  '/blog(.*)',
+  '/about',
+  '/contact',
+  '/terms',
+  '/privacy',
+  '/cookies',
+  '/api/providers(.*)',
+  '/api/contact(.*)',
+  '/api/claim-business',
+  '/admin/setup', // Allow access to initial admin setup
+  '/admin/login(.*)', // Allow access to admin login page
+  '/admin/signout', // Allow access to admin signout page
+]);
 
-  // // Remove trailing slash except for root path
-  // if (url.pathname !== '/' && url.pathname.endsWith('/')) {
-  //   url.pathname = url.pathname.slice(0, -1);
-  //   return NextResponse.redirect(url, {
-  //     status: 301, // Permanent redirect
-  //   });
-  // }
+// Define admin routes that require admin authentication
+const isAdminRoute = createRouteMatcher(['/admin(.*)']);
 
-  return NextResponse.next();
-}
+export default clerkMiddleware(async (auth, req) => {
+  // First check if it's a public route - if so, don't protect it
+  if (isPublicRoute(req)) {
+    return;
+  }
+
+  // All other routes require authentication
+  await auth.protect();
+});
 
 export const config = {
   matcher: [
@@ -35,8 +41,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
+     * - images (static images from public/images)
+     * - static files from public directory (logo.png, ads.txt, etc.)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|images|logo.png|ads.txt|favicon.svg).*)',
   ],
 }; 
