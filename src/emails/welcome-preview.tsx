@@ -32,7 +32,7 @@ export const WelcomeEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Img
-          src={`${baseUrl}/images/logo.svg`}
+          src={`${baseUrl}/logo.png`}
           width="115"
           height="48"
           alt="Lawn Care Directory Logo"

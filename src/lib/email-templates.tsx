@@ -32,7 +32,7 @@ export function WelcomeEmail({ name, email }: WelcomeEmailProps) {
       <Body style={main}>
         <Container style={container}>
           <Img
-            src={`${baseUrl}/images/logo.svg`}
+            src={`${baseUrl}/logo.png`}
             width="115"
             height="48"
             alt="Lawn Care Directory Logo"
@@ -93,7 +93,7 @@ export function ProviderConfirmationEmail({
       <Body style={main}>
         <Container style={container}>
           <Img
-            src={`${baseUrl}/images/logo.svg`}
+            src={`${baseUrl}/logo.png`}
             width="115"
             height="48"
             alt="Lawn Care Directory Logo"
@@ -158,7 +158,7 @@ export function QuoteRequestEmail({
       <Body style={main}>
         <Container style={container}>
           <Img
-            src={`${baseUrl}/images/logo.svg`}
+            src={`${baseUrl}/logo.png`}
             width="115"
             height="48"
             alt="Lawn Care Directory Logo"
@@ -233,7 +233,7 @@ export function BusinessClaimEmail({
       <Body style={main}>
         <Container style={container}>
           <Img
-            src={`${baseUrl}/images/logo.svg`}
+            src={`${baseUrl}/logo.png`}
             width="115"
             height="48"
             alt="Lawn Care Directory Logo"
