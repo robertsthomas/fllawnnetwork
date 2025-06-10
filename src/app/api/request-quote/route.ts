@@ -2,11 +2,12 @@ import { NextRequest } from 'next/server';
 import { resend } from '~/lib/resend';
 import { sanitizeHTML, validateFormData } from '~/lib/validation';
 import { renderQuoteRequestEmail } from '~/lib/email-templates';
+import PostHogClient from '~/lib/posthog';
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
-    const { name, email, phone, message, providerId } = formData;
+    const { name, email, phone, message, providerId, service } = formData;
 
     // Validate form data
     const validation = validateFormData({
@@ -65,6 +66,21 @@ export async function POST(request: NextRequest) {
       console.error('Resend API error:', error);
       return Response.json({ error: error.message }, { status: 500 });
     }
+
+    // Track the quote request event in PostHog
+    const posthog = PostHogClient();
+    posthog.capture({
+      distinctId: email || 'anonymous',
+      event: 'provider_quote_request',
+      properties: {
+        provider_id: providerId,
+        request_type: 'email',
+        service_requested: service || 'general',
+        timestamp: new Date().toISOString(),
+        source: 'api_route',
+        email_sent: true
+      },
+    });
 
     return Response.json({ success: true, data });
   } catch (error) {

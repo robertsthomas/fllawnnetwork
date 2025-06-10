@@ -42,8 +42,30 @@ export function useTracking() {
     });
   };
 
+  const trackQuoteRequest = (
+    providerId: string,
+    providerName: string,
+    requestType: string,
+    additionalProps?: Record<string, any>
+  ) => {
+    posthog?.capture('provider_quote_request', {
+      provider_id: providerId,
+      provider_name: providerName,
+      request_type: requestType, // 'email', 'form', 'phone'
+      service_requested: additionalProps?.service,
+      timestamp: new Date().toISOString(),
+      provider_rating: additionalProps?.rating,
+      provider_review_count: additionalProps?.reviewCount,
+      provider_categories: additionalProps?.categories,
+      provider_location: additionalProps?.location,
+      user_location: additionalProps?.userLocation,
+      ...additionalProps,
+    });
+  };
+
   return {
     trackProviderProfileClick,
     trackProviderContact,
+    trackQuoteRequest,
   };
 }

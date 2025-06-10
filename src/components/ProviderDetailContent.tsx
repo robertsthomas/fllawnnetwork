@@ -69,7 +69,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function ProviderDetailContent({ id }: ProviderDetailContentProps) {
-  const { trackProviderProfileClick, trackProviderContact } = useTracking();
+  const { trackProviderProfileClick, trackProviderContact, trackQuoteRequest } = useTracking();
   const provider = useQuery(api.providers.getProviderById, { id });
   const { location } = useLocation();
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
@@ -113,6 +113,24 @@ export default function ProviderDetailContent({ id }: ProviderDetailContentProps
         setFormStatus('success');
         form.reset();
         handleContactClick('form');
+        
+        // Track the quote request event
+        if (provider) {
+          trackQuoteRequest(
+            provider._id.toString(),
+            provider.title || 'Unknown Provider',
+            'email',
+            {
+              service: value.service || 'general',
+              rating: provider.totalScore,
+              reviewCount: provider.reviewsCount,
+              categories: provider.categories,
+              location: formatAddress(),
+              userLocation: location ? `${location.city}, ${location.state}` : undefined,
+              source: 'provider_page'
+            }
+          );
+        }
       } catch (error) {
         console.error('Error sending form:', error);
         setFormStatus('error');
