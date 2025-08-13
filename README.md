@@ -1,3 +1,7 @@
+## Live Site
+
+https://fllawnnetwork.vercel.app/
+
 # Lawn Care Directory - Next.js 15 with App Router
 
 A modern web application for finding and connecting with lawn care professionals in your area, built with Next.js 15, TypeScript, and TanStack Query.
@@ -23,10 +27,10 @@ A modern web application for finding and connecting with lawn care professionals
 1. Create a `.env.local` file in the root directory with:
 
 ```
-NEXT_PUBLIC_APIFY_API_URL=https://api.apify.com/v2/datasets/nm5boC2OslxFiqviz/items
-NEXT_PUBLIC_APIFY_TOKEN=apify_api_aQauQuejAZFJwr67pOdSqksLfA9XQ44xbH3r
+NEXT_PUBLIC_APIFY_API_URL=
+NEXT_PUBLIC_APIFY_TOKEN=
 NEXT_PUBLIC_POSTHOG_KEY=your_posthog_key
-NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+NEXT_PUBLIC_POSTHOG_HOST=
 ```
 
 ### Installation
